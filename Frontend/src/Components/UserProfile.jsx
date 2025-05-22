@@ -31,7 +31,7 @@ function UserProfile() {
   const [successMessage, setSuccessMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const user = useStore((state) => state.user);
-  const setUser = useStore((state) => state.setUser);
+  const { setUser } = useStore.getState();
   const navigate = useNavigate();
 
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -70,7 +70,7 @@ function UserProfile() {
     });
     setUser(null);
     localStorage.removeItem('token');
-    navigate('/');
+    navigate('/auth', { replace: true });
   };
 
   const handleChangePassword = async () => {

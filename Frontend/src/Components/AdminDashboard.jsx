@@ -34,7 +34,7 @@ function AdminDashboard() {
     }
     if (!user) return; // Wait for user initialization
     if (user.role !== 'admin') {
-      navigate(user.role === 'user' ? '/dashboard' : '/member/dashboard');
+      navigate(user.role === 'user' ? '/dashboard' : '/dashboard');
       return;
     }
 

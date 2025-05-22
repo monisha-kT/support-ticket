@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { CircularProgress, Box } from '@mui/material';
 
@@ -7,18 +7,37 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
   const { user, initializeUser } = useStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
-      if (token && !user) {
-        const userData = await initializeUser();
-        setIsAuthenticated(userData && allowedRoles.includes(userData.role));
-      } else {
-        setIsAuthenticated(user && allowedRoles.includes(user.role));
+      if (!token) {
+        setIsAuthenticated(false);
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
+
+      try {
+        // If we have token but no user, initialize
+        if (!user) {
+          const { user: userData } = await initializeUser();
+          if (userData && allowedRoles.includes(userData.role)) {
+            setIsAuthenticated(true);
+          } else {
+            setIsAuthenticated(false);
+          }
+        } else {
+          setIsAuthenticated(allowedRoles.includes(user.role));
+        }
+      } catch (err) {
+        console.error('Auth error:', err);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
     };
+
     checkAuth();
   }, [user, initializeUser, allowedRoles]);
 
@@ -30,7 +49,11 @@ const ProtectedRoute = ({ element, allowedRoles }) => {
     );
   }
 
-  return isAuthenticated ? element : <Navigate to="/auth" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" state={{ from: location }} replace />;
+  }
+
+  return element;
 };
 
 export default ProtectedRoute;

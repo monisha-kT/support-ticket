@@ -5,9 +5,9 @@ const getDashboardRoute = (role) => {
     case 'user':
       return '/dashboard';
     case 'member':
-      return '/member/dashboard';
+      return '/dashboard';
     case 'admin':
-      return '/admin/dashboard';
+      return '/dashboard';
     default:
       return '/auth';
   }

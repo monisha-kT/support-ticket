@@ -52,7 +52,7 @@ function UserDashboard() {
     }
 
     if (user?.role !== 'user') {
-      navigate('/member/dashboard');
+      navigate('/dashboard');
       return;
     }
 
@@ -258,11 +258,10 @@ function UserDashboard() {
             display: 'flex',
             flexDirection: 'column',
             gap: 3,
-            fontFamily:'times new roman',
           }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold',fontFamily:'times new roman' }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
               My Support Tickets
             </Typography>
             <Button
@@ -271,10 +270,8 @@ function UserDashboard() {
               onClick={() => setDialogOpen(true)}
               sx={{
                 bgcolor: '#128C7E',
-                fontFamily:'times new roman',
                 '&:hover': {
                   bgcolor: '#075E54',
-                  
                 },
               }}
             >
@@ -293,7 +290,6 @@ function UserDashboard() {
                     height: 200,
                     display: 'flex',
                     flexDirection: 'column',
-                    fontFamily:'times new roman',
                     gap: 1,
                     position: 'relative',
                     '&:hover': {
@@ -303,21 +299,21 @@ function UserDashboard() {
                 >
                   <Typography
                     variant="h6"
-                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' ,fontFamily:'times new roman',}}
+                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
-                    Ticket {ticket.id}
+                    Ticket #{ticket.id}
                   </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' ,fontFamily:'times new roman'}}
+                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
                     Category: {ticket.category}
                   </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',fontFamily:'times new roman' }}
+                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
                     Urgency: {ticket.urgency}
                   </Typography>
@@ -329,7 +325,6 @@ function UserDashboard() {
                       display: 'inline-block',
                       width: 'fit-content',
                       color: 'white',
-                      fontFamily:'times new roman',
                       bgcolor:
                         ticket.status === 'open'
                           ? '#ff9800'
@@ -354,7 +349,6 @@ function UserDashboard() {
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        fontFamily:'times new roman'
                       }}
                     >
                       <strong>Closure Reason:</strong> {ticket.closure_reason}
@@ -364,7 +358,7 @@ function UserDashboard() {
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',fontFamily:'times new roman' }}
+                      sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                     >
                       <strong>Reassigned To:</strong> Member ID {ticket.reassigned_to}
                     </Typography>
@@ -373,7 +367,7 @@ function UserDashboard() {
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',fontFamily:'times new roman' }}
+                      sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                     >
                       <strong>Status:</strong> Active
                     </Typography>
@@ -389,7 +383,6 @@ function UserDashboard() {
                           bgcolor: 'rgba(18, 140, 126, 0.08)',
                         },
                         whiteSpace: 'nowrap',
-                        fontFamily:'times new roman',
                       }}
                     >
                       Chat with Support
@@ -412,53 +405,150 @@ function UserDashboard() {
           setSelectedTicket(null);
         }}
         aria-labelledby="chat-modal"
-        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflowY: 'auto',
+          p: { xs: 1, md: 3 }, // Adjust padding based on screen size
+        }}
       >
-        <Paper sx={{ width: '90%', height: '90vh', maxWidth: 1200, p: 3, position: 'relative', overflow: 'hidden' }}>
+        <Paper
+        sx={{p : 2}}
+          // sx={{
+          //   width: { xs: '100%', sm: '90%', md: '80%' }, // Responsive width
+          //   height: { xs: '90vh', sm: '80vh' }, // Responsive height
+          //   maxWidth: 1200,
+          //   p: { xs: 2, md: 3 }, // Responsive padding
+          //   position: 'relative',
+          //   overflow: 'hidden',
+          //   display: 'flex',
+          //   flexDirection: 'column',
+          // }}
+          
+        >
           {selectedTicket && (
-            <Grid container spacing={2} sx={{ height: '100%' }}>
-              <Grid item xs={4}>
-                <Paper elevation={2} sx={{ p: 2, height: '100%', overflow: 'auto' }}>
+            <Grid 
+              container
+              spacing={2}
+              sx={{
+                // flex: 1,
+                flexDirection: { xs: 'column', md: 'row' }, // Stack on small screens, row on medium and up
+                height: '100%',
+              }}
+            >
+              <Grid
+                item
+                xs={12}
+                md={3} // Reduced to 3/12 on large screens to give more space to Chat Window
+                sx={{
+                  height: { xs: 'auto', md: '100%' }, // Auto height on small screens for better stacking
+                  maxHeight: { xs: 'auto', md: 'none' }, // Limit height on small screens
+                  overflowY: 'auto', // Scroll if content overflows
+                }}
+              >
+                <Paper
+                  elevation={2}
+                  sx={{
+                    p: 2,
+                    // height: '100%',
+                    // overflowX: 'auto',
+                    // borderRadius: 2,
+
+                  }}
+                >
                   <Typography variant="h6" gutterBottom>
                     Ticket Details
                   </Typography>
                   <Divider sx={{ my: 2 }} />
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Typography><strong>Ticket ID:</strong> #{selectedTicket.id}</Typography>
-                    <Typography><strong>Created By:</strong> {selectedTicket.userName}</Typography>
-                    <Typography><strong>User Email:</strong> {selectedTicket.userEmail}</Typography>
-                    <Typography><strong>Category:</strong> {selectedTicket.category}</Typography>
-                    <Typography><strong>Urgency:</strong> {selectedTicket.urgency}</Typography>
-                    <Typography><strong>Status:</strong> {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}</Typography>
-                    <Typography><strong>Created:</strong> {new Date(selectedTicket.created_at).toLocaleString()}</Typography>
-                    <Typography><strong>Description:</strong></Typography>
+                    <Typography>
+                      <strong>Ticket ID:</strong> #{selectedTicket.id}
+                    </Typography>
+                    <Typography>
+                      <strong>User Email:</strong> {selectedTicket.userEmail}
+                    </Typography>
+                    <Typography>
+                      <strong>Category:</strong> {selectedTicket.category}
+                    </Typography>
+                    <Typography>
+                      <strong>Urgency:</strong> {selectedTicket.urgency}
+                    </Typography>
+                    <Typography>
+                      <strong>Status:</strong>{' '}
+                      {selectedTicket.status.charAt(0).toUpperCase() +
+                        selectedTicket.status.slice(1)}
+                    </Typography>
+                    <Typography>
+                      <strong>Created:</strong>{' '}
+                      {new Date(selectedTicket.created_at).toLocaleString()}
+                    </Typography>
+                    <Typography>
+                      <strong>Description:</strong>
+                    </Typography>
                     <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f5f5f5' }}>
                       {selectedTicket.description}
                     </Paper>
-                    {selectedTicket.status === 'closed' && selectedTicket.closure_reason && (
-                      <>
-                        <Typography><strong>Closure Reason:</strong></Typography>
-                        <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-                          {selectedTicket.closure_reason}
-                        </Paper>
-                        {selectedTicket.reassigned_to && (
-                          <Typography><strong>Reassigned To:</strong> Member ID {selectedTicket.reassigned_to}</Typography>
-                        )}
-                      </>
-                    )}
+                    {selectedTicket.status === 'closed' &&
+                      selectedTicket.closure_reason && (
+                        <>
+                          <Typography>
+                            <strong>Closure Reason:</strong>
+                          </Typography>
+                          <Paper
+                            variant="outlined"
+                            sx={{ p: 2, bgcolor: '#f5f5f5' }}
+                          >
+                            {selectedTicket.closure_reason}
+                          </Paper>
+                          {selectedTicket.reassigned_to && (
+                            <Typography>
+                              <strong>Reassigned To:</strong> Member ID{' '}
+                              {selectedTicket.reassigned_to}
+                            </Typography>
+                          )}
+                        </>
+                      )}
                   </Box>
                 </Paper>
               </Grid>
-              <Grid item xs={8}>
-                <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Grid
+                item
+                xs={12}
+                md={9} // Increased to 9/12 on large screens for more Chat Window space
+                sx={{
+                  height: { xs: 'auto', md: '100%' }, // Auto height on small screens for better stacking
+                  maxHeight: { xs: 'auto', md: 'none' }, // Limit height on small screens
+                }}
+              >
+                <Box
+                  sx={{
+                    height: '100%',
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                     mb:1,
+                      px: 2,
+                    }}
+                  >
                     <Typography variant="h6">Chat Window</Typography>
                     <Button
                       variant="outlined"
                       onClick={() => {
                         if (socketRef.current) {
                           socketRef.current.off('joined');
-                          socketRef.current.emit('leave', { ticket_id: selectedTicket.id });
+                          socketRef.current.emit('leave', {
+                            ticket_id: selectedTicket.id,
+                          });
                         }
                         setSelectedTicket(null);
                       }}
@@ -466,7 +556,7 @@ function UserDashboard() {
                       Close Chat
                     </Button>
                   </Box>
-                  <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                  <Box sx={{ flex: 1, overflowY: 'auto', px: 2 }}>
                     <ChatWindow
                       ticketId={selectedTicket.id}
                       initialMessages={selectedTicket.chatHistory || []}
@@ -475,8 +565,9 @@ function UserDashboard() {
                   </Box>
                 </Box>
               </Grid>
+              
             </Grid>
-          )}
+)}
         </Paper>
       </Modal>
 
