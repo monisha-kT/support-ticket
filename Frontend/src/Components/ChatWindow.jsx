@@ -240,7 +240,8 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
       bgcolor: '#f5f6f5', // Softer background
       borderRadius: 2,
       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      position:'sticky'
     }}>
       {!isConnected && (
         <Box sx={{ width: '100%' }}>
@@ -266,7 +267,8 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: 2
+        gap: 2,
+        
       }}>
         {Object.entries(groupedMessages).map(([date, dateMessages]) => (
           <React.Fragment key={date}>
