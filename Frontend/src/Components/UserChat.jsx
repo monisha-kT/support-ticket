@@ -35,7 +35,7 @@ function UserChat() {
     }
 
     if (user?.role !== 'user') {
-      navigate(user?.role === 'member' ? '/member/dashboard' : '/admin/dashboard');
+      navigate(user?.role === 'member' ? '/dashboard' : '/dashboard');
       return;
     }
 
@@ -219,10 +219,23 @@ function UserChat() {
     <>
       <Navbar />
       <Box sx={{ p: 4, mt: '64px', bgcolor: '#f0f2f5', minHeight: 'calc(100vh - 64px)' }}>
-        <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-          <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold' }}>
-            Chat for Ticket #{selectedTicketId}
-          </Typography>
+        <Box sx={{ width: '100%', maxWidth: '100%', mx: 'auto' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+              Chat for Ticket #{selectedTicketId}
+            </Typography>
+            <IconButton
+              aria-label="close chat"
+              onClick={() => {
+                window.history.back();
+              }}
+              size="large"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+            </IconButton>
+          </Box>
           {ticket && (
             <Paper sx={{ p: 2, mb: 2 }}>
               <Typography><strong>Status:</strong> {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}</Typography>

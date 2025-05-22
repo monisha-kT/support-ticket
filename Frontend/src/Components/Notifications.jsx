@@ -44,28 +44,7 @@ function Notifications() {
 
   if (!notification) return null;
 
-  return (
-    <Snackbar
-      open={open}
-      autoHideDuration={6000}
-      onClose={handleClose}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-    >
-      <Alert
-        onClose={handleClose}
-        severity={notification.type}
-        variant="filled"
-        sx={{ 
-          width: '100%',
-          '& .MuiAlert-message': {
-            fontSize: '0.9rem'
-          }
-        }}
-      >
-        {notification.message}
-      </Alert>
-    </Snackbar>
-  );
+  
 }
 
 export default Notifications;
