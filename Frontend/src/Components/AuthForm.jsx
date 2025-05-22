@@ -134,7 +134,6 @@ function AuthForm() {
   const navigate = useNavigate();
   const { setUser } = useStore.getState();
 
-  // const [token, setToken] = useState(localStorage.getItem('token') || '');
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
   const showSnackbar = (message, severity = "success") =>

@@ -1280,13 +1280,22 @@ function MemberDashboard() {
             setErrors(prev => prev.filter(e => e !== 'Could not find ticket details'));
           }}
           aria-labelledby="chat-modal"
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          sx={{ display: 'flex',
+             alignItems: 'center', 
+             justifyContent: 'center',
+            overflow: 'auto',
+             p: { xs: 6, md: 3 },
+           }}
         >
-          <Paper sx={{ width: '90%', height: '90vh', maxWidth: 1200, p: 3, position: 'relative', overflow: 'hidden' }}>
+          <Paper sx={{ p:2, 
+          height: '80%',
+          overflowX:'auto',
+          width: { xs: '90%', sm: '90%', md: '80%' } ,
+          height: { xs: '90vh', sm: '90vh' }}}>
             {selectedTicket && (
-              <Grid container spacing={2} sx={{ height: '100%' }}>
+              <Grid container spacing={2} sx={{ height: '80%' }}>
                 <Grid item xs={4}>
-                  <Paper elevation={2} sx={{ p: 2, height: '100%', overflow: 'auto' }}>
+                  <Paper elevation={2} sx={{ml:3, p: 2, overflowX: 'auto' ,width: 400, height: 500 }}>
                     <Typography variant="h6" gutterBottom>Ticket Details</Typography>
                     <Divider sx={{ my: 2 }} />
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -1304,7 +1313,7 @@ function MemberDashboard() {
                       {selectedTicket.status === 'closed' && selectedTicket.closure_reason && (
                         <>
                           <Typography><strong>Closure Reason:</strong></Typography>
-                          <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+                          <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f5f5f5', }}>
                             {selectedTicket.closure_reason}
                           </Paper>
                           {selectedTicket.reassigned_to && (
@@ -1316,7 +1325,7 @@ function MemberDashboard() {
                   </Paper>
                 </Grid>
                 <Grid item xs={8}>
-                  <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' ,ml:3,width:450}}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                       <Typography variant="h6">Chat Window</Typography>
                       <Button
@@ -1332,7 +1341,7 @@ function MemberDashboard() {
                         Close Chat
                       </Button>
                     </Box>
-                    <Box sx={{ flexGrow: 1 }}>
+                    <Box sx={{ flexGrow: 1}}>
                       <ChatWindow
                         ticketId={selectedTicket.id}
                         initialMessages={selectedTicket.chatHistory || []}

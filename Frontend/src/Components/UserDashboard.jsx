@@ -409,15 +409,16 @@ function UserDashboard() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          overflowY: 'auto',
+          overflow: 'auto',
           p: { xs: 1, md: 3 }, // Adjust padding based on screen size
         }}
       >
         <Paper
-        sx={{p : 2}}
+        sx={{p : 2,width: { xs: '100%', sm: '80%', md: '80%' }, // Responsive width
+            height: { xs: '90vh', sm: '80vh' },p: { xs: 2, md: 3 },  }}
           // sx={{
-          //   width: { xs: '100%', sm: '90%', md: '80%' }, // Responsive width
-          //   height: { xs: '90vh', sm: '80vh' }, // Responsive height
+          //  width: { xs: '100%', sm: '90%', md: '80%' }, // Responsive width
+           // height: { xs: '90vh', sm: '80vh' } // Responsive height
           //   maxWidth: 1200,
           //   p: { xs: 2, md: 3 }, // Responsive padding
           //   position: 'relative',
@@ -428,13 +429,15 @@ function UserDashboard() {
           
         >
           {selectedTicket && (
+            console.log(selectedTicket),
             <Grid 
               container
               spacing={2}
               sx={{
                 // flex: 1,
-                flexDirection: { xs: 'column', md: 'row' }, // Stack on small screens, row on medium and up
-                height: '100%',
+                // flexDirection: { xs: 'column', md: 'row' }, // Stack on small screens, row on medium and up
+                // height: '100%',
+                
               }}
             >
               <Grid
@@ -454,6 +457,7 @@ function UserDashboard() {
                     // height: '100%',
                     // overflowX: 'auto',
                     // borderRadius: 2,
+                    
 
                   }}
                 >
@@ -556,7 +560,7 @@ function UserDashboard() {
                       Close Chat
                     </Button>
                   </Box>
-                  <Box sx={{ flex: 1, overflowY: 'auto', px: 2 }}>
+                  <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 2 }}>
                     <ChatWindow
                       ticketId={selectedTicket.id}
                       initialMessages={selectedTicket.chatHistory || []}
