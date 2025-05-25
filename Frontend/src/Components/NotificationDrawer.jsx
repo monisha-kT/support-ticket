@@ -20,12 +20,40 @@ import { getSocket } from './socket';
 
 function NotificationDrawer({ open, onClose }) {
   const [tickets, setTickets] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (open) {
       fetchOpenTickets();
+    }
+
+    const socket = getSocket();
+    if (socket) {
+      socket.on('ticket_reassigned', ({ ticket_id, reassigned_to }) => {
+        const token = localStorage.getItem('token');
+        fetch(`http://localhost:5000/api/users/me`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        })
+          .then(res => res.json())
+          .then(userData => {
+            if (userData.id === reassigned_to) {
+              setNotifications(prev => [
+                ...prev,
+                {
+                  type: 'info',
+                  message: `Ticket #${ticket_id} has been reassigned to you.`
+                }
+              ]);
+            }
+          })
+          .catch(err => console.error('Error fetching user:', err));
+      });
+
+      return () => {
+        socket.off('ticket_reassigned');
+      };
     }
   }, [open]);
 
@@ -37,11 +65,10 @@ function NotificationDrawer({ open, onClose }) {
           'Authorization': `Bearer ${token}`,
         },
       });
-      
+
       if (!res.ok) throw new Error('Failed to fetch tickets');
-      
+
       const data = await res.json();
-      // Filter only open tickets
       const openTickets = data.filter(ticket => ticket.status === 'open');
       setTickets(openTickets);
     } catch (err) {
@@ -62,9 +89,9 @@ function NotificationDrawer({ open, onClose }) {
       });
 
       if (!res.ok) throw new Error('Failed to accept ticket');
-      
+
       await fetchOpenTickets();
-      onClose(); // Close drawer after accepting
+      onClose();
     } catch (err) {
       setError(err.message);
     }
@@ -81,7 +108,7 @@ function NotificationDrawer({ open, onClose }) {
       });
 
       if (!res.ok) throw new Error('Failed to reject ticket');
-      
+
       await fetchOpenTickets();
     } catch (err) {
       setError(err.message);
@@ -99,12 +126,23 @@ function NotificationDrawer({ open, onClose }) {
     >
       <Box sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">New Tickets</Typography>
+          <Typography variant="h6">Notifications</Typography>
           <IconButton onClick={onClose}>
             <CloseIcon />
           </IconButton>
         </Box>
 
+        {notifications.length > 0 && (
+          <Box sx={{ mb: 2 }}>
+            {notifications.map((notification, index) => (
+              <Alert key={index} severity={notification.type} sx={{ mb: 1 }}>
+                {notification.message}
+              </Alert>
+            ))}
+          </Box>
+        )}
+
+        <Typography variant="subtitle1" sx={{ mb: 1 }}>New Tickets</Typography>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />

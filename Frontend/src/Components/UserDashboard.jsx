@@ -303,6 +303,9 @@ function UserDashboard() {
                   >
                     Ticket #{ticket.id}
                   </Typography>
+                   <Typography variant="h6" noWrap>
+    {ticket.subject}
+  </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
@@ -472,6 +475,7 @@ function UserDashboard() {
                     <Typography>
                       <strong>User Email:</strong> {selectedTicket.userEmail}
                     </Typography>
+                    
                     <Typography>
                       <strong>Category:</strong> {selectedTicket.category}
                     </Typography>
@@ -584,6 +588,14 @@ function UserDashboard() {
         <DialogTitle>Create New Support Ticket</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+
+            <TextField
+              fullWidth
+              label="Subject"
+              value={newTicket.subject}
+              onChange={(e) => setNewTicket({ ...newTicket, subject: e.target.value })}
+              required
+            />
             <FormControl fullWidth>
               <InputLabel>Category</InputLabel>
               <Select
