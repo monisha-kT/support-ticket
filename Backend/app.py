@@ -32,7 +32,7 @@ jwt = JWTManager(app)
 
 # Configure CORS
 CORS(app, resources={
-    r"/*": {
+    r"/api/*": {
         "origins": "http://localhost:5173",
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
@@ -89,7 +89,7 @@ class ChatMessage(db.Model):
     __tablename__ = 'chat_messages'
     id = db.Column(db.Integer, primary_key=True)
     ticket_id = db.Column(db.Integer, db.ForeignKey('tickets.id'), nullable=False)
-    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Allow NULL for system messages
     message = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(IST))
     is_system = db.Column(db.Boolean, default=False)
@@ -97,6 +97,34 @@ class ChatMessage(db.Model):
 # Socket.IO Events
 @socketio.on('connect')
 def handle_connect():
+    try:
+        token = request.args.get('token')
+        if not token:
+            logger.warning("No token provided for socket connection")
+            emit('error', {'message': 'No token provided'})
+            return False
+
+        decoded = decode_token(token)
+        user_id = decoded['sub']
+        
+        active_connections[request.sid] = {
+            'user_id': user_id,
+            'rooms': {str(user_id)}
+        }
+        
+        join_room(str(user_id))
+        
+        logger.info(f"User {user_id} connected with sid {request.sid}")
+        emit('connect_success', {
+            'message': 'Connected successfully',
+            'user_id': user_id
+        })
+        return True
+    
+    except Exception as e:
+        logger.error(f"Connection error: {str(e)}")
+        emit('error', {'message': f'Invalid token: {str(e)}'})
+        return False
     try:
         token = request.args.get('token')
         if not token:
@@ -230,7 +258,7 @@ def handle_inactivity_timeout(data):
             system_message = ChatMessage(
                 ticket_id=ticket_id,
                 sender_id=None,
-                message=f"Ticket closed due to 2-minute inactivity",
+                message="Ticket closed due to 2-minute inactivity",
                 timestamp=datetime.now(IST),
                 is_system=True
             )
@@ -238,8 +266,7 @@ def handle_inactivity_timeout(data):
             db.session.commit()
             emit('chat_inactive', {
                 'ticket_id': ticket_id,
-                'reason': ticket.closure_reason,
-                'reassigned_to': None
+                'reason': ticket.closure_reason
             }, room=ticket_id)
     
     except Exception as e:
@@ -376,55 +403,6 @@ def get_users_bulk():
         logger.error(f"Error fetching users: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/tickets/<ticket_id>/reassign', methods=['PUT'])
-@jwt_required()
-def reassign_ticket(ticket_id):
-    try:
-        current_user_id = get_jwt_identity()
-        user = User.query.get(current_user_id)
-        
-        if not user or user.role != 'admin':
-            return jsonify({'error': 'Unauthorized medicament'}),
-        ticket = Ticket.query.get_or_404(ticket_id)
-        if ticket.status not in ['open', 'assigned']:
-            return jsonify({'error': 'Cannot reassign closed or rejected ticket'}), 400
-
-        data = request.get_json()
-        reassign_to = data.get('reassign_to')
-        if not reassign_to:
-            return jsonify({'error': 'Reassignment member ID is required'}), 400
-
-        reassign_user = User.query.get(reassign_to)
-        if not reassign_user or reassign_user.role != 'member':
-            return jsonify({'error': 'Invalid reassignment member'}), 400
-
-        ticket.assigned_to = reassign_to
-        ticket.status = 'assigned'
-        ticket.last_message_at = datetime.now(IST)
-        system_message = ChatMessage(
-            ticket_id=ticket_id,
-            sender_id=None,
-            message=f"Ticket reassigned to member ID {reassign_to}",
-            timestamp=datetime.now(IST),
-            is_system=True
-        )
-        db.session.add(system_message)
-        db.session.commit()
-
-        socketio.emit('ticket_reassigned', {
-            'ticket_id': ticket_id,
-            'category': ticket.category,
-            'urgency': ticket.urgency,
-            'description': ticket.description,
-            'user_id': ticket.user_id
-        }, room=str(reassign_to))
-
-        return jsonify({'message': 'Ticket reassigned successfully'}), 200
-    except Exception as e:
-        logger.error(f"Error reassigning ticket: {str(e)}")
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
 @app.route('/api/users/members', methods=['GET'])
 @jwt_required()
 def get_members():
@@ -438,7 +416,9 @@ def get_members():
         return jsonify([
             {
                 'id': member.id,
-                'name': f'{member.first_name} {member.last_name}'
+                'name': f'{member.first_name} {member.last_name}',
+                'first_name': member.first_name,
+                'last_name': member.last_name
             } for member in members
         ]), 200
     except Exception as e:
@@ -581,7 +561,7 @@ def accept_ticket(ticket_id):
         welcome_msg = ChatMessage(
             ticket_id=ticket_id,
             sender_id=current_user_id,
-            message=f"Hello! I'll be assisting you with your ticket.",
+            message="Hello! I'll be assisting you with your ticket.",
             timestamp=datetime.now(IST)
         )
         db.session.add(welcome_msg)
@@ -628,6 +608,63 @@ def reject_ticket(ticket_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/tickets/<ticket_id>/reassign', methods=['PUT'])
+@jwt_required()
+def reassign_ticket(ticket_id):
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        
+        if not user or user.role != 'admin':
+            return jsonify({'error': 'Unauthorized'}), 403
+
+        ticket = Ticket.query.get_or_404(ticket_id)
+        if ticket.status not in ['open', 'assigned']:
+            return jsonify({'error': 'Cannot reassign closed or rejected ticket'}), 400
+
+        data = request.get_json()
+        reassign_to = data.get('reassign_to')
+        if not reassign_to:
+            return jsonify({'error': 'Reassignment member ID is required'}), 400
+
+        reassign_user = User.query.get(reassign_to)
+        if not reassign_user or reassign_user.role != 'member':
+            return jsonify({'error': 'Invalid reassignment member'}), 400
+
+        ticket.assigned_to = reassign_to
+        ticket.status = 'assigned'
+        ticket.reassigned_to = None  # Clear reassigned_to field
+        ticket.last_message_at = datetime.now(IST)
+        system_message = ChatMessage(
+            ticket_id=ticket_id,
+            sender_id=None,
+            message=f"Ticket reassigned to {reassign_user.first_name} {reassign_user.last_name}",
+            timestamp=datetime.now(IST),
+            is_system=True
+        )
+        db.session.add(system_message)
+        db.session.commit()
+
+        socketio.emit('ticket_reassigned', {
+            'ticket_id': ticket_id,
+            'category': ticket.category,
+            'urgency': ticket.urgency,
+            'description': ticket.description,
+            'user_id': ticket.user_id,
+            'reassigned_to': reassign_to
+        }, room=f"user_{reassign_to}")
+
+        socketio.emit('ticket_updated', {
+            'ticket_id': ticket_id,
+            'status': 'assigned'
+        }, room=ticket_id)
+
+        return jsonify({'message': 'Ticket reassigned successfully'}), 200
+    except Exception as e:
+        logger.error(f"Error reassigning ticket: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/tickets/<ticket_id>/close', methods=['PUT'])
 @jwt_required()
 def close_ticket(ticket_id):
@@ -647,24 +684,19 @@ def close_ticket(ticket_id):
 
         data = request.get_json()
         reason = data.get('reason')
-        reassign_to = data.get('reassign_to')
 
         if not reason:
             return jsonify({'error': 'Closure reason is required'}), 400
 
-        if reassign_to:
-            reassign_user = User.query.get(reassign_to)
-            if not reassign_user or reassign_user.role != 'member':
-                return jsonify({'error': 'Invalid reassignment member'}), 400
-
         ticket.status = 'closed'
         ticket.closure_reason = reason
-        ticket.reassigned_to = reassign_to if reassign_to else None
+        ticket.reassigned_to = None
         ticket.last_message_at = datetime.now(IST)
+
         system_message = ChatMessage(
             ticket_id=ticket_id,
             sender_id=None,
-            message=f"Ticket closed. Reason: {reason}{f'. Reassigned to member ID {reassign_to}' if reassign_to else ''}",
+            message=f"Ticket closed. Reason: {reason}",
             timestamp=datetime.now(IST),
             is_system=True
         )
@@ -673,62 +705,11 @@ def close_ticket(ticket_id):
 
         socketio.emit('ticket_closed', {
             'ticket_id': ticket_id,
-            'reason': reason,
-            'reassigned_to': reassign_to
+            'reason': reason
         }, room=ticket_id)
 
         return jsonify({'message': 'Ticket closed successfully'}), 200
-    except Exception as e:
-        logger.error(f"Error closing ticket: {str(e)}")
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-    try:
-        current_user_id = get_jwt_identity()
-        user = User.query.get(current_user_id)
-        
-        if not user or user.role != 'member':
-            return jsonify({'error': 'Unauthorized'}), 403
 
-        ticket = Ticket.query.get(ticket_id)
-        if not ticket:
-            return jsonify({'error': 'Ticket not found'}), 404
-
-        if ticket.status != 'assigned' or ticket.assigned_to != int(current_user_id):
-            return jsonify({'error': 'Cannot close this ticket'}), 400
-
-        data = request.get_json()
-        reason = data.get('reason')
-        reassign_to = data.get('reassign_to')
-
-        if not reason:
-            return jsonify({'error': 'Closure reason is required'}), 400
-
-        if reassign_to:
-            reassign_user = User.query.get(reassign_to)
-            if not reassign_user or reassign_user.role != 'member':
-                return jsonify({'error': 'Invalid reassignment member'}), 400
-
-        ticket.status = 'closed'
-        ticket.closure_reason = reason
-        ticket.reassigned_to = reassign_to if reassign_to else None
-        ticket.last_message_at = datetime.now(IST)
-        system_message = ChatMessage(
-            ticket_id=ticket_id,
-            sender_id=None,
-            message=f"Ticket closed. Reason: {reason}{f'. Reassigned to member ID {reassign_to}' if reassign_to else ''}",
-            timestamp=datetime.now(IST),
-            is_system=True
-        )
-        db.session.add(system_message)
-        db.session.commit()
-
-        socketio.emit('ticket_closed', {
-            'ticket_id': ticket_id,
-            'reason': reason,
-            'reassigned_to': reassign_to
-        }, room=ticket_id)
-
-        return jsonify({'message': 'Ticket closed successfully'}), 200
     except Exception as e:
         logger.error(f"Error closing ticket: {str(e)}")
         db.session.rollback()
@@ -798,6 +779,50 @@ def get_chat_messages(ticket_id):
         logger.error(f"Error fetching chat messages: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/chats/<ticket_id>/last', methods=['GET'])
+@jwt_required()
+def get_last_chat_message(ticket_id):
+    try:
+        message = ChatMessage.query.filter_by(ticket_id=ticket_id)\
+                      .order_by(ChatMessage.timestamp.desc())\
+                      .first()
+        if message:
+            return jsonify({
+                'id': message.id,
+                'content': message.message,
+                'created_at': message.timestamp.isoformat()
+            }), 200
+        return jsonify({'message': 'No messages found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tickets/<ticket_id>/read', methods=['PUT'])
+@jwt_required()
+def mark_ticket_as_read(ticket_id):
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        ticket = Ticket.query.get(ticket_id)
+        if not ticket:
+            return jsonify({'error': 'Ticket not found'}), 404
+
+        return jsonify({'message': 'Ticket marked as read'}), 200
+    except Exception as e:
+        logger.error(f"Error marking ticket as read: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tickets/<ticket_id>/unread', methods=['GET'])
+@jwt_required()
+def get_unread_count(ticket_id):
+    try:
+        return jsonify(0), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # Background task for 24-hour inactivity check
 def check_inactive_tickets():
     with app.app_context():
@@ -822,8 +847,7 @@ def check_inactive_tickets():
             db.session.commit()
             socketio.emit('chat_inactive', {
                 'ticket_id': ticket.id,
-                'reason': ticket.closure_reason,
-                'reassigned_to': None
+                'reason': ticket.closure_reason
             }, room=str(ticket.id))
 
 def start_inactivity_checker():

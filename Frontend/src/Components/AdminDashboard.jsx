@@ -237,6 +237,11 @@ function AdminDashboard() {
       floatingFilter: true,
       fontFamily: '"Times New Roman", serif',
     },
+     { 
+    field: 'subject', 
+    headerName: 'Subject',
+    width: 200 
+  },
     {
       field: 'status',
       headerName: 'Status',
@@ -269,6 +274,19 @@ function AdminDashboard() {
         </Typography>
       ),
     },
+      { 
+    field: 'last_message_at', 
+    headerName: 'Last Response',
+    width: 180,
+    valueFormatter: (params) => {
+      if (!params.value) return 'N/A';
+      const date = new Date(params.value);
+      return date.toLocaleString('en-IN', { 
+        timeZone: 'Asia/Kolkata',
+        hour12: true 
+      });
+    }
+  },
     {
       field: 'activeStatus',
       headerName: 'Active Status',
