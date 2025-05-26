@@ -240,7 +240,7 @@
 //             <Paper sx={{ p: 2, mb: 2 }}>
 //               <Typography><strong>Status:</strong> {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}</Typography>
 //               <Typography><strong>Category:</strong> {ticket.category}</Typography>
-//               <Typography><strong>Urgency:</strong> {ticket.urgency}</Typography>
+//               <Typography><strong>priority:</strong> {ticket.priority}</Typography>
 //               {ticket.closure_reason && (
 //                 <Typography><strong>Closure Reason:</strong> {ticket.closure_reason}</Typography>
 //               )}

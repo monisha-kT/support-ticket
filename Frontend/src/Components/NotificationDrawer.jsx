@@ -8,7 +8,6 @@ import {
   ListItemText,
   IconButton,
   Divider,
-  Badge,
   Button,
   CircularProgress,
   Alert
@@ -18,10 +17,9 @@ import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import { getSocket } from './socket';
 
-function NotificationDrawer({ open, onClose }) {
+function NotificationDrawer({ open, onClose, notifications }) {
   const [tickets, setTickets] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -29,37 +27,58 @@ function NotificationDrawer({ open, onClose }) {
       fetchOpenTickets();
     }
 
-    const socket = getSocket();
-    if (socket) {
-      socket.on('ticket_reassigned', ({ ticket_id, reassigned_to }) => {
-        const token = localStorage.getItem('token');
-        fetch(`http://localhost:5000/api/users/me`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        })
-          .then(res => res.json())
-          .then(userData => {
-            if (userData.id === reassigned_to) {
-              setNotifications(prev => [
-                ...prev,
-                {
-                  type: 'info',
-                  message: `Ticket #${ticket_id} has been reassigned to you.`
-                }
-              ]);
+    let socket = null;
+    const initializeSocket = async () => {
+      try {
+        socket = await getSocket();
+        if (socket) {
+          socket.on('ticket_reassigned', async ({ ticket_id, reassigned_to }) => {
+            try {
+              const token = localStorage.getItem('token');
+              const res = await fetch(`http://localhost:5000/api/users/me`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+              });
+              if (!res.ok) throw new Error('Failed to fetch user');
+              const userData = await res.json();
+              if (userData.id === reassigned_to) {
+                setNotifications(prev => [
+                  ...prev,
+                  {
+                    type: 'info',
+                    message: `Ticket #${ticket_id} has been reassigned to you.`
+                  }
+                ]);
+                fetchOpenTickets();
+              }
+            } catch (err) {
+              console.error('Error fetching user:', err);
             }
-          })
-          .catch(err => console.error('Error fetching user:', err));
-      });
+          });
+          socket.on('connect_error', (err) => {
+            console.error('Socket error:', err.message);
+          });
+        }
+      } catch (err) {
+        console.error('Failed to initialize socket:', err);
+      }
+    };
 
-      return () => {
+    initializeSocket();
+
+    return () => {
+      if (socket) {
         socket.off('ticket_reassigned');
-      };
-    }
+        socket.off('connect_error');
+      }
+    };
   }, [open]);
 
   const fetchOpenTickets = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
+      if (!token) throw new Error('No token');
+
       const res = await fetch('http://localhost:5000/api/tickets', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -71,6 +90,7 @@ function NotificationDrawer({ open, onClose }) {
       const data = await res.json();
       const openTickets = data.filter(ticket => ticket.status === 'open');
       setTickets(openTickets);
+      setError(null);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,7 +101,7 @@ function NotificationDrawer({ open, onClose }) {
   const handleAcceptTicket = async (ticketId) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/tickets/accept/${ticketId}`, {
+      const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/accept`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -100,7 +120,7 @@ function NotificationDrawer({ open, onClose }) {
   const handleRejectTicket = async (ticketId) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/tickets/reject/${ticketId}`, {
+      const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/reject`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -132,7 +152,7 @@ function NotificationDrawer({ open, onClose }) {
           </IconButton>
         </Box>
 
-        {notifications.length > 0 && (
+        {notifications?.length > 0 && (
           <Box sx={{ mb: 2 }}>
             {notifications.map((notification, index) => (
               <Alert key={index} severity={notification.type} sx={{ mb: 1 }}>
@@ -175,7 +195,7 @@ function NotificationDrawer({ open, onClose }) {
                           Category: {ticket.category}
                         </Typography>
                         <Typography variant="body2" component="span" display="block">
-                          Urgency: {ticket.urgency}
+                          Priority: {ticket.priority}
                         </Typography>
                         <Typography variant="body2" component="span" display="block">
                           Description: {ticket.description}
@@ -200,7 +220,7 @@ function NotificationDrawer({ open, onClose }) {
                       variant="outlined"
                       size="small"
                     >
-                      Reject
+                    Reject
                     </Button>
                   </Box>
                 </ListItem>

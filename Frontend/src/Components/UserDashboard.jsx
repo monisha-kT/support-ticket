@@ -36,7 +36,7 @@ function UserDashboard() {
   const [notification, setNotification] = useState(null);
   const [newTicket, setNewTicket] = useState({
     category: '',
-    urgency: '',
+    priority: '',
     description: '',
   });
   const [selectedTicket, setSelectedTicket] = useState(null);
@@ -136,7 +136,7 @@ function UserDashboard() {
         },
         body: JSON.stringify({
           category: newTicket.category,
-          urgency: newTicket.urgency,
+          priority: newTicket.priority,
           description: newTicket.description,
           user_id: user.id,
         }),
@@ -149,7 +149,7 @@ function UserDashboard() {
 
       const data = await res.json();
       setDialogOpen(false);
-      setNewTicket({ category: '', urgency: '', description: '' });
+      setNewTicket({ category: '', priority: '', description: '' });
       setNotification({
         type: 'success',
         message: 'Ticket created successfully',
@@ -160,7 +160,7 @@ function UserDashboard() {
           ticket_id: data.ticket_id,
           user_id: user.id,
           category: newTicket.category,
-          urgency: newTicket.urgency,
+          priority: newTicket.priority,
           description: newTicket.description,
         });
       }
@@ -318,7 +318,7 @@ function UserDashboard() {
                     color="text.secondary"
                     sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
-                    Urgency: {ticket.urgency}
+                    Priority: {ticket.priority}
                   </Typography>
                   <Typography
                     sx={{
@@ -480,7 +480,7 @@ function UserDashboard() {
                       <strong>Category:</strong> {selectedTicket.category}
                     </Typography>
                     <Typography>
-                      <strong>Urgency:</strong> {selectedTicket.urgency}
+                      <strong>Priority:</strong> {selectedTicket.priority}
                     </Typography>
                     <Typography>
                       <strong>Status:</strong>{' '}
@@ -609,11 +609,11 @@ function UserDashboard() {
               </Select>
             </FormControl>
             <FormControl fullWidth>
-              <InputLabel>Urgency</InputLabel>
+              <InputLabel>priority</InputLabel>
               <Select
-                value={newTicket.urgency}
-                label="Urgency"
-                onChange={(e) => setNewTicket({ ...newTicket, urgency: e.target.value })}
+                value={newTicket.priority}
+                label="priority"
+                onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value })}
               >
                 <MenuItem value="Low">Low</MenuItem>
                 <MenuItem value="Medium">Medium</MenuItem>
@@ -635,7 +635,7 @@ function UserDashboard() {
           <Button
             onClick={handleCreateTicket}
             variant="contained"
-            disabled={!newTicket.category || !newTicket.urgency || !newTicket.description}
+            disabled={!newTicket.category || !newTicket.priority || !newTicket.description}
             sx={{
               bgcolor: '#128C7E',
               '&:hover': {

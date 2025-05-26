@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Box, Typography, CircularProgress, Alert, Button, Container, Paper, Modal, Grid, Divider,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel,
+  Box, Typography, CircularProgress, Alert, Button, Container, Paper, Dialog, DialogTitle,
+  DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, TableSortLabel,
-  InputAdornment, IconButton
+  InputAdornment, IconButton, Badge
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { getSocket } from './socket';
 import { useNavigate, useParams } from 'react-router-dom';
 import useStore from '../store/useStore';
-import Navbar from './Navbar';
+import Navbar from '../Components/Navbar';
 import ChatWindow from './ChatWindow';
+import NotificationDrawer from './NotificationDrawer';
+import ErrorBoundary from './ErrorBoundary';
 
 function MemberDashboard() {
   const [loading, setLoading] = useState(true);
@@ -22,7 +25,6 @@ function MemberDashboard() {
   const [closeReason, setCloseReason] = useState('');
   const [reassignTo, setReassignTo] = useState('');
   const [members, setMembers] = useState([]);
-  const [notifications, setNotifications] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [order, setOrder] = useState('asc');
@@ -31,43 +33,137 @@ function MemberDashboard() {
     id: '',
     userName: '',
     category: '',
-    urgency: '',
+    priority: '',
     status: '',
     lastResponseTime: ''
   });
+  const [notifications, setNotifications] = useState([]);
+  const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
 
   const user = useStore((state) => state.user);
   const navigate = useNavigate();
   const { ticketId } = useParams();
   const socketRef = useRef(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token || !user) {
-      navigate('/auth');
-      return;
+  const fetchTickets = async () => {
+    try {
+      setError(null);
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5000/api/tickets', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch tickets');
+
+      const data = await res.json();
+      const userIds = [...new Set(data.map(ticket => ticket.user_id))];
+
+      const usersRes = await fetch('http://localhost:5000/api/users/bulk', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_ids: userIds }),
+      });
+
+      if (!usersRes.ok) throw new Error('Failed to fetch user details');
+      const usersData = await usersRes.json();
+
+      const ticketsWithDetails = data.map(ticket => ({
+        ...ticket,
+        userName: usersData[ticket.user_id]
+          ? `${usersData[ticket.user_id].first_name} ${usersData[ticket.user_id].last_name}`
+          : 'Unknown',
+        userEmail: usersData[ticket.user_id]?.email || 'N/A',
+        lastResponseTime: ticket.last_message_at
+          ? new Date(ticket.last_message_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+          : 'No response yet'
+      }));
+
+      setTickets(ticketsWithDetails);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    socketRef.current = getSocket();
-    
-    socketRef.current.on('new_ticket', fetchTickets);
-    socketRef.current.on('ticket_reassigned', fetchTickets);
-    socketRef.current.on('ticket_reopened', fetchTickets);
-    socketRef.current.on('chat_inactive', ({ ticket_id, reason, reassigned_to }) => {
-      setTickets(prev => prev.map(t => 
-        t.id === ticket_id ? { ...t, status: 'closed', closure_reason: reason, reassigned_to } : t
-      ));
-    });
+  const fetchMembers = async () => {
+    try {
+      setError(null);
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5000/api/users/members', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch members');
+      setMembers(await res.json());
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
-    fetchTickets();
-    fetchMembers();
+  useEffect(() => {
+    const initialize = async () => {
+      const token = localStorage.getItem('token');
+      if (!token || !user) {
+        navigate('/auth');
+        return;
+      }
+
+      const socket = await getSocket();
+      if (!socket) {
+        setError('Failed to initialize real-time connection');
+        setLoading(false);
+        return;
+      }
+
+      socketRef.current = socket;
+
+      socket.on('new_ticket', () => {
+        fetchTickets();
+      });
+
+      socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
+        fetchTickets();
+        if (user.id === assigned_to) {
+          setNotifications(prev => [
+            ...prev,
+            { type: 'info', message: `Ticket #${ticket_id} has been reassigned to you.` }
+          ]);
+        }
+      });
+
+      socket.on('ticket_reopened', () => {
+        fetchTickets();
+      });
+
+      socket.on('ticket_closed', () => {
+        fetchTickets();
+      });
+
+      socket.on('chat_inactive', ({ ticket_id, reason, reassigned_to }) => {
+        setTickets(prev => prev.map(t =>
+          t.id === ticket_id ? { ...t, status: 'closed', closure_reason: reason, reassigned_to } : t
+        ));
+        if (selectedTicket?.id === ticket_id) {
+          setSelectedTicket(null);
+          navigate('/member/tickets');
+        }
+      });
+
+      await Promise.all([fetchTickets(), fetchMembers()]);
+    };
+
+    initialize();
 
     return () => {
       if (socketRef.current) {
         socketRef.current.off('new_ticket');
         socketRef.current.off('ticket_reassigned');
-        socketRef.current.off('chat_inactive');
         socketRef.current.off('ticket_reopened');
+        socketRef.current.off('ticket_closed');
+        socketRef.current.off('chat_inactive');
+        socketRef.current.disconnect();
       }
     };
   }, [user, navigate]);
@@ -89,69 +185,15 @@ function MemberDashboard() {
     let filtered = tickets.filter(ticket => {
       return Object.keys(searchValues).every(key => {
         if (!searchValues[key]) return true;
-        return String(ticket[key]).toLowerCase().includes(searchValues[key].toLowerCase());
+        return String(ticket[key] || '').toLowerCase().includes(searchValues[key].toLowerCase());
       });
     });
     setFilteredTickets(filtered);
   };
 
-  const fetchTickets = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/tickets', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Failed to fetch tickets');
-      
-      const data = await res.json();
-      const userIds = [...new Set(data.map(ticket => ticket.user_id))];
-      
-      const usersRes = await fetch('http://localhost:5000/api/users/bulk', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ user_ids: userIds }),
-      });
-      
-      if (!usersRes.ok) throw new Error('Failed to fetch user details');
-      const usersData = await usersRes.json();
-      
-      const ticketsWithDetails = data.map(ticket => ({
-        ...ticket,
-        userName: usersData[ticket.user_id] 
-          ? `${usersData[ticket.user_id].first_name} ${usersData[ticket.user_id].last_name}`
-          : 'Unknown',
-        userEmail: usersData[ticket.user_id]?.email || 'N/A',
-        lastResponseTime: ticket.last_message_at 
-          ? new Date(ticket.last_message_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
-          : 'No response yet'
-      }));
-      
-      setTickets(ticketsWithDetails);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchMembers = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/users/members', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Failed to fetch members');
-      setMembers(await res.json());
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
   const handleTicketSelect = async (ticketId) => {
     try {
+      setError(null);
       const token = localStorage.getItem('token');
       const [ticketRes, chatRes] = await Promise.all([
         fetch(`http://localhost:5000/api/tickets/${ticketId}`, {
@@ -161,83 +203,91 @@ function MemberDashboard() {
           headers: { 'Authorization': `Bearer ${token}` },
         })
       ]);
-      
+
       if (!ticketRes.ok || !chatRes.ok) {
         throw new Error('Failed to fetch ticket details');
       }
-      
+
       const ticketData = await ticketRes.json();
       const chatData = await chatRes.json();
-      
+
       const userRes = await fetch(`http://localhost:5000/api/users/${ticketData.user_id}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
-      
+
       if (!userRes.ok) throw new Error('Failed to fetch user details');
       const userData = await userRes.json();
-      
+
       setSelectedTicket({
         ...ticketData,
         userName: `${userData.first_name} ${userData.last_name}`,
         userEmail: userData.email,
         chatHistory: chatData
       });
-      
+
       navigate(`/member/tickets/${ticketId}`);
     } catch (err) {
       setError(err.message);
     }
   };
 
-const handleCloseTicket = async () => {
-  if (!closeReason.trim()) {
-    setError('Closure reason is required');
-    return;
-  }
+  const handleCloseTicket = async () => {
+    if (!closeReason.trim()) {
+      setError('Closure reason is required');
+      return;
+    }
 
-  try {
-    const token = localStorage.getItem('token');
-    const status = reassignTo ? 'reassigned' : 'closed';
-    const res = await fetch(`http://localhost:5000/api/tickets/${selectedTicket.id}/close`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        reason: closeReason,
-        reassign_to: reassignTo || null,
-        status
-      }),
-    });
-
-    if (!res.ok) throw new Error(await res.text());
-
-    setCloseDialogOpen(false);
-    setCloseReason('');
-    setReassignTo('');
-    fetchTickets();
-    setSelectedTicket(null);
-    navigate('/member/tickets');
-  } catch (err) {
-    setError(err.message);
-  }
-};
-
-  const handleAcceptTicket = async (ticketId) => {
     try {
+      setError(null);
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/assign`, {
+      const res = await fetch(`http://localhost:5000/api/tickets/${selectedTicket.id}/close`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: 'assigned' }),
+        body: JSON.stringify({
+          reason: closeReason,
+          reassign_to: reassignTo ? parseInt(reassignTo) : null,
+        }),
       });
-      
-      if (!res.ok) throw new Error('Failed to accept ticket');
-      
+
+      if (!res.ok) throw new Error(await res.text());
+
+      const socket = socketRef.current;
+      if (socket) {
+        socket.emit('ticket_closed', {
+          ticket_id: selectedTicket.id,
+          reason: closeReason,
+          reassigned_to: reassignTo ? parseInt(reassignTo) : null
+        });
+      }
+
+      setCloseDialogOpen(false);
+      setCloseReason('');
+      setReassignTo('');
+      setSelectedTicket(null);
+      navigate('/member/tickets');
+      fetchTickets();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleAcceptTicket = async (ticketId) => {
+    try {
+      setError(null);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/tickets/${ticketId}/accept`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to accept ticket');
+
       fetchTickets();
     } catch (err) {
       setError(err.message);
@@ -246,18 +296,18 @@ const handleCloseTicket = async () => {
 
   const handleRejectTicket = async (ticketId) => {
     try {
+      setError(null);
       const token = localStorage.getItem('token');
       const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/reject`, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: 'rejected' }),
       });
-      
+
       if (!res.ok) throw new Error('Failed to reject ticket');
-      
+
       fetchTickets();
     } catch (err) {
       setError(err.message);
@@ -266,6 +316,7 @@ const handleCloseTicket = async () => {
 
   const handleReopenTicket = async (ticketId) => {
     try {
+      setError(null);
       const token = localStorage.getItem('token');
       const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/reopen`, {
         method: 'PUT',
@@ -274,9 +325,9 @@ const handleCloseTicket = async () => {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (!res.ok) throw new Error('Failed to reopen ticket');
-      
+
       fetchTickets();
     } catch (err) {
       setError(err.message);
@@ -328,19 +379,19 @@ const handleCloseTicket = async () => {
     return 0;
   };
 
-  const renderStatusCell = (status) => (
+  const renderStatusBadge = (status) => (
     <Typography
       sx={{
         bgcolor:
           status === 'open' ? 'warning.main' :
-        status === 'assigned' ? 'info.main' :
-        status === 'closed' ? 'success.main' :
-        status === 'reassigned' ? 'primary.main' : 'error.main',
+          status === 'assigned' ? 'info.main' :
+          status === 'closed' ? 'success.main' :
+          status === 'rejected' ? 'error.main' : 'primary.main',
         color: 'white',
         px: 2,
-        py: 0.5,
+        py: 1,
         borderRadius: 1,
-        display: 'inline-block',
+        display: 'inline-block'
       }}
     >
       {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -380,8 +431,8 @@ const handleCloseTicket = async () => {
           </Button>
           <Button
             variant="outlined"
-            size="small"
             color="error"
+            size="small"
             onClick={() => {
               setSelectedTicket(ticket);
               setCloseDialogOpen(true);
@@ -405,47 +456,51 @@ const handleCloseTicket = async () => {
   );
 
   const headers = [
-    { id: 'id', label: 'Ticket ID' },
-    { id: 'userName', label: 'Created By' },
-    { id: 'category', label: 'Category' },
-    { id: 'urgency', label: 'Urgency' },
-    { id: 'status', label: 'Status' },
-    { id: 'lastResponseTime', label: 'Last Response' },
-    { id: 'actions', label: 'Actions' }
+    { label: 'Ticket ID', id: 'id' },
+    { label: 'Created By', id: 'userName' },
+    { label: 'Category', id: 'category' },
+    { label: 'Priority', id: 'priority' },
+    { label: 'Status', id: 'status' },
+    { label: 'Last Response', id: 'lastResponseTime' },
+    { label: 'Actions', id: 'actions' },
   ];
 
   if (loading) {
     return (
-      <>
+      <ErrorBoundary>
         <Navbar />
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
           <CircularProgress />
         </Box>
-      </>
+      </ErrorBoundary>
     );
   }
 
   if (error) {
     return (
-      <>
+      <ErrorBoundary>
         <Navbar />
         <Box sx={{ p: 2, mt: 8 }}>
           <Alert severity="error">{error}</Alert>
         </Box>
-      </>
+      </ErrorBoundary>
     );
   }
 
   return (
-    <>
+    <ErrorBoundary>
       <Navbar />
-      <Container maxWidth="xl" sx={{ mt: 10, mb: 4 ,overflow:'hidden'}}>
+      <Container maxWidth="xl" sx={{ mt: 10, mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
           <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
             Member Support Dashboard
           </Typography>
+          <IconButton onClick={() => setNotificationDrawerOpen(true)}>
+            <Badge badgeContent={notifications.length} color="error">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
         </Box>
-
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
           <TableContainer sx={{ maxHeight: 'calc(100vh - 230px)' }}>
             <Table stickyHeader>
@@ -464,7 +519,6 @@ const handleCloseTicket = async () => {
                           </TableSortLabel>
                           <TextField
                             size="small"
-                            variant="standard"
                             value={searchValues[header.id] || ''}
                             onChange={handleSearchChange(header.id)}
                             placeholder={`Search ${header.label}`}
@@ -473,12 +527,11 @@ const handleCloseTicket = async () => {
                                 <InputAdornment position="start">
                                   <SearchIcon fontSize="small" />
                                 </InputAdornment>
-                              ),
+                              )
                             }}
                             sx={{ mt: 1, width: '100%' }}
                           />
-                        </>
-                      ) : (
+                        </>) : (
                         header.label
                       )}
                     </TableCell>
@@ -493,8 +546,8 @@ const handleCloseTicket = async () => {
                       <TableCell>#{ticket.id}</TableCell>
                       <TableCell>{ticket.userName}</TableCell>
                       <TableCell>{ticket.category}</TableCell>
-                      <TableCell>{ticket.urgency}</TableCell>
-                      <TableCell>{renderStatusCell(ticket.status)}</TableCell>
+                      <TableCell>{ticket.priority}</TableCell>
+                      <TableCell>{renderStatusBadge(ticket.status)}</TableCell>
                       <TableCell>{ticket.lastResponseTime}</TableCell>
                       <TableCell>{renderActionButtons(ticket)}</TableCell>
                     </TableRow>
@@ -503,7 +556,7 @@ const handleCloseTicket = async () => {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 15]}
             component="div"
             count={filteredTickets.length}
             rowsPerPage={rowsPerPage}
@@ -512,7 +565,36 @@ const handleCloseTicket = async () => {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Paper>
-
+        {selectedTicket && (
+          <Dialog
+            open={Boolean(selectedTicket)}
+            onClose={() => {
+              setSelectedTicket(null);
+              navigate('/member/tickets');
+            }}
+            maxWidth="lg"
+            fullWidth
+          >
+            <DialogTitle>Ticket #{selectedTicket.id}</DialogTitle>
+            <DialogContent>
+              <ChatWindow
+                ticketId={selectedTicket.id}
+                initialMessages={selectedTicket.chatHistory}
+                readOnly={selectedTicket.status === 'closed'}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  setSelectedTicket(null);
+                  navigate('/member/tickets');
+                }}
+              >
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
         <Dialog open={closeDialogOpen} onClose={() => setCloseDialogOpen(false)} maxWidth="sm" fullWidth>
           <DialogTitle>Close Ticket</DialogTitle>
           <DialogContent>
@@ -534,7 +616,7 @@ const handleCloseTicket = async () => {
                   onChange={(e) => setReassignTo(e.target.value)}
                 >
                   <MenuItem value="">None</MenuItem>
-                  {members.map(member => (
+                  {members.map((member) => (
                     <MenuItem key={member.id} value={member.id}>
                       {member.first_name} {member.last_name}
                     </MenuItem>
@@ -554,10 +636,14 @@ const handleCloseTicket = async () => {
             </Button>
           </DialogActions>
         </Dialog>
+        <NotificationDrawer
+          open={notificationDrawerOpen}
+          onClose={() => setNotificationDrawerOpen(false)}
+          notifications={notifications}
+        />
       </Container>
-    </>
+    </ErrorBoundary>
   );
 }
 
 export default MemberDashboard;
-

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Box, TextField, IconButton, Paper, Typography, CircularProgress, Alert, LinearProgress, Avatar,
-  Divider, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem
+  Box, TextField, IconButton, Paper, Typography,
+  CircularProgress, Alert, LinearProgress, Avatar,
+  Divider
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import useStore from '../store/useStore';
-import { getSocket } from './socket';
+import { getSocket, useSocket } from './socket';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 
@@ -15,31 +16,16 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
   const [loading, setLoading] = useState(Boolean(ticketId && !initialMessages.length));
   const [error, setError] = useState(null);
   const [ticketStatus, setTicketStatus] = useState(null);
-  const [lastMessageAt, setLastMessageAt] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [reassignDialogOpen, setReassignDialogOpen] = useState(false);
-  const [reassignTo, setReassignTo] = useState('');
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
   const user = useStore((state) => state.user);
+  const { isConnected, error: socketError } = useSocket();
   const inactivityTimerRef = useRef(null);
   const navigate = useNavigate();
 
-  // Derive sender name
-  const getSenderName = () => {
-    if (!user) return 'User';
-    return `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'User';
-  };
-
-  // Fetch ticket status, messages, and members
+  // Fetch ticket status
   useEffect(() => {
-    if (!ticketId || ticketId === 'null') {
-      setError('Invalid ticket ID');
-      setLoading(false);
-      return;
-    }
-
-    const fetchTicketData = async () => {
+    const fetchTicketStatus = async () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -47,63 +33,37 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
           navigate('/auth');
           return;
         }
-
-        // Fetch ticket status
-        const ticketRes = await fetch(`http://localhost:5000/api/tickets/${ticketId}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await fetch(`http://localhost:5000/api/tickets/${ticketId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
-        if (!ticketRes.ok) {
-          const errorData = await ticketRes.json();
-          throw new Error(`Failed to fetch ticket: ${errorData.message || ticketRes.statusText}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Failed to fetch ticket status: ${errorData.message || response.statusText}`);
         }
-        const ticketData = await ticketRes.json();
-        setTicketStatus(ticketData.status);
-        setLastMessageAt(ticketData.last_message_at);
-
-        // Fetch messages
-        const chatRes = await fetch(`http://localhost:5000/api/chats/${ticketId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!chatRes.ok) {
-          const errorData = await chatRes.json();
-          throw new Error(`Failed to fetch messages: ${errorData.message || chatRes.statusText}`);
-        }
-        const chatData = await chatRes.json();
-        setMessages(chatData);
-
-        // Fetch members for reassignment (members only)
-        if (user?.role === 'member') {
-          const membersRes = await fetch('http://localhost:5000/api/users/members', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (!membersRes.ok) throw new Error('Failed to fetch members');
-          const membersData = await membersRes.json();
-          setMembers(membersData);
-        }
+        const data = await response.json();
+        setTicketStatus(data.status);
       } catch (error) {
-        console.error('Error fetching ticket data:', error);
+        console.error('Error fetching ticket status:', error);
         setError(error.message);
-      } finally {
-        setLoading(false);
       }
     };
 
-    if (!readOnly) {
-      fetchTicketData();
-    } else {
-      setLoading(false);
+    if (!readOnly && ticketId && ticketId !== 'null') {
+      fetchTicketStatus();
     }
-  }, [ticketId, readOnly, user, navigate]);
+  }, [ticketId, readOnly, navigate]);
 
   // Handle inactivity timeout
   useEffect(() => {
-    if (inactivityTimeout && !readOnly && ticketId && ticketStatus !== 'closed' && socketRef.current?.connected) {
+    if (inactivityTimeout && !readOnly && ticketId && ticketStatus !== 'closed') {
       const resetTimer = () => {
         if (inactivityTimerRef.current) {
           clearTimeout(inactivityTimerRef.current);
         }
         inactivityTimerRef.current = setTimeout(() => {
-          if (socketRef.current?.connected) {
+          if (socketRef.current) {
             socketRef.current.emit('inactivity_timeout', { ticket_id: ticketId });
           }
         }, inactivityTimeout);
@@ -124,101 +84,121 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
     }
   }, [inactivityTimeout, ticketId, readOnly, ticketStatus]);
 
-  // Initialize socket
+  // Initialize socket and fetch messages
   useEffect(() => {
-    if (!readOnly && ticketId && ticketId !== 'null') {
-      socketRef.current = getSocket();
-      if (!socketRef.current) {
+    const initializeSocket = async () => {
+      if (readOnly || !ticketId || ticketId === 'null') {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      const socket = await getSocket();
+      if (!socket) {
         setError('Failed to initialize chat connection');
         setLoading(false);
         return;
       }
 
-      socketRef.current.on('connect', () => {
-        socketRef.current.emit('join', { ticket_id: ticketId });
+      socketRef.current = socket;
+
+      socket.on('message', (newMessage) => {
+        if (newMessage.ticket_id === ticketId) {
+          setMessages((prev) => [...prev, newMessage]);
+        }
       });
 
-      socketRef.current.on('message', (newMessage) => {
-        setMessages(prev => [...prev, newMessage]);
-        setLastMessageAt(newMessage.timestamp);
-      });
-
-      socketRef.current.on('ticket_closed', ({ reason, reassigned_to }) => {
+      socket.on('ticket_closed', ({ reason, reassigned_to }) => {
         setTicketStatus('closed');
-        setMessages(prev => [
+        setMessages((prev) => [
           ...prev,
           {
             ticket_id: ticketId,
             sender_id: null,
             message: `Ticket closed. Reason: ${reason}${reassigned_to ? `. Reassigned to member ID ${reassigned_to}` : ''}`,
             timestamp: new Date().toISOString(),
-            is_system: true,
-          },
+            is_system: true
+          }
         ]);
       });
 
-      socketRef.current.on('ticket_reopened', () => {
+      socket.on('ticket_reopened', () => {
         setTicketStatus('assigned');
-        setMessages(prev => [
+        setMessages((prev) => [
           ...prev,
           {
             ticket_id: ticketId,
             sender_id: null,
             message: 'Ticket has been reopened',
             timestamp: new Date().toISOString(),
-            is_system: true,
-          },
+            is_system: true
+          }
         ]);
       });
 
-      socketRef.current.on('chat_inactive', ({ ticket_id, reason }) => {
-        if (ticket_id === ticketId) {
-          setTicketStatus('closed');
-          setMessages(prev => [
-            ...prev,
-            {
-              ticket_id: ticketId,
-              sender_id: null,
-              message: `Ticket closed due to inactivity. Reason: ${reason}`,
-              timestamp: new Date().toISOString(),
-              is_system: true,
-            },
-          ]);
-        }
-      });
+      socket.emit('join', { ticket_id: ticketId });
 
-      socketRef.current.on('connect_error', (err) => {
-        setError(`Socket connection failed: ${err.message}`);
-      });
+      if (!initialMessages.length) {
+        await fetchMessages();
+      }
 
-      return () => {
-        if (socketRef.current) {
-          socketRef.current.emit('leave', { ticket_id: ticketId });
-          socketRef.current.off('connect');
-          socketRef.current.off('message');
-          socketRef.current.off('ticket_closed');
-          socketRef.current.off('ticket_reopened');
-          socketRef.current.off('chat_inactive');
-          socketRef.current.off('connect_error');
-        }
-      };
+      setLoading(false);
+    };
+
+    initializeSocket();
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.emit('leave', { ticket_id: ticketId });
+        socketRef.current.off('message');
+        socketRef.current.off('ticket_closed');
+        socketRef.current.off('ticket_reopened');
+      }
+    };
+  }, [ticketId, readOnly, initialMessages]);
+
+  const fetchMessages = async () => {
+    if (!ticketId) return;
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('No authentication token found');
+      navigate('/auth');
+      return;
     }
-  }, [ticketId, readOnly]);
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:5000/api/chats/${ticketId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to fetch messages: ${errorData.message || response.statusText}`);
+      }
+      const data = await response.json();
+      setMessages(data);
+    } catch (error) {
+      console.error('Fetch Messages Error:', error);
+      setError('Error loading messages: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Handle sending messages
   const handleSend = async () => {
-    if (!message.trim() || !socketRef.current?.connected || ticketStatus === 'closed') return;
+    if (!message.trim() || !socketRef.current || !isConnected || ticketStatus === 'closed') return;
     try {
       socketRef.current.emit('message', {
         ticket_id: ticketId,
         sender_id: user.id,
-        sender_name: getSenderName(),
-        message: message.trim(),
+        sender_name: `${user.firstName} ${user.lastName}`,
+        message: message.trim()
       });
       setMessage('');
     } catch (err) {
@@ -233,42 +213,7 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
     }
   };
 
-  // Handle ticket reassignment
-  const handleReassignTicket = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/reassign`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ reassign_to: reassignTo }),
-      });
-      if (!res.ok) throw new Error('Failed to reassign ticket');
-      setReassignDialogOpen(false);
-      setReassignTo('');
-      setMessages(prev => [
-        ...prev,
-        {
-          ticket_id: ticketId,
-          sender_id: null,
-          message: `Ticket reassigned to member ID ${reassignTo}`,
-          timestamp: new Date().toISOString(),
-          is_system: true,
-        },
-      ]);
-      const socket = getSocket();
-      socket.emit('ticket_reassigned', { ticket_id: ticketId, assigned_to: reassignTo });
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const isMessageInputDisabled = readOnly || ticketStatus === 'closed' || !socketRef.current?.connected;
-  const isActive = ticketStatus === 'assigned' && lastMessageAt
-    ? new Date(lastMessageAt) > new Date(Date.now() - 2 * 60 * 1000)
-    : false;
+  const isMessageInputDisabled = readOnly || ticketStatus === 'closed' || !isConnected;
 
   if (loading) {
     return (
@@ -278,10 +223,12 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
     );
   }
 
-  if (error) {
+  if (error || socketError) {
     return (
       <Box sx={{ p: 2 }}>
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error">
+          {error || socketError || 'Failed to connect to chat'}
+        </Alert>
       </Box>
     );
   }
@@ -301,33 +248,13 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
       display: 'flex',
       flexDirection: 'column',
       width: '100%',
-      height: '100%',
-      bgcolor: '#efeae2',
+      height: '74vh',
+      bgcolor: '#f5f6f5',
       borderRadius: 2,
-      overflow: 'hidden',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      overflow: 'hidden'
     }}>
-      <Box sx={{ p: 2, bgcolor: '#128C7E', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="body2" sx={{ fontFamily: '"Times New Roman", serif' }}>
-          Status:{' '}
-          <Box component="span" sx={{
-            color: isActive ? '#4caf50' : '#ff9800',
-            fontWeight: 'bold',
-          }}>
-            {isActive ? 'Active' : 'Inactive'}
-          </Box>
-        </Typography>
-        {!readOnly && user?.role === 'member' && ticketStatus !== 'closed' && (
-          <Button
-            variant="outlined"
-            size="small"
-            sx={{ color: 'white', borderColor: 'white', '&:hover': { borderColor: '#e0e0e0', bgcolor: '#075E54' } }}
-            onClick={() => setReassignDialogOpen(true)}
-          >
-            Reassign
-          </Button>
-        )}
-      </Box>
-      {!socketRef.current?.connected && (
+      {!isConnected && (
         <Box sx={{ width: '100%' }}>
           <LinearProgress color="primary" />
           <Typography
@@ -336,8 +263,8 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
               textAlign: 'center',
               display: 'block',
               py: 0.5,
-              bgcolor: '#ff9800',
-              color: 'white',
+              bgcolor: 'warning.light',
+              color: 'warning.contrastText'
             }}
           >
             Connecting to chat...
@@ -350,21 +277,23 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
+        gap: 2
       }}>
         {Object.entries(groupedMessages).map(([date, dateMessages]) => (
           <React.Fragment key={date}>
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              my: 1
+            }}>
               <Paper sx={{
                 px: 2,
                 py: 0.5,
                 borderRadius: 10,
-                bgcolor: '#d1e7dd',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                bgcolor: '#e0f2fe',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
               }}>
-                <Typography variant="caption" sx={{ fontFamily: '"Times New Roman", serif' }}>
-                  {date}
-                </Typography>
+                <Typography variant="caption" fontWeight="medium">{date}</Typography>
               </Paper>
             </Box>
             {dateMessages.map((msg, index) => (
@@ -373,40 +302,35 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
-                  alignItems: msg.sender_id === user?.id ? 'flex-end' : 'flex-start',
-                  mb: 2,
+                  alignItems: msg.sender_id === user.id ? 'flex-end' : 'flex-start',
+                  mb: 2
                 }}
               >
                 {msg.is_system ? (
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      textAlign: 'center',
-                      color: '#374151',
-                      my: 1,
-                      bgcolor: '#d1e7dd',
-                      px: 2,
-                      py: 1,
-                      borderRadius: 10,
-                      fontFamily: '"Times New Roman", serif',
-                    }}
-                  >
+                  <Typography variant="caption" sx={{
+                    textAlign: 'center',
+                    color: 'text.secondary',
+                    my: 1,
+                    bgcolor: '#f0f0f0',
+                    px: 2,
+                    py: 1,
+                    borderRadius: 10
+                  }}>
                     {msg.message}
                   </Typography>
                 ) : (
                   <Box sx={{
                     display: 'flex',
-                    flexDirection: msg.sender_id === user?.id ? 'row-reverse' : 'row',
+                    flexDirection: msg.sender_id === user.id ? 'row-reverse' : 'row',
                     alignItems: 'flex-start',
                     gap: 1,
-                    maxWidth: '70%',
+                    maxWidth: '70%'
                   }}>
                     <Avatar sx={{
                       width: 36,
                       height: 36,
-                      bgcolor: msg.sender_id === null ? '#6b7280' : '#128C7E',
-                      fontSize: '1rem',
-                      fontFamily: '"Times New Roman", serif',
+                      bgcolor: msg.sender_id === user.id ? '#10b981' : '#6b7280',
+                      fontSize: '1rem'
                     }}>
                       {msg.sender_name?.charAt(0).toUpperCase() || 'U'}
                     </Avatar>
@@ -414,38 +338,34 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
                       <Typography
                         variant="caption"
                         sx={{
-                          color: '#374151',
+                          color: 'text.secondary',
                           fontWeight: 'medium',
-                          ml: msg.sender_id === user?.id ? 0 : 1,
-                          mr: msg.sender_id === user?.id ? 1 : 0,
-                          fontFamily: '"Times New Roman", serif',
+                          ml: msg.sender_id === user.id ? 0 : 1,
+                          mr: msg.sender_id === user.id ? 1 : 0
                         }}
                       >
-                        {msg.sender_name || (msg.sender_id === user?.id ? getSenderName() : 'Support')}
+                        {msg.sender_name || 'Support'}
                       </Typography>
                       <Paper
                         elevation={1}
                         sx={{
                           p: 1.5,
-                          borderRadius: msg.sender_id === user?.id ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                          bgcolor: msg.sender_id === user?.id ? '#d1fae5' : 'white',
+                          borderRadius: msg.sender_id === user.id ?
+                            '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                          bgcolor: msg.sender_id === user.id ? '#d1fae5' : 'white',
                           maxWidth: '100%',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                          '&:hover': { boxShadow: '0 3px 6px rgba(0,0,0,0.1)' },
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                         }}
                       >
-                        <Typography variant="body2" sx={{ fontFamily: '"Times New Roman", serif' }}>
-                          {msg.message}
-                        </Typography>
+                        <Typography variant="body2">{msg.message}</Typography>
                         <Typography
                           variant="caption"
                           sx={{
                             display: 'block',
                             textAlign: 'right',
                             mt: 0.5,
-                            color: '#6b7280',
-                            fontSize: '0.65rem',
-                            fontFamily: '"Times New Roman", serif',
+                            color: 'text.secondary',
+                            fontSize: '0.65rem'
                           }}
                         >
                           {moment(msg.timestamp).format('h:mm A')}
@@ -456,9 +376,9 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
                 )}
               </Box>
             ))}
-            <div ref={messagesEndRef} />
           </React.Fragment>
         ))}
+        <div ref={messagesEndRef} />
       </Box>
       {!readOnly && (
         <Box sx={{
@@ -467,7 +387,7 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
           borderTop: '1px solid #e5e7eb',
           display: 'flex',
           flexDirection: 'column',
-          gap: 1,
+          gap: 1
         }}>
           {ticketStatus === 'closed' && (
             <Alert
@@ -475,9 +395,7 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
               sx={{
                 mb: 1,
                 borderRadius: 2,
-                bgcolor: '#e0f2fe',
-                '& .MuiAlert-icon': { color: '#0284c7' },
-                fontFamily: '"Times New Roman", serif',
+                bgcolor: '#e0f2fe'
               }}
             >
               This ticket has been closed. No new messages can be sent.
@@ -490,14 +408,14 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
             bgcolor: 'white',
             p: 1,
             borderRadius: 20,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
           }}>
             <TextField
               fullWidth
               size="small"
               placeholder={
-                ticketStatus === 'closed' ? 'Ticket is closed' :
-                socketRef.current?.connected ? 'Type a message...' : 'Connecting...'
+                ticketStatus === 'closed' ? "Ticket is closed" :
+                isConnected ? "Type a message..." : "Connecting..."
               }
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -507,21 +425,23 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 20,
                   bgcolor: 'white',
-                  '& fieldset': { border: 'none' },
-                  fontFamily: '"Times New Roman", serif',
-                },
+                  '& fieldset': { border: 'none' }
+                }
               }}
             />
             <IconButton
               onClick={handleSend}
               disabled={!message.trim() || isMessageInputDisabled}
               sx={{
-                bgcolor: '#128C7E',
+                bgcolor: '#10b981',
                 color: 'white',
-                '&:hover': { bgcolor: '#075E54' },
-                '&.Mui-disabled': { bgcolor: '#e5e7eb', color: '#9ca3af' },
+                '&:hover': { bgcolor: '#059669' },
+                '&.Mui-disabled': {
+                  bgcolor: '#e5e7eb',
+                  color: '#9ca3af'
+                },
                 borderRadius: '50%',
-                p: 1.2,
+                p: 1.2
               }}
             >
               <SendIcon fontSize="small" />
@@ -529,45 +449,6 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
           </Box>
         </Box>
       )}
-      <Dialog open={reassignDialogOpen} onClose={() => setReassignDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontFamily: '"Times New Roman", serif' }}>Reassign Ticket</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-            <FormControl fullWidth>
-              <InputLabel sx={{ fontFamily: '"Times New Roman", serif' }}>Reassign To</InputLabel>
-              <Select
-                value={reassignTo}
-                label="Reassign To"
-                onChange={(e) => setReassignTo(e.target.value)}
-                sx={{ fontFamily: '"Times New Roman", serif' }}
-              >
-                <MenuItem value="" sx={{ fontFamily: '"Times New Roman", serif' }}>Select Member</MenuItem>
-                {members.map(member => (
-                  <MenuItem key={member.id} value={member.id} sx={{ fontFamily: '"Times New Roman", serif' }}>
-                    {member.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setReassignDialogOpen(false)}
-            sx={{ fontFamily: '"Times New Roman", serif' }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleReassignTicket}
-            disabled={!reassignTo}
-            sx={{ bgcolor: '#128C7E', '&:hover': { bgcolor: '#075E54' }, fontFamily: '"Times New Roman", serif' }}
-          >
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
