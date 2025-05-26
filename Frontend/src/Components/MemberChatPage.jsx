@@ -158,7 +158,7 @@ function MemberChatPage() {
               <Typography><strong>Created By:</strong> {selectedTicketDetails?.userName}</Typography>
               <Typography><strong>User Email:</strong> {selectedTicketDetails?.userEmail}</Typography>
               <Typography><strong>Category:</strong> {selectedTicket.category}</Typography>
-              <Typography><strong>Urgency:</strong> {selectedTicket.urgency}</Typography>
+              <Typography><strong>priority:</strong> {selectedTicket.priority}</Typography>
               <Typography><strong>Status:</strong> {selectedTicket.status}</Typography>
               <Typography><strong>Created:</strong> {selectedTicket.created_at ? new Date(selectedTicket.created_at).toLocaleString() : 'N/A'}</Typography>
               <Typography><strong>Description:</strong></Typography>

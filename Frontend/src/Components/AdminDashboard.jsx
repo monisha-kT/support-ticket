@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Box, Typography, CircularProgress, Alert, Button, Container, Paper, Modal, Grid, Divider,
-  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem
+  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem,
+  TextField, IconButton, Badge
 } from '@mui/material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { getSocket } from './socket';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
@@ -11,18 +13,25 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import ChatWindow from './ChatWindow';
+import NotificationDrawer from './NotificationDrawer';
 
 function AdminDashboard() {
   const gridRef = useRef();
   const [loading, setLoading] = useState(true);
+  const [detailsLoading, setDetailsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [selectedTicketDetails, setSelectedTicketDetails] = useState(null);
   const [members, setMembers] = useState([]);
   const [reassignDialogOpen, setReassignDialogOpen] = useState(false);
+  const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   const [reassignTicketId, setReassignTicketId] = useState(null);
+  const [closeTicketId, setCloseTicketId] = useState(null);
   const [reassignTo, setReassignTo] = useState('');
+  const [closeReason, setCloseReason] = useState('');
+  const [notifications, setNotifications] = useState([]);
+  const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
   const user = useStore((state) => state.user);
   const navigate = useNavigate();
 
@@ -32,57 +41,84 @@ function AdminDashboard() {
       navigate('/auth');
       return;
     }
-    if (!user) return; // Wait for user initialization
+    if (!user) return;
     if (user.role !== 'admin') {
-      navigate(user.role === 'user' ? '/dashboard' : '/dashboard');
+      navigate(user.role === 'user' ? '/dashboard' : '/member/tickets');
       return;
     }
 
     const socket = getSocket();
-    socket.on('new_ticket', fetchTickets);
-    socket.on('ticket_closed', ({ ticket_id, reason, reassigned_to }) => {
-      setTickets((prev) =>
-        prev.map((ticket) =>
-          ticket.id === ticket_id
-            ? { ...ticket, status: 'closed', closure_reason: reason, reassigned_to }
-            : ticket
-        )
-      );
-    });
-    socket.on('ticket_reopened', ({ ticket_id }) => {
-      setTickets((prev) =>
-        prev.map((ticket) =>
-          ticket.id === ticket_id
-            ? { ...ticket, status: 'assigned', closure_reason: null, reassigned_to: null }
-            : ticket
-        )
-      );
-    });
-    socket.on('chat_inactive', ({ ticket_id, reason }) => {
-      setTickets((prev) =>
-        prev.map((ticket) =>
-          ticket.id === ticket_id
-            ? { ...ticket, status: 'closed', closure_reason: reason }
-            : ticket
-        )
-      );
-    });
-    socket.on('ticket_reassigned', fetchTickets);
+    if (socket) {
+      socket.on('new_ticket', fetchTickets);
+      socket.on('ticket_closed', ({ ticket_id, reason, reassigned_to }) => {
+        setTickets((prev) =>
+          prev.map((ticket) =>
+            ticket.id === ticket_id
+              ? { ...ticket, status: 'closed', closure_reason: reason, reassigned_to }
+              : ticket
+          )
+        );
+        setNotifications((prev) => [
+          ...prev,
+          { type: 'info', message: `Ticket #${ticket_id} closed: ${reason}` }
+        ]);
+      });
+      socket.on('ticket_reopened', ({ ticket_id }) => {
+        setTickets((prev) =>
+          prev.map((ticket) =>
+            ticket.id === ticket_id
+              ? { ...ticket, status: 'assigned', closure_reason: null, reassigned_to: null }
+              : ticket
+          )
+        );
+      });
+      socket.on('chat_inactive', ({ ticket_id, reason }) => {
+        setTickets((prev) =>
+          prev.map((ticket) =>
+            ticket.id === ticket_id
+              ? { ...ticket, status: 'closed', closure_reason: reason }
+              : ticket
+          )
+        );
+      });
+      socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
+        const member = members.find(m => m.id === assigned_to);
+        setTickets((prev) =>
+          prev.map((ticket) =>
+            ticket.id === ticket_id
+              ? {
+                  ...ticket,
+                  assigned_to,
+                  memberName: member ? `${member.first_name} ${member.last_name}` : 'Unassigned'
+                }
+              : ticket
+          )
+        );
+        setNotifications((prev) => [
+          ...prev,
+          { type: 'info', message: `Ticket #${ticket_id} reassigned to ${member ? `${member.first_name} ${member.last_name}` : 'Unassigned'}` }
+        ]);
+      });
+    }
 
     fetchTickets();
     fetchMembers();
 
     return () => {
-      socket.off('new_ticket');
-      socket.off('ticket_closed');
-      socket.off('ticket_reopened');
-      socket.off('chat_inactive');
-      socket.off('ticket_reassigned');
+      if (socket) {
+        socket.off('new_ticket');
+        socket.off('ticket_closed');
+        socket.off('ticket_reopened');
+        socket.off('chat_inactive');
+        socket.off('ticket_reassigned');
+        socket.disconnect();
+      }
     };
-  }, [user, navigate]);
+  }, [user, navigate, members]);
 
   const fetchMembers = async () => {
     try {
+      setError(null);
       const token = localStorage.getItem('token');
       const res = await fetch('http://localhost:5000/api/users/members', {
         headers: {
@@ -118,6 +154,7 @@ function AdminDashboard() {
 
   const fetchTickets = async () => {
     try {
+      setError(null);
       const token = localStorage.getItem('token');
       const res = await fetch('http://localhost:5000/api/tickets', {
         headers: {
@@ -168,15 +205,19 @@ function AdminDashboard() {
 
   const handleViewDetails = async (ticket) => {
     try {
+      setError(null);
+      setDetailsLoading(true);
       const token = localStorage.getItem('token');
-      const userRes = await fetch(`http://localhost:5000/api/users/${ticket.user_id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const ticketId = ticket.id;
+      const [userRes, chatHistory] = await Promise.all([
+        fetch(`http://localhost:5000/api/users/${ticket.user_id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetchChats(ticket.id)
+      ]);
       if (!userRes.ok) throw new Error('Failed to fetch user details');
       const userData = await userRes.json();
-      const chatHistory = await fetchChats(ticket.id);
+      if (ticket.id !== ticketId) return; // Prevent race condition
       setSelectedTicketDetails({
         ...ticket,
         userName: `${userData.first_name} ${userData.last_name}`,
@@ -188,11 +229,14 @@ function AdminDashboard() {
       });
     } catch (err) {
       setError('Failed to fetch ticket details');
+    } finally {
+      setDetailsLoading(false);
     }
   };
 
   const handleReassignTicket = async () => {
     try {
+      setError(null);
       const token = localStorage.getItem('token');
       const res = await fetch(`http://localhost:5000/api/tickets/${reassignTicketId}/reassign`, {
         method: 'PUT',
@@ -200,9 +244,11 @@ function AdminDashboard() {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ reassign_to: reassignTo }),
+        body: JSON.stringify({ reassign_to: parseInt(reassignTo) }),
       });
-      if (!res.ok) throw new Error('Failed to reassign ticket');
+      if (!res.ok) throw new Error(await res.text());
+      const socket = getSocket();
+      socket.emit('ticket_reassigned', { ticket_id: reassignTicketId, assigned_to: parseInt(reassignTo) });
       setReassignDialogOpen(false);
       setReassignTo('');
       setReassignTicketId(null);
@@ -212,43 +258,41 @@ function AdminDashboard() {
     }
   };
 
+  const handleCloseTicket = async () => {
+    try {
+      setError(null);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/tickets/${closeTicketId}/close`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason: closeReason || 'Closed by admin' }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const socket = getSocket();
+      socket.emit('ticket_closed', { ticket_id: closeTicketId, reason: closeReason || 'Closed by admin' });
+      setCloseDialogOpen(false);
+      setCloseReason('');
+      setCloseTicketId(null);
+      fetchTickets();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const columnDefs = [
-    {
-      field: 'id',
-      headerName: 'Ticket ID',
-      flex: 1,
-      minWidth: 100,
-      floatingFilter: true,
-      fontFamily: '"Times New Roman", serif',
-    },
-    {
-      field: 'category',
-      headerName: 'Category',
-      flex: 1,
-      minWidth: 120,
-      floatingFilter: true,
-      fontFamily: '"Times New Roman", serif',
-    },
-    {
-      field: 'urgency',
-      headerName: 'Urgency',
-      flex: 1,
-      minWidth: 100,
-      floatingFilter: true,
-      fontFamily: '"Times New Roman", serif',
-    },
-     { 
-    field: 'subject', 
-    headerName: 'Subject',
-    width: 200 
-  },
+    { field: 'id', headerName: 'Ticket ID', flex: 1, minWidth: 100, floatingFilter: true },
+    { field: 'category', headerName: 'Category', flex: 1, minWidth: 120, floatingFilter: true },
+    { field: 'priority', headerName: 'priority', flex: 1, minWidth: 100, floatingFilter: true },
+    { field: 'subject', headerName: 'Subject', flex: 1, minWidth: 150, floatingFilter: true },
     {
       field: 'status',
       headerName: 'Status',
       flex: 1,
       minWidth: 100,
       floatingFilter: true,
-      fontFamily: '"Times New Roman", serif',
       cellRenderer: (params) => (
         <Typography
           sx={{
@@ -266,7 +310,6 @@ function AdminDashboard() {
             px: 2,
             py: 0.5,
             borderRadius: 1,
-            fontFamily: '"Times New Roman", serif',
             display: 'inline-block',
           }}
         >
@@ -274,56 +317,30 @@ function AdminDashboard() {
         </Typography>
       ),
     },
-      { 
-    field: 'last_message_at', 
-    headerName: 'Last Response',
-    width: 180,
-    valueFormatter: (params) => {
-      if (!params.value) return 'N/A';
-      const date = new Date(params.value);
-      return date.toLocaleString('en-IN', { 
-        timeZone: 'Asia/Kolkata',
-        hour12: true 
-      });
-    }
-  },
     {
-      field: 'activeStatus',
-      headerName: 'Active Status',
+      field: 'last_message_at',
+      headerName: 'Last Response',
       flex: 1,
-      minWidth: 120,
-      floatingFilter: true,
-      fontFamily: '"Times New Roman", serif',
+      minWidth: 180,
+      valueFormatter: (params) =>
+        params.value
+          ? new Date(params.value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true })
+          : 'N/A',
     },
+    { field: 'activeStatus', headerName: 'Active Status', flex: 1, minWidth: 120, floatingFilter: true },
     {
       field: 'closure_reason',
       headerName: 'Closure Reason',
       flex: 1,
       minWidth: 150,
       floatingFilter: true,
-      fontFamily: '"Times New Roman", serif',
-      cellRenderer: (params) => params.value || 'N/A',
+      cellRenderer: (params) => params.value || 'N/A'
     },
-    {
-      field: 'userName',
-      headerName: 'Created By',
-      flex: 1,
-      minWidth: 150,
-      floatingFilter: true,
-      fontFamily: '"Times New Roman", serif',
-    },
-    {
-      field: 'memberName',
-      headerName: 'Assigned To',
-      flex: 1,
-      minWidth: 150,
-      floatingFilter: true,
-      fontFamily: '"Times New Roman", serif',
-    },
+    { field: 'userName', headerName: 'Created By', flex: 1, minWidth: 150, floatingFilter: true },
+    { field: 'memberName', headerName: 'Assigned To', flex: 1, minWidth: 150, floatingFilter: true },
     {
       headerName: 'Actions',
-      minWidth: 200,
-      fontFamily: '"Times New Roman", serif',
+      minWidth: 250,
       cellRenderer: (params) => (
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
@@ -334,17 +351,30 @@ function AdminDashboard() {
             View Details
           </Button>
           {params.data.status !== 'closed' && params.data.status !== 'rejected' && (
-            <Button
-              variant="contained"
-              size="small"
-              color="secondary"
-              onClick={() => {
-                setReassignTicketId(params.data.id);
-                setReassignDialogOpen(true);
-              }}
-            >
-              Reassign
-            </Button>
+            <>
+              <Button
+                variant="contained"
+                size="small"
+                color="secondary"
+                onClick={() => {
+                  setReassignTicketId(params.data.id);
+                  setReassignDialogOpen(true);
+                }}
+              >
+                Reassign
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                color="error"
+                onClick={() => {
+                  setCloseTicketId(params.data.id);
+                  setCloseDialogOpen(true);
+                }}
+              >
+                Close
+              </Button>
+            </>
           )}
         </Box>
       ),
@@ -360,10 +390,17 @@ function AdminDashboard() {
     <>
       <Navbar />
       <Box sx={{ mt: '64px', height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', bgcolor: '#f5f5f5' }}>
-        <Box sx={{ p: 2 }}>
-          <Typography variant="h5" sx={{ fontFamily: '"Times New Roman", serif', fontWeight: 'bold' }}>
-            Admin Dashboard
-          </Typography>
+        <Box sx={{ p: 2, marginBottom: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+              Admin Dashboard
+            </Typography>
+            <IconButton onClick={() => setNotificationDrawerOpen(true)}>
+              <Badge badgeContent={notifications.length} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+          </Box>
         </Box>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -389,7 +426,7 @@ function AdminDashboard() {
                 rowData={tickets}
                 columnDefs={columnDefs}
                 defaultColDef={defaultColDef}
-                pagination={true}
+                pagination
                 paginationPageSize={10}
                 animateRows={true}
               />
@@ -399,22 +436,28 @@ function AdminDashboard() {
         <Modal
           open={Boolean(selectedTicket)}
           onClose={() => setSelectedTicket(null)}
-          aria-labelledby="ticket-details-modal"
           sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          aria-labelledby="ticket-details-modal"
+          aria-describedby="ticket-details-description"
         >
           <Paper sx={{ width: '90%', height: '90vh', maxWidth: 1200, p: 3, position: 'relative', overflow: 'hidden' }}>
-            {selectedTicket && (
+            {detailsLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <CircularProgress />
+              </Box>
+            ) : selectedTicket && (
               <Grid container spacing={2} sx={{ height: '100%' }}>
                 <Grid item xs={4}>
                   <Paper elevation={2} sx={{ p: 2, height: '100%', overflow: 'auto' }}>
-                    <Typography variant="h6" gutterBottom>Ticket Details</Typography>
+                    <Typography variant="h6" gutterBottom id="ticket-details-modal">Ticket Details</Typography>
                     <Divider sx={{ my: 2 }} />
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }} id="ticket-details-description">
                       <Typography><strong>Ticket ID:</strong> #{selectedTicket.id}</Typography>
+                      <Typography><strong>Subject:</strong> {selectedTicket.subject}</Typography>
                       <Typography><strong>Created By:</strong> {selectedTicketDetails?.userName || 'Loading...'}</Typography>
                       <Typography><strong>User Email:</strong> {selectedTicketDetails?.userEmail || 'Loading...'}</Typography>
                       <Typography><strong>Category:</strong> {selectedTicket.category}</Typography>
-                      <Typography><strong>Urgency:</strong> {selectedTicket.urgency}</Typography>
+                      <Typography><strong>priority:</strong> {selectedTicket.priority}</Typography>
                       <Typography><strong>Status:</strong> {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}</Typography>
                       <Typography><strong>Active Status:</strong> {selectedTicket.activeStatus}</Typography>
                       {selectedTicket.closure_reason && (
@@ -456,7 +499,7 @@ function AdminDashboard() {
                     <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
                       <ChatWindow
                         ticketId={selectedTicket.id}
-                        readOnly={true}
+                        readOnly={false}
                         initialMessages={selectedTicket.chats}
                       />
                     </Box>
@@ -480,7 +523,7 @@ function AdminDashboard() {
                   <MenuItem value="">Select Member</MenuItem>
                   {members.map(member => (
                     <MenuItem key={member.id} value={member.id}>
-                      {member.name}
+                      {member.first_name} {member.last_name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -498,6 +541,36 @@ function AdminDashboard() {
             </Button>
           </DialogActions>
         </Dialog>
+        <Dialog open={closeDialogOpen} onClose={() => setCloseDialogOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Close Ticket</DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+              <TextField
+                fullWidth
+                multiline
+                rows={4}
+                label="Reason for Closing"
+                value={closeReason}
+                onChange={(e) => setCloseReason(e.target.value)}
+                placeholder="Enter reason for closing the ticket"
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setCloseDialogOpen(false)}>Cancel</Button>
+            <Button
+              variant="contained"
+              onClick={handleCloseTicket}
+              disabled={!closeReason.trim()}
+            >
+              Confirm
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <NotificationDrawer
+          open={notificationDrawerOpen}
+          onClose={() => setNotificationDrawerOpen(false)}
+        />
       </Box>
     </>
   );

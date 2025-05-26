@@ -1,61 +1,104 @@
-import io from 'socket.io-client';
 import { useState, useEffect } from 'react';
+import io from 'socket.io-client';
 
 let socket = null;
+let connectionPromise = null;
 
-const initSocket = () => {
-  if (!socket) {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
-
-    socket = io('http://localhost:5000', {
-      query: { token },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionAttempts: 3,
-      reconnectionDelay: 2000,
-      timeout: 10000,
+export const validateToken = async (token) => {
+  try {
+    const response = await fetch('http://localhost:5000/api/auth/validate', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
+    return response.ok;
+  } catch (error) {
+    console.error('Token validation failed:', error);
+    return false;
+  }
+};
+
+const initSocket = async () => {
+  if (socket && socket.connected) {
+    console.log('Socket already connected:', socket.id);
+    return socket;
+  }
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.warn('No token available for socket connection');
+    return null;
+  }
+
+  const isValid = await validateToken(token);
+  if (!isValid) {
+    console.warn('Invalid token, clearing auth data');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    return null;
+  }
+
+  socket = io('http://localhost:5000', {
+    query: { token },
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 2000,
+    timeout: 10000,
+  });
+
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      socket.disconnect();
+      socket = null;
+      reject(new Error('Socket connection timed out'));
+    }, 15000);
 
     socket.on('connect', () => {
-      console.log('Socket connected');
-    });
-
-    socket.on('connect_success', (data) => {
-      console.log('Socket connected successfully:', data);
+      clearTimeout(timeoutId);
+      console.log('Socket connected:', socket.id);
+      resolve(socket);
     });
 
     socket.on('connect_error', (error) => {
-  console.error('Socket connection error:', error.message, error);
-  if (error.message === 'Invalid token') {
-    console.log('Invalid token detected, disconnecting');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    socket.disconnect();
-    socket = null;
-  }
-});
+      clearTimeout(timeoutId);
+      console.error('Socket connection error:', error.message);
+      socket = null;
+      reject(new Error('Socket connection failed'));
+    });
 
     socket.on('error', (error) => {
-      console.error('Socket error:', error);
+      console.error('Socket error:', error.message);
     });
 
     socket.on('disconnect', (reason) => {
       console.log('Socket disconnected:', reason);
+      socket = null;
+    });
+  });
+};
+
+export const getSocket = async () => {
+  if (socket && socket.connected) {
+    return socket;
+  }
+
+  if (!connectionPromise) {
+    connectionPromise = initSocket().finally(() => {
+      connectionPromise = null;
     });
   }
 
-  return socket;
-};
-
-const getSocket = () => {
-  if (socket?.connected) {
+  try {
+    socket = await connectionPromise;
     return socket;
+  } catch (error) {
+    console.error('Failed to get socket:', error);
+    return null;
   }
-  return initSocket();
 };
 
-const disconnectSocket = () => {
+export const disconnectSocket = () => {
   if (socket) {
     socket.disconnect();
     socket = null;
@@ -67,169 +110,57 @@ export const useSocket = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const socket = getSocket();
-    if (!socket) {
-      setError('No token available');
-      return;
-    }
+    let socketInstance = null;
 
-    const handleConnect = () => {
-      console.log('Socket connected');
-      setIsConnected(true);
-      setError(null);
+    const initializeSocket = async () => {
+      try {
+        socketInstance = await getSocket();
+        if (!socketInstance) {
+          setError('Failed to initialize socket: No valid token');
+          setIsConnected(false);
+          return;
+        }
+
+        setError(null);
+        setIsConnected(socketInstance.connected);
+
+        socketInstance.on('connect', () => {
+          setIsConnected(true);
+          setError(null);
+        });
+
+        socketInstance.on('disconnect', () => {
+          setIsConnected(false);
+          setError('Socket disconnected');
+        });
+
+        socketInstance.on('error', (err) => {
+          setError(err.message || 'Socket error');
+          setIsConnected(false);
+        });
+
+        socketInstance.on('connect_error', (err) => {
+          setError(err.message || 'Connection error');
+          setIsConnected(false);
+        });
+      } catch (err) {
+        setError(err.message || 'Failed to initialize socket');
+        setIsConnected(false);
+      }
     };
 
-    const handleConnectSuccess = () => {
-      setIsConnected(true);
-      setError(null);
-    };
-
-    const handleDisconnect = () => {
-      setIsConnected(false);
-    };
-
-    const handleError = (err) => {
-      console.log('Socket error:', err);
-      setError(err.message);
-      setIsConnected(false);
-    };
-    socket.on('connect', handleConnect);
-    socket.on('connect_success', handleConnectSuccess);
-    socket.on('disconnect', handleDisconnect);
-    socket.on('error', handleError);
-    socket.on('connect_error', handleError);
-    console.log('Socket initialized:', isConnected); 
-
+    initializeSocket();
 
     return () => {
-      socket.off('connect', handleConnect);
-      socket.off('connect_success', handleConnectSuccess);
-      socket.off('disconnect', handleDisconnect);
-      socket.off('error', handleError);
+      if (socketInstance) {
+        socketInstance.off('connect');
+        socketInstance.off('disconnect');
+        socketInstance.off('error');
+        socketInstance.off('connect_error');
+        // Do not disconnect here to maintain singleton across components
+      }
     };
   }, []);
 
   return { isConnected, error };
 };
-
-export { getSocket, disconnectSocket };
-
-// import io from 'socket.io-client';
-
-// let socket = null;
-
-// const initSocket = () => {
-//   if (!socket) {
-//     const token = localStorage.getItem('token');
-//     if (!token) {
-//       console.error('No token available for socket connection');
-//       return null;
-//     }
-
-//     try {
-//       socket = io('http://localhost:5000', {
-//         query: { token },
-//         transports: ['websocket'],
-//         reconnection: true,
-//         reconnectionAttempts: 5,
-//         reconnectionDelay: 1000,
-//         reconnectionDelayMax: 5000,
-//         timeout: 20000,
-//         autoConnect: true
-//       });
-
-//       socket.on('connect', () => {
-//         console.log('Socket connected');
-//       });
-
-//       socket.on('disconnect', (reason) => {
-//         console.log('Socket disconnected:', reason);
-//         if (reason === 'io server disconnect') {
-//           // The server explicitly disconnected, need to manually reconnect
-//           socket.connect();
-//         }
-//       });
-
-//       socket.on('connect_error', (error) => {
-//         console.error('Socket connection error:', error);
-//         if (error.message === 'Invalid token') {
-//           localStorage.removeItem('token');
-//           localStorage.removeItem('user');
-//           socket.disconnect();
-//           socket = null;
-//         }
-//       });
-
-//       socket.on('error', (error) => {
-//         console.error('Socket error:', error);
-//       });
-
-//       return socket;
-//     } catch (err) {
-//       console.error('Socket initialization error:', err);
-//       return null;
-//     }
-//   }
-//   return socket;
-// };
-
-// const getSocket = () => {
-//   if (socket?.connected) {
-//     return socket;
-//   }
-//   return initSocket();
-// };
-
-// const disconnectSocket = () => {
-//   if (socket) {
-//     socket.disconnect();
-//     socket = null;
-//   }
-// };
-
-// export const useSocket = () => {
-//   const [isConnected, setIsConnected] = useState(false);
-//   const [error, setError] = useState(null);
-
-//   useEffect(() => {
-//     const socket = getSocket();
-//     if (!socket) {
-//       setError('No token available');
-//       return;
-//     }
-
-//     const handleConnect = () => {
-//       setIsConnected(true);
-//       setError(null);
-//     };
-
-//     const handleDisconnect = () => {
-//       setIsConnected(false);
-//     };
-
-//     const handleError = (err) => {
-//       setError(err.message);
-//       setIsConnected(false);
-//     };
-
-//     socket.on('connect', handleConnect);
-//     socket.on('disconnect', handleDisconnect);
-//     socket.on('error', handleError);
-
-//     // Set initial state
-//     setIsConnected(socket.connected);
-//     if (!socket.connected) {
-//       setError('Not connected');
-//     }
-
-//     return () => {
-//       socket.off('connect', handleConnect);
-//       socket.off('disconnect', handleDisconnect);
-//       socket.off('error', handleError);
-//     };
-//   }, []);
-
-//   return { isConnected, error, socket: getSocket() };
-// };
-
-// export { getSocket, disconnectSocket };
