@@ -495,11 +495,7 @@ function MemberDashboard() {
           <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
             Member Support Dashboard
           </Typography>
-          <IconButton onClick={() => setNotificationDrawerOpen(true)}>
-            <Badge badgeContent={notifications.length} color="error">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+       
         </Box>
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
           <TableContainer sx={{ maxHeight: 'calc(100vh - 230px)' }}>
@@ -529,7 +525,7 @@ function MemberDashboard() {
                                 </InputAdornment>
                               )
                             }}
-                            sx={{ mt: 1, width: '100%' }}
+                            sx={{ mt: 1, width: '100%', fontSize: '0.875rem' }}
                           />
                         </>) : (
                         header.label

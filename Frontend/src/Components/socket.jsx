@@ -7,13 +7,15 @@ let connectionPromise = null;
 export const validateToken = async (token) => {
   try {
     const response = await fetch('http://localhost:5000/api/auth/validate', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` }
     });
-    return response.ok;
-  } catch (error) {
-    console.error('Token validation failed:', error);
+    if (!response.ok) {
+      console.warn('Token validation failed:', response.status);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('Token validation error:', err.message);
     return false;
   }
 };
@@ -33,8 +35,6 @@ const initSocket = async () => {
   const isValid = await validateToken(token);
   if (!isValid) {
     console.warn('Invalid token, clearing auth data');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
     return null;
   }
 
@@ -51,7 +51,7 @@ const initSocket = async () => {
     const timeoutId = setTimeout(() => {
       socket.disconnect();
       socket = null;
-      reject(new Error('Socket connection timed out'));
+      reject(new Error('Socket connection timed out after 15 seconds'));
     }, 15000);
 
     socket.on('connect', () => {
@@ -64,11 +64,11 @@ const initSocket = async () => {
       clearTimeout(timeoutId);
       console.error('Socket connection error:', error.message);
       socket = null;
-      reject(new Error('Socket connection failed'));
+      reject(new Error(`Socket connection failed: ${error.message}`));
     });
 
     socket.on('error', (error) => {
-      console.error('Socket error:', error.message);
+      console.error('Socket error:', error.message || error);
     });
 
     socket.on('disconnect', (reason) => {
@@ -83,55 +83,60 @@ export const getSocket = async () => {
     return socket;
   }
 
-  if (!connectionPromise) {
-    connectionPromise = initSocket().finally(() => {
-      connectionPromise = null;
-    });
+  if (connectionPromise) {
+    return connectionPromise;
   }
+
+  connectionPromise = initSocket().finally(() => {
+    connectionPromise = null;
+  });
 
   try {
     socket = await connectionPromise;
     return socket;
   } catch (error) {
-    console.error('Failed to get socket:', error);
+    console.error('Failed to get socket:', error.message);
     return null;
   }
 };
 
 export const disconnectSocket = () => {
   if (socket) {
+    socket.off('connect');
+    socket.off('connect_error');
+    socket.off('error');
+    socket.off('disconnect');
     socket.disconnect();
+    console.log('Socket disconnected');
     socket = null;
   }
 };
 
 export const useSocket = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(socket?.connected || false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    let socketInstance = null;
-
     const initializeSocket = async () => {
       try {
-        socketInstance = await getSocket();
+        const socketInstance = await getSocket();
         if (!socketInstance) {
-          setError('Failed to initialize socket: No valid token');
+          setError('Failed to initialize socket: No valid token or connection failed');
           setIsConnected(false);
           return;
         }
 
-        setError(null);
         setIsConnected(socketInstance.connected);
+        setError(null);
 
         socketInstance.on('connect', () => {
           setIsConnected(true);
           setError(null);
         });
 
-        socketInstance.on('disconnect', () => {
+        socketInstance.on('disconnect', (reason) => {
           setIsConnected(false);
-          setError('Socket disconnected');
+          setError(`Socket disconnected: ${reason}`);
         });
 
         socketInstance.on('error', (err) => {
@@ -143,6 +148,13 @@ export const useSocket = () => {
           setError(err.message || 'Connection error');
           setIsConnected(false);
         });
+
+        return () => {
+          socketInstance.off('connect');
+          socketInstance.off('disconnect');
+          socketInstance.off('error');
+          socketInstance.off('connect_error');
+        };
       } catch (err) {
         setError(err.message || 'Failed to initialize socket');
         setIsConnected(false);
@@ -150,16 +162,6 @@ export const useSocket = () => {
     };
 
     initializeSocket();
-
-    return () => {
-      if (socketInstance) {
-        socketInstance.off('connect');
-        socketInstance.off('disconnect');
-        socketInstance.off('error');
-        socketInstance.off('connect_error');
-        // Do not disconnect here to maintain singleton across components
-      }
-    };
   }, []);
 
   return { isConnected, error };

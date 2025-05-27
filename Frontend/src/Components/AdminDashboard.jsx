@@ -1,26 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import {
-  Box, Typography, CircularProgress, Alert, Button, Container, Paper, Modal, Grid, Divider,
+  Box, Typography, CircularProgress, Alert, Button, Paper, Modal, Grid, Divider,
   Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem,
-  TextField, IconButton, Badge
+  TextField, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,Badge,
+  TablePagination
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { getSocket } from './socket';
+import { getSocket, useSocket } from './socket';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import Navbar from './Navbar';
-import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
 import ChatWindow from './ChatWindow';
 import NotificationDrawer from './NotificationDrawer';
 
 function AdminDashboard() {
-  const gridRef = useRef();
   const [loading, setLoading] = useState(true);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [tickets, setTickets] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [selectedTicketDetails, setSelectedTicketDetails] = useState(null);
   const [members, setMembers] = useState([]);
@@ -32,8 +31,23 @@ function AdminDashboard() {
   const [closeReason, setCloseReason] = useState('');
   const [notifications, setNotifications] = useState([]);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchFilters, setSearchFilters] = useState({
+    id: '',
+    category: '',
+    priority: '',
+    subject: '',
+    status: '',
+    last_message_at: '',
+    activeStatus: '',
+    closure_reason: '',
+    userName: '',
+    memberName: ''
+  });
   const user = useStore((state) => state.user);
   const navigate = useNavigate();
+  const { isConnected, error: socketError } = useSocket();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -47,20 +61,26 @@ function AdminDashboard() {
       return;
     }
 
-    const socket = getSocket();
-    if (socket) {
+    let socket = null;
+    const setupSocket = async () => {
+      socket = await getSocket();
+      if (!socket) {
+        setError('Failed to establish socket connection');
+        return;
+      }
+
       socket.on('new_ticket', fetchTickets);
       socket.on('ticket_closed', ({ ticket_id, reason, reassigned_to }) => {
         setTickets((prev) =>
           prev.map((ticket) =>
             ticket.id === ticket_id
-              ? { ...ticket, status: 'closed', closure_reason: reason, reassigned_to }
+              ? { ...ticket, status: reassigned_to ? 'reassigned' : 'closed', closure_reason: reason, reassigned_to }
               : ticket
           )
         );
         setNotifications((prev) => [
           ...prev,
-          { type: 'info', message: `Ticket #${ticket_id} closed: ${reason}` }
+          { type: 'info', message: `Ticket #${ticket_id} ${reassigned_to ? 'reassigned' : 'closed'}: ${reason}` }
         ]);
       });
       socket.on('ticket_reopened', ({ ticket_id }) => {
@@ -81,7 +101,7 @@ function AdminDashboard() {
           )
         );
       });
-      socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
+      socket.on('ticket_reassigned', ({ ticket_id, assigned_to, status }) => {
         const member = members.find(m => m.id === assigned_to);
         setTickets((prev) =>
           prev.map((ticket) =>
@@ -89,6 +109,7 @@ function AdminDashboard() {
               ? {
                   ...ticket,
                   assigned_to,
+                  status,
                   memberName: member ? `${member.first_name} ${member.last_name}` : 'Unassigned'
                 }
               : ticket
@@ -99,8 +120,18 @@ function AdminDashboard() {
           { type: 'info', message: `Ticket #${ticket_id} reassigned to ${member ? `${member.first_name} ${member.last_name}` : 'Unassigned'}` }
         ]);
       });
-    }
+      socket.on('ticket_inactive', ({ ticket_id, status, reason }) => {
+        setTickets((prev) =>
+          prev.map((ticket) =>
+            ticket.id === ticket_id
+              ? { ...ticket, status, closure_reason: reason }
+              : ticket
+          )
+        );
+      });
+    };
 
+    setupSocket();
     fetchTickets();
     fetchMembers();
 
@@ -111,10 +142,16 @@ function AdminDashboard() {
         socket.off('ticket_reopened');
         socket.off('chat_inactive');
         socket.off('ticket_reassigned');
-        socket.disconnect();
+        socket.off('ticket_inactive');
       }
     };
   }, [user, navigate, members]);
+
+  useEffect(() => {
+    if (socketError) {
+      setError(socketError);
+    }
+  }, [socketError]);
 
   const fetchMembers = async () => {
     try {
@@ -130,25 +167,6 @@ function AdminDashboard() {
       setMembers(data);
     } catch (err) {
       setError(err.message);
-    }
-  };
-
-  const fetchChats = async (ticketId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/chats/${ticketId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(`Failed to fetch chats: ${errorData.message || res.statusText}`);
-      }
-      return await res.json();
-    } catch (err) {
-      setError('Failed to fetch chat history');
-      return [];
     }
   };
 
@@ -196,6 +214,7 @@ function AdminDashboard() {
             : 'N/A',
       }));
       setTickets(ticketsWithDetails);
+      setFilteredTickets(ticketsWithDetails);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -209,23 +228,40 @@ function AdminDashboard() {
       setDetailsLoading(true);
       const token = localStorage.getItem('token');
       const ticketId = ticket.id;
-      const [userRes, chatHistory] = await Promise.all([
-        fetch(`http://localhost:5000/api/users/${ticket.user_id}`, {
+      
+      const [ticketRes, chatRes, userRes] = await Promise.all([
+        fetch(`http://localhost:5000/api/tickets/${ticket.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetchChats(ticket.id)
+        fetch(`http://localhost:5000/api/chats/${ticket.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`http://localhost:5000/api/users/${ticket.user_id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
       ]);
-      if (!userRes.ok) throw new Error('Failed to fetch user details');
+
+      if (!ticketRes.ok || !chatRes.ok || !userRes.ok) {
+        throw new Error('Failed to fetch ticket details');
+      }
+
+      const ticketData = await ticketRes.json();
+      const chatData = await chatRes.json();
       const userData = await userRes.json();
-      if (ticket.id !== ticketId) return; // Prevent race condition
+
+      if (ticket.id !== ticketId) return;
+
       setSelectedTicketDetails({
-        ...ticket,
+        ...ticketData,
         userName: `${userData.first_name} ${userData.last_name}`,
         userEmail: userData.email,
       });
+      
       setSelectedTicket({
-        ...ticket,
-        chats: chatHistory,
+        ...ticketData,
+        chats: chatData,
+        userName: `${userData.first_name} ${userData.last_name}`,
+        userEmail: userData.email
       });
     } catch (err) {
       setError('Failed to fetch ticket details');
@@ -244,11 +280,13 @@ function AdminDashboard() {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ reassign_to: parseInt(reassignTo) }),
+        body: JSON.stringify({ 
+          reassign_to: parseInt(reassignTo),
+          reason: 'Reassigned by admin'
+        }),
       });
       if (!res.ok) throw new Error(await res.text());
-      const socket = getSocket();
-      socket.emit('ticket_reassigned', { ticket_id: reassignTicketId, assigned_to: parseInt(reassignTo) });
+      
       setReassignDialogOpen(false);
       setReassignTo('');
       setReassignTicketId(null);
@@ -271,128 +309,71 @@ function AdminDashboard() {
         body: JSON.stringify({ reason: closeReason || 'Closed by admin' }),
       });
       if (!res.ok) throw new Error(await res.text());
-      const socket = getSocket();
-      socket.emit('ticket_closed', { ticket_id: closeTicketId, reason: closeReason || 'Closed by admin' });
+      const socket = await getSocket();
+      if (socket) {
+        socket.emit('ticket_closed', { ticket_id: closeTicketId, reason: closeReason || 'Closed by admin' });
+      }
       setCloseDialogOpen(false);
       setCloseReason('');
       setCloseTicketId(null);
+      setSelectedTicket(null);
       fetchTickets();
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const columnDefs = [
-    { field: 'id', headerName: 'Ticket ID', flex: 1, minWidth: 100, floatingFilter: true },
-    { field: 'category', headerName: 'Category', flex: 1, minWidth: 120, floatingFilter: true },
-    { field: 'priority', headerName: 'priority', flex: 1, minWidth: 100, floatingFilter: true },
-    { field: 'subject', headerName: 'Subject', flex: 1, minWidth: 150, floatingFilter: true },
-    {
-      field: 'status',
-      headerName: 'Status',
-      flex: 1,
-      minWidth: 100,
-      floatingFilter: true,
-      cellRenderer: (params) => (
-        <Typography
-          sx={{
-            bgcolor:
-              params.value === 'open'
-                ? 'warning.main'
-                : params.value === 'assigned'
-                ? 'info.main'
-                : params.value === 'rejected'
-                ? 'error.main'
-                : params.value === 'closed'
-                ? 'success.main'
-                : 'inherit',
-            color: 'white',
-            px: 2,
-            py: 0.5,
-            borderRadius: 1,
-            display: 'inline-block',
-          }}
-        >
-          {params.value.charAt(0).toUpperCase() + params.value.slice(1)}
-        </Typography>
-      ),
-    },
-    {
-      field: 'last_message_at',
-      headerName: 'Last Response',
-      flex: 1,
-      minWidth: 180,
-      valueFormatter: (params) =>
-        params.value
-          ? new Date(params.value).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true })
-          : 'N/A',
-    },
-    { field: 'activeStatus', headerName: 'Active Status', flex: 1, minWidth: 120, floatingFilter: true },
-    {
-      field: 'closure_reason',
-      headerName: 'Closure Reason',
-      flex: 1,
-      minWidth: 150,
-      floatingFilter: true,
-      cellRenderer: (params) => params.value || 'N/A'
-    },
-    { field: 'userName', headerName: 'Created By', flex: 1, minWidth: 150, floatingFilter: true },
-    { field: 'memberName', headerName: 'Assigned To', flex: 1, minWidth: 150, floatingFilter: true },
-    {
-      headerName: 'Actions',
-      minWidth: 250,
-      cellRenderer: (params) => (
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => handleViewDetails(params.data)}
-          >
-            View Details
-          </Button>
-          {params.data.status !== 'closed' && params.data.status !== 'rejected' && (
-            <>
-              <Button
-                variant="contained"
-                size="small"
-                color="secondary"
-                onClick={() => {
-                  setReassignTicketId(params.data.id);
-                  setReassignDialogOpen(true);
-                }}
-              >
-                Reassign
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                color="error"
-                onClick={() => {
-                  setCloseTicketId(params.data.id);
-                  setCloseDialogOpen(true);
-                }}
-              >
-                Close
-              </Button>
-            </>
-          )}
-        </Box>
-      ),
-    },
-  ];
-
-  const defaultColDef = {
-    sortable: true,
-    filter: true,
+  const handleSearchChange = (field, value) => {
+    setSearchFilters((prev) => ({ ...prev, [field]: value }));
+    const filtered = tickets.filter((ticket) =>
+      Object.keys(searchFilters).every((key) => {
+        if (key === field && value) {
+          return String(ticket[key] || '')
+            .toLowerCase()
+            .includes(value.toLowerCase());
+        }
+        if (searchFilters[key]) {
+          return String(ticket[key] || '')
+            .toLowerCase()
+            .includes(searchFilters[key].toLowerCase());
+        }
+        return true;
+      })
+    );
+    setFilteredTickets(filtered);
+    setPage(0);
   };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const columns = [
+    { field: 'id', headerName: 'Ticket ID', minWidth: 100 },
+    { field: 'category', headerName: 'Category', minWidth: 120 },
+    { field: 'priority', headerName: 'Priority', minWidth: 100 },
+    { field: 'subject', headerName: 'Subject', minWidth: 150 },
+    { field: 'status', headerName: 'Status', minWidth: 100 },
+    { field: 'last_message_at', headerName: 'Last Response', minWidth: 180 },
+    { field: 'activeStatus', headerName: 'Active Status', minWidth: 120 },
+    { field: 'closure_reason', headerName: 'Closure Reason', minWidth: 150 },
+    { field: 'userName', headerName: 'Created By', minWidth: 150 },
+    { field: 'memberName', headerName: 'Assigned To', minWidth: 150 },
+    { field: 'actions', headerName: 'Actions', minWidth: 250 }
+  ];
 
   return (
     <>
       <Navbar />
-      <Box sx={{ mt: '64px', height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', bgcolor: '#f5f5f5' }}>
+      <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', bgcolor: '#f5f5f5' }}>
         <Box sx={{ p: 2, marginBottom: 2 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold', mt: 7 }}>
               Admin Dashboard
             </Typography>
             <IconButton onClick={() => setNotificationDrawerOpen(true)}>
@@ -403,34 +384,149 @@ function AdminDashboard() {
           </Box>
         </Box>
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, flexGrow: 1 }}>
             <CircularProgress />
           </Box>
         ) : error ? (
-          <Alert severity="error" sx={{ m: 2 }}>
+          <Alert severity="error" sx={{ m: 2, flexGrow: 1 }}>
             {error}
           </Alert>
         ) : (
-          <Box sx={{ flex: 1, p: 2, position: 'relative' }}>
-            <Box
-              className="ag-theme-alpine"
-              sx={{
-                height: '100%',
-                width: '100%',
-                '& .ag-header-cell': { backgroundColor: '#f5f5f5', fontWeight: 'bold' },
-                '& .ag-cell': { display: 'flex', alignItems: 'center' },
-              }}
-            >
-              <AgGridReact
-                ref={gridRef}
-                rowData={tickets}
-                columnDefs={columnDefs}
-                defaultColDef={defaultColDef}
-                pagination
-                paginationPageSize={10}
-                animateRows={true}
-              />
-            </Box>
+          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', px: 2, pb: 2 }}>
+            <TableContainer component={Paper} sx={{ flexGrow: 1, maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    {columns.map((column) => (
+                      <TableCell key={column.field} sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5', minWidth: column.minWidth }}>
+                        {column.headerName}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                  <TableRow>
+                    {columns.map((column) => (
+                      <TableCell key={column.field} sx={{ minWidth: column.minWidth }}>
+                        {column.field !== 'actions' && column.field !== 'status' && column.field !== 'last_message_at' ? (
+                          <TextField
+                            size="small"
+                            placeholder={`Search ${column.headerName}`}
+                            value={searchFilters[column.field]}
+                            onChange={(e) => handleSearchChange(column.field, e.target.value)}
+                            fullWidth
+                          />
+                        ) : column.field === 'status' ? (
+                          <FormControl fullWidth size="small">
+                            <InputLabel>Status</InputLabel>
+                            <Select
+                              value={searchFilters.status}
+                              label="Status"
+                              onChange={(e) => handleSearchChange('status', e.target.value)}
+                            >
+                              <MenuItem value="">All</MenuItem>
+                              <MenuItem value="open">Open</MenuItem>
+                              <MenuItem value="assigned">Assigned</MenuItem>
+                              <MenuItem value="inactive">Inactive</MenuItem>
+                              <MenuItem value="reassigned">Reassigned</MenuItem>
+                              <MenuItem value="closed">Closed</MenuItem>
+                              <MenuItem value="rejected">Rejected</MenuItem>
+                            </Select>
+                          </FormControl>
+                        ) : column.field === 'last_message_at' ? (
+                          <Box sx={{ minWidth: 180 }} />
+                        ) : null}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredTickets
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((ticket) => (
+                      <TableRow key={ticket.id}>
+                        <TableCell>{ticket.id}</TableCell>
+                        <TableCell>{ticket.category}</TableCell>
+                        <TableCell>{ticket.priority}</TableCell>
+                        <TableCell>{ticket.subject}</TableCell>
+                        <TableCell>
+                          <Typography
+                            sx={{
+                              bgcolor:
+                                ticket.status === 'open' ? 'warning.main' :
+                                ticket.status === 'assigned' ? 'info.main' :
+                                ticket.status === 'inactive' ? 'error.main' :
+                                ticket.status === 'reassigned' ? 'secondary.main' :
+                                ticket.status === 'closed' ? 'success.main' :
+                                ticket.status === 'rejected' ? 'error.main' : 'inherit',
+                              color: 'white',
+                              px: 2,
+                              py: 0.5,
+                              borderRadius: 1,
+                              display: 'inline-block',
+                            }}
+                          >
+                            {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          {ticket.last_message_at
+                            ? new Date(ticket.last_message_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true })
+                            : 'N/A'}
+                        </TableCell>
+                        <TableCell>{ticket.activeStatus}</TableCell>
+                        <TableCell>{ticket.closure_reason || 'N/A'}</TableCell>
+                        <TableCell>{ticket.userName}</TableCell>
+                        <TableCell>{ticket.memberName}</TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => handleViewDetails(ticket)}
+                            >
+                              View Details
+                            </Button>
+                            {ticket.status !== 'closed' && ticket.status !== 'rejected' && (
+                              <>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="secondary"
+                                  onClick={() => {
+                                    setReassignTicketId(ticket.id);
+                                    setReassignDialogOpen(true);
+                                  }}
+                                >
+                                  Reassign
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  color="error"
+                                  onClick={() => {
+                                    setCloseTicketId(ticket.id);
+                                    setCloseDialogOpen(true);
+                                  }}
+                                >
+                                  Close
+                                </Button>
+                              </>
+                            )}
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredTickets.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
           </Box>
         )}
         <Modal
@@ -457,7 +553,7 @@ function AdminDashboard() {
                       <Typography><strong>Created By:</strong> {selectedTicketDetails?.userName || 'Loading...'}</Typography>
                       <Typography><strong>User Email:</strong> {selectedTicketDetails?.userEmail || 'Loading...'}</Typography>
                       <Typography><strong>Category:</strong> {selectedTicket.category}</Typography>
-                      <Typography><strong>priority:</strong> {selectedTicket.priority}</Typography>
+                      <Typography><strong>Priority:</strong> {selectedTicket.priority}</Typography>
                       <Typography><strong>Status:</strong> {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}</Typography>
                       <Typography><strong>Active Status:</strong> {selectedTicket.activeStatus}</Typography>
                       {selectedTicket.closure_reason && (
@@ -478,6 +574,7 @@ function AdminDashboard() {
                             severity={
                               selectedTicket.status === 'open' ? 'warning' :
                               selectedTicket.status === 'assigned' ? 'info' :
+                              selectedTicket.status === 'reassigned' ? 'secondary' :
                               selectedTicket.status === 'rejected' ? 'error' : 'success'
                             }
                           >
@@ -570,6 +667,7 @@ function AdminDashboard() {
         <NotificationDrawer
           open={notificationDrawerOpen}
           onClose={() => setNotificationDrawerOpen(false)}
+          notifications={notifications}
         />
       </Box>
     </>

@@ -19,9 +19,11 @@ import {
   Snackbar,
   Modal,
   Divider,
+  IconButton,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ChatIcon from '@mui/icons-material/Chat';
+import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import Navbar from './Navbar';
@@ -35,6 +37,7 @@ function UserDashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [notification, setNotification] = useState(null);
   const [newTicket, setNewTicket] = useState({
+    subject: '',
     category: '',
     priority: '',
     description: '',
@@ -56,54 +59,70 @@ function UserDashboard() {
       return;
     }
 
-    socketRef.current = getSocket();
-    socketRef.current.on('ticket_closed', ({ ticket_id, reason, reassigned_to }) => {
-      setTickets((prev) =>
-        prev.map((ticket) =>
-          ticket.id === ticket_id
-            ? { ...ticket, status: 'closed', closure_reason: reason, reassigned_to }
-            : ticket
-        )
-      );
-      if (selectedTicket?.id === ticket_id) {
-        setSelectedTicket((prev) => ({ ...prev, status: 'closed', closure_reason: reason, reassigned_to }));
-      }
-    });
+    const initializeSocket = async () => {
+      try {
+        const socket = await getSocket();
+        if (!socket) {
+          setError('Failed to initialize socket connection');
+          return;
+        }
+        socketRef.current = socket;
 
-    socketRef.current.on('ticket_reopened', ({ ticket_id }) => {
-      setTickets((prev) =>
-        prev.map((ticket) =>
-          ticket.id === ticket_id
-            ? { ...ticket, status: 'assigned', closure_reason: null, reassigned_to: null }
-            : ticket
-        )
-      );
-      if (selectedTicket?.id === ticket_id) {
-        setSelectedTicket((prev) => ({ ...prev, status: 'assigned', closure_reason: null, reassigned_to: null }));
-      }
-    });
+        socket.on('ticket_closed', ({ ticket_id, reason, reassigned_to }) => {
+          setTickets((prev) =>
+            prev.map((ticket) =>
+              ticket.id === ticket_id
+                ? { ...ticket, status: 'closed', closure_reason: reason, reassigned_to }
+                : ticket
+            )
+          );
+          if (selectedTicket?.id === ticket_id) {
+            setSelectedTicket((prev) => ({ ...prev, status: 'closed', closure_reason: reason, reassigned_to }));
+          }
+        });
 
-    socketRef.current.on('chat_inactive', ({ ticket_id, reason }) => {
-      setTickets((prev) =>
-        prev.map((ticket) =>
-          ticket.id === ticket_id
-            ? { ...ticket, status: 'closed', closure_reason: reason }
-            : ticket
-        )
-      );
-      if (selectedTicket?.id === ticket_id) {
-        setSelectedTicket((prev) => ({ ...prev, status: 'closed', closure_reason: reason }));
-      }
-    });
+        socket.on('ticket_reopened', ({ ticket_id }) => {
+          setTickets((prev) =>
+            prev.map((ticket) =>
+              ticket.id === ticket_id
+                ? { ...ticket, status: 'assigned', closure_reason: null, reassigned_to: null }
+                : ticket
+            )
+          );
+          if (selectedTicket?.id === ticket_id) {
+            setSelectedTicket((prev) => ({ ...prev, status: 'assigned', closure_reason: null, reassigned_to: null }));
+          }
+        });
 
+        socket.on('chat_inactive', ({ ticket_id, reason }) => {
+          setTickets((prev) =>
+            prev.map((ticket) =>
+              ticket.id === ticket_id
+                ? { ...ticket, status: 'closed', closure_reason: reason }
+                : ticket
+            )
+          );
+          if (selectedTicket?.id === ticket_id) {
+            setSelectedTicket((prev) => ({ ...prev, status: 'closed', closure_reason: reason }));
+          }
+        });
+      } catch (err) {
+        setError('Socket initialization failed: ' + err.message);
+      }
+    };
+
+    initializeSocket();
     fetchTickets();
 
     return () => {
-      socketRef.current.off('ticket_closed');
-      socketRef.current.off('ticket_reopened');
-      socketRef.current.off('chat_inactive');
+      if (socketRef.current) {
+        socketRef.current.off('ticket_closed');
+        socketRef.current.off('ticket_reopened');
+        socketRef.current.off('chat_inactive');
+        socketRef.current.off('joined');
+      }
     };
-  }, [user?.role, navigate]);
+  }, [user?.role, navigate, selectedTicket?.id]);
 
   const fetchTickets = async () => {
     try {
@@ -135,6 +154,7 @@ function UserDashboard() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
+          subject: newTicket.subject,
           category: newTicket.category,
           priority: newTicket.priority,
           description: newTicket.description,
@@ -149,7 +169,7 @@ function UserDashboard() {
 
       const data = await res.json();
       setDialogOpen(false);
-      setNewTicket({ category: '', priority: '', description: '' });
+      setNewTicket({ subject: '', category: '', priority: '', description: '' });
       setNotification({
         type: 'success',
         message: 'Ticket created successfully',
@@ -159,6 +179,7 @@ function UserDashboard() {
         socketRef.current.emit('ticket_created', {
           ticket_id: data.ticket_id,
           user_id: user.id,
+          subject: newTicket.subject,
           category: newTicket.category,
           priority: newTicket.priority,
           description: newTicket.description,
@@ -174,49 +195,53 @@ function UserDashboard() {
     }
   };
 
-  const handleChatClick = async (ticket) => {
-    try {
-      if (ticket.status !== 'assigned') {
-        throw new Error('Can only chat with assigned tickets');
-      }
+  // const handleChatClick = async (ticket) => {
+  //   try {
+  //     if (ticket.status !== 'assigned') {
+  //       throw new Error('Can only chat with assigned tickets');
+  //     }
 
-      if (!socketRef.current || !socketRef.current.connected) {
-        socketRef.current = getSocket();
-        if (!socketRef.current) {
-          throw new Error('Failed to initialize chat connection');
-        }
-      }
+  //     if (!socketRef.current || !socketRef.current.connected) {
+  //       socketRef.current = await getSocket();
+  //       if (!socketRef.current) {
+  //         throw new Error('Failed to initialize chat connection');
+  //       }
+  //     }
 
-      socketRef.current.emit('join', { ticket_id: ticket.id });
+  //     socketRef.current.emit('join', { ticket_id: ticket.id });
 
-      socketRef.current.on('joined', (data) => {
-        console.log('Joined chat room:', data.room);
-      });
+  //     socketRef.current.on('joined', (data) => {
+  //       console.log('Joined chat room:', data.room);
+  //     });
 
-      const token = localStorage.getItem('token');
-      const chatRes = await fetch(`http://localhost:5000/api/chats/${ticket.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  //     const token = localStorage.getItem('token');
+  //     const chatRes = await fetch(`http://localhost:5000/api/chats/${ticket.id}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-      if (!chatRes.ok) throw new Error('Failed to load chat history');
+  //     if (!chatRes.ok) throw new Error('Failed to load chat history');
 
-      const chatHistory = await chatRes.json();
+  //     const chatHistory = await chatRes.json();
 
-      setSelectedTicket({
-        ...ticket,
-        userName: `${user.first_name} ${user.last_name}`,
-        userEmail: user.email,
-        chatHistory,
-      });
-    } catch (err) {
-      setNotification({
-        type: 'error',
-        message: err.message,
-      });
-    }
-  };
+  //     setSelectedTicket({
+  //       ...ticket,
+  //       userName: `${user.first_name} ${user.last_name}`,
+  //       userEmail: user.email,
+  //       chatHistory,
+  //     });
+  //   } catch (err) {
+  //     setNotification({
+  //       type: 'error',
+  //       message: err.message,
+  //     });
+  //   }
+  // };
+
+  const handleChatClick = (ticket) => {
+  navigate(`/user/tickets/${ticket.id}`);
+};
 
   if (loading) {
     return (
@@ -234,7 +259,7 @@ function UserDashboard() {
       <>
         <Navbar />
         <Box sx={{ p: 2, mt: 8 }}>
-          <Alert severity="error">{error}</Alert>
+          <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
         </Box>
       </>
     );
@@ -270,9 +295,7 @@ function UserDashboard() {
               onClick={() => setDialogOpen(true)}
               sx={{
                 bgcolor: '#128C7E',
-                '&:hover': {
-                  bgcolor: '#075E54',
-                },
+                '&:hover': { bgcolor: '#075E54' },
               }}
             >
               New Ticket
@@ -286,26 +309,43 @@ function UserDashboard() {
                   elevation={3}
                   sx={{
                     p: 2,
-                    width: 250, 
+                    width: 250,
                     height: 200,
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 1,
                     position: 'relative',
-                    '&:hover': {
-                      boxShadow: 6,
-                    },
+                    '&:hover': { boxShadow: 6 },
                   }}
                 >
+                  <Typography
+                    sx={{
+                      position: 'absolute',
+                      top: 8,
+                      right: 8,
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: 1,
+                      color: 'white',
+                      bgcolor:
+                        ticket.status === 'open' ? '#ff9800' :
+                        ticket.status === 'assigned' ? '#4caf50' :
+                        ticket.status === 'rejected' ? '#f44336' :
+                        ticket.status === 'closed' ? '#2196f3' : 
+                        ticket.status === 'inactive' ? '#9e9e9e' : 'inherit',
+                    }}
+                  >
+                    {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                  </Typography>
                   <Typography
                     variant="h6"
                     sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
                     Ticket #{ticket.id}
                   </Typography>
-                   <Typography variant="h6" noWrap>
-    {ticket.subject}
-  </Typography>
+                  <Typography variant="h6" noWrap>
+                    {ticket.subject}
+                  </Typography>
                   <Typography
                     variant="body2"
                     color="text.secondary"
@@ -320,28 +360,7 @@ function UserDashboard() {
                   >
                     Priority: {ticket.priority}
                   </Typography>
-                  <Typography
-                    sx={{
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: 1,
-                      display: 'inline-block',
-                      width: 'fit-content',
-                      color: 'white',
-                      bgcolor:
-                        ticket.status === 'open'
-                          ? '#ff9800'
-                          : ticket.status === 'assigned'
-                          ? '#4caf50'
-                          : ticket.status === 'rejected'
-                          ? '#f44336'
-                          : ticket.status === 'closed'
-                          ? '#2196f3'
-                          : 'inherit',
-                    }}
-                  >
-                    {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
-                  </Typography>
+                  
                   {ticket.closure_reason && (
                     <Typography
                       variant="body2"
@@ -382,9 +401,7 @@ function UserDashboard() {
                       sx={{
                         mt: 'auto',
                         color: '#128C7E',
-                        '&:hover': {
-                          bgcolor: 'rgba(18, 140, 126, 0.08)',
-                        },
+                        '&:hover': { bgcolor: 'rgba(18, 140, 126, 0.08)' },
                         whiteSpace: 'nowrap',
                       }}
                     >
@@ -412,170 +429,111 @@ function UserDashboard() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          overflow: 'auto',
-          p: { xs: 1, md: 3 }, // Adjust padding based on screen size
+          p: { xs: 1, md: 3 },
         }}
       >
         <Paper
-        sx={{p : 2,width: { xs: '100%', sm: '80%', md: '80%' }, // Responsive width
-            height: { xs: '90vh', sm: '80vh' },p: { xs: 2, md: 3 },  }}
-          // sx={{
-          //  width: { xs: '100%', sm: '90%', md: '80%' }, // Responsive width
-           // height: { xs: '90vh', sm: '80vh' } // Responsive height
-          //   maxWidth: 1200,
-          //   p: { xs: 2, md: 3 }, // Responsive padding
-          //   position: 'relative',
-          //   overflow: 'hidden',
-          //   display: 'flex',
-          //   flexDirection: 'column',
-          // }}
-          
+          sx={{
+            width: { xs: '100%', sm: '90%', md: '80%' },
+            height: { xs: '90vh', sm: '80vh' },
+            p: { xs: 2, md: 3 },
+            position: 'relative',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
         >
-          {selectedTicket && (
-            console.log(selectedTicket),
-            <Grid 
-              container
-              spacing={2}
-              sx={{
-                // flex: 1,
-                // flexDirection: { xs: 'column', md: 'row' }, // Stack on small screens, row on medium and up
-                // height: '100%',
-                
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" id="chat-modal">
+              Ticket #{selectedTicket?.id} - Chat
+            </Typography>
+            <IconButton
+              onClick={() => {
+                if (socketRef.current) {
+                  socketRef.current.off('joined');
+                  socketRef.current.emit('leave', { ticket_id: selectedTicket?.id });
+                }
+                setSelectedTicket(null);
               }}
             >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          {selectedTicket && (
+            <Grid container spacing={2} sx={{ flex: 1 }}>
               <Grid
                 item
                 xs={12}
-                md={3} // Reduced to 3/12 on large screens to give more space to Chat Window
+                md={4}
                 sx={{
-                  height: { xs: 'auto', md: '100%' }, // Auto height on small screens for better stacking
-                  maxHeight: { xs: 'auto', md: 'none' }, // Limit height on small screens
-                  overflowY: 'auto', // Scroll if content overflows
+                  height: { xs: 'auto', md: '100%' },
+                  overflowY: 'auto',
                 }}
               >
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: 2,
-                    // height: '100%',
-                    // overflowX: 'auto',
-                    // borderRadius: 2,
-                    
-
-                  }}
-                >
+                <Paper elevation={2} sx={{ p: 2, height: '100%' }}>
                   <Typography variant="h6" gutterBottom>
                     Ticket Details
                   </Typography>
                   <Divider sx={{ my: 2 }} />
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Typography><strong>Ticket ID:</strong> #{selectedTicket.id}</Typography>
+                    <Typography><strong>Subject:</strong> {selectedTicket.subject}</Typography>
+                    <Typography><strong>User Email:</strong> {selectedTicket.userEmail}</Typography>
+                    <Typography><strong>Category:</strong> {selectedTicket.category}</Typography>
+                    <Typography><strong>Priority:</strong> {selectedTicket.priority}</Typography>
                     <Typography>
-                      <strong>Ticket ID:</strong> #{selectedTicket.id}
+                      <strong>Status:</strong> {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}
                     </Typography>
-                    <Typography>
-                      <strong>User Email:</strong> {selectedTicket.userEmail}
-                    </Typography>
-                    
-                    <Typography>
-                      <strong>Category:</strong> {selectedTicket.category}
-                    </Typography>
-                    <Typography>
-                      <strong>Priority:</strong> {selectedTicket.priority}
-                    </Typography>
-                    <Typography>
-                      <strong>Status:</strong>{' '}
-                      {selectedTicket.status.charAt(0).toUpperCase() +
-                        selectedTicket.status.slice(1)}
-                    </Typography>
-                    <Typography>
-                      <strong>Created:</strong>{' '}
-                      {new Date(selectedTicket.created_at).toLocaleString()}
-                    </Typography>
-                    <Typography>
-                      <strong>Description:</strong>
-                    </Typography>
+                    <Typography><strong>Created:</strong> {new Date(selectedTicket.created_at).toLocaleString()}</Typography>
+                    <Typography><strong>Description:</strong></Typography>
                     <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f5f5f5' }}>
                       {selectedTicket.description}
                     </Paper>
-                    {selectedTicket.status === 'closed' &&
-                      selectedTicket.closure_reason && (
-                        <>
+                    {selectedTicket.status === 'closed' && selectedTicket.closure_reason && (
+                      <>
+                        <Typography><strong>Closure Reason:</strong></Typography>
+                        <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+                          {selectedTicket.closure_reason}
+                        </Paper>
+                        {selectedTicket.reassigned_to && (
                           <Typography>
-                            <strong>Closure Reason:</strong>
+                            <strong>Reassigned To:</strong> Member ID {selectedTicket.reassigned_to}
                           </Typography>
-                          <Paper
-                            variant="outlined"
-                            sx={{ p: 2, bgcolor: '#f5f5f5' }}
-                          >
-                            {selectedTicket.closure_reason}
-                          </Paper>
-                          {selectedTicket.reassigned_to && (
-                            <Typography>
-                              <strong>Reassigned To:</strong> Member ID{' '}
-                              {selectedTicket.reassigned_to}
-                            </Typography>
-                          )}
-                        </>
-                      )}
+                        )}
+                      </>
+                    )}
                   </Box>
                 </Paper>
               </Grid>
               <Grid
                 item
                 xs={12}
-                md={9} // Increased to 9/12 on large screens for more Chat Window space
+                md={8}
                 sx={{
-                  height: { xs: 'auto', md: '100%' }, // Auto height on small screens for better stacking
-                  maxHeight: { xs: 'auto', md: 'none' }, // Limit height on small screens
+                  height: { xs: 'auto', md: '100%' },
                 }}
               >
                 <Box
                   sx={{
                     height: '100%',
-                    width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     borderRadius: 2,
                     overflow: 'hidden',
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                     mb:1,
-                      px: 2,
-                    }}
-                  >
-                    <Typography variant="h6">Chat Window</Typography>
-                    <Button
-                      variant="outlined"
-                      onClick={() => {
-                        if (socketRef.current) {
-                          socketRef.current.off('joined');
-                          socketRef.current.emit('leave', {
-                            ticket_id: selectedTicket.id,
-                          });
-                        }
-                        setSelectedTicket(null);
-                      }}
-                    >
-                      Close Chat
-                    </Button>
-                  </Box>
-                  <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 2 }}>
+                  <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
                     <ChatWindow
                       ticketId={selectedTicket.id}
                       initialMessages={selectedTicket.chatHistory || []}
-                      inactivityTimeout={120000} // 2 minutes in milliseconds
+                      inactivityTimeout={120000}
+                      sx={{ height: '100%' }}
                     />
                   </Box>
                 </Box>
               </Grid>
-              
             </Grid>
-)}
+          )}
         </Paper>
       </Modal>
 
@@ -588,7 +546,6 @@ function UserDashboard() {
         <DialogTitle>Create New Support Ticket</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-
             <TextField
               fullWidth
               label="Subject"
@@ -609,10 +566,10 @@ function UserDashboard() {
               </Select>
             </FormControl>
             <FormControl fullWidth>
-              <InputLabel>priority</InputLabel>
+              <InputLabel>Priority</InputLabel>
               <Select
                 value={newTicket.priority}
-                label="priority"
+                label="Priority"
                 onChange={(e) => setNewTicket({ ...newTicket, priority: e.target.value })}
               >
                 <MenuItem value="Low">Low</MenuItem>
@@ -627,20 +584,21 @@ function UserDashboard() {
               label="Description"
               value={newTicket.description}
               onChange={(e) => setNewTicket({ ...newTicket, description: e.target.value })}
+              required
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
           <Button
             onClick={handleCreateTicket}
             variant="contained"
-            disabled={!newTicket.category || !newTicket.priority || !newTicket.description}
+            disabled={!newTicket.subject || !newTicket.category || !newTicket.priority || !newTicket.description}
             sx={{
               bgcolor: '#128C7E',
-              '&:hover': {
-                bgcolor: '#075E54',
-              },
+              '&:hover': { bgcolor: '#075E54' },
             }}
           >
             Create Ticket
@@ -652,7 +610,7 @@ function UserDashboard() {
         open={!!notification}
         autoHideDuration={6000}
         onClose={() => setNotification(null)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         {notification && (
           <Alert
