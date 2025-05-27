@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Grid, Divider, Button, Alert, CircularProgress, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, Avatar, List, ListItem, ListItemAvatar, ListItemText,
-  Badge, Chip, IconButton, InputAdornment, Tabs, Tab, useMediaQuery, useTheme, Skeleton,
-  Select, MenuItem, FormControl, InputLabel
+  Badge, Chip, IconButton, InputAdornment, Tabs, Tab, useMediaQuery, useTheme, Skeleton
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -13,8 +12,9 @@ import useStore from '../store/useStore';
 import ChatWindow from './ChatWindow';
 import { getSocket } from './socket';
 import { debounce } from 'lodash';
-import Navbar from '../Components/Navbar';
+import Navbar from './Navbar';
 
+// const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const API_URL = (() => {
   try {
     if (typeof process !== 'undefined' && process.env) {
@@ -30,7 +30,7 @@ const API_URL = (() => {
   }
 })();
 
-function TicketPage() {
+function UserChatPage() {
   const { ticketId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -40,18 +40,13 @@ function TicketPage() {
   const [loading, setLoading] = useState(true);
   const [switchingTicket, setSwitchingTicket] = useState(false);
   const [error, setError] = useState(null);
-  const [closeDialogOpen, setCloseDialogOpen] = useState(false);
-  const [closeReason, setCloseReason] = useState('');
-  const [reassignTo, setReassignTo] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [unreadCounts, setUnreadCounts] = useState({});
   const [activeSection, setActiveSection] = useState(isMobile && ticketId ? 'chat' : 'tickets');
-  const [members, setMembers] = useState([]);
   const user = useStore((state) => state.user);
   const socketRef = useRef(null);
   const currentTicketIdRef = useRef(null);
   const isFetchingRef = useRef(false);
-  const userCache = useRef(new Map());
 
   useEffect(() => {
     const initializeSocket = async () => {
@@ -85,11 +80,6 @@ function TicketPage() {
         console.log('Socket disconnected:', reason);
       };
 
-      const handleNewTicket = () => {
-        console.log('New ticket event');
-        fetchData();
-      };
-
       const handleTicketUpdated = ({ ticket_id }) => {
         console.log('Ticket updated:', ticket_id);
         if (!ticket_id) return;
@@ -104,17 +94,6 @@ function TicketPage() {
               setTickets(prev => prev.map(t => t.id === ticket_id ? { ...t, ...updatedTicket } : t));
             })
             .catch(err => console.error('Error updating ticket:', err));
-        }
-      };
-
-      const handleTicketReassigned = ({ ticket_id, reassigned_to }) => {
-        console.log('Ticket reassigned:', ticket_id);
-        if (!ticket_id || reassigned_to === undefined) return;
-        setTickets(prev => prev.map(t =>
-          t.id === ticket_id ? { ...t, status: 'assigned', assigned_to: reassigned_to, reassigned_to } : t
-        ));
-        if (selectedTicket?.id === ticket_id) {
-          setSelectedTicket(prev => ({ ...prev, status: 'assigned', assigned_to: reassigned_to, reassigned_to }));
         }
       };
 
@@ -147,7 +126,7 @@ function TicketPage() {
                 content: data.message,
                 sender_id: data.sender_id,
                 timestamp: data.timestamp || new Date().toISOString(),
-                sender_name: data.sender_name || 'Unknown'
+                sender_name: data.sender_name || 'Support'
               }
             ]
           }));
@@ -160,61 +139,31 @@ function TicketPage() {
         }
       };
 
-      const handleTicketClosed = ({ ticket_id, reason, reassigned_to, status }) => {
+      const handleTicketClosed = ({ ticket_id, reason }) => {
         console.log('Ticket closed:', ticket_id);
         if (!ticket_id) return;
         setTickets(prev => prev.map(t =>
-          t.id === ticket_id ? { ...t, status: status || 'closed', closure_reason: reason, reassigned_to } : t
+          t.id === ticket_id ? { ...t, status: 'closed', closure_reason: reason } : t
         ));
         if (selectedTicket?.id === ticket_id) {
-          setSelectedTicket(prev => ({ ...prev, status: status || 'closed', closure_reason: reason, reassigned_to }));
-        }
-      };
-
-      const handleTicketReopened = ({ ticket_id }) => {
-        console.log('Ticket reopened:', ticket_id);
-        if (!ticket_id) return;
-        setTickets(prev => prev.map(t =>
-          t.id === ticket_id ? { ...t, status: 'assigned', closure_reason: null, reassigned_to: null } : t
-        ));
-        if (selectedTicket?.id === ticket_id) {
-          setSelectedTicket(prev => ({ ...prev, status: 'assigned', closure_reason: null, reassigned_to: null }));
-        }
-      };
-
-      const handleTicketInactive = ({ ticket_id, status, reason }) => {
-        console.log('Ticket marked inactive:', ticket_id);
-        if (!ticket_id) return;
-        setTickets(prev => prev.map(t =>
-          t.id === ticket_id ? { ...t, status, closure_reason: reason } : t
-        ));
-        if (selectedTicket?.id === ticket_id) {
-          setSelectedTicket(prev => ({ ...prev, status, closure_reason: reason }));
+          setSelectedTicket(prev => ({ ...prev, status: 'closed', closure_reason: reason }));
         }
       };
 
       socket.on('connect', handleConnect);
       socket.on('connect_error', handleConnectError);
       socket.on('disconnect', handleDisconnect);
-      socket.on('new_ticket', handleNewTicket);
       socket.on('ticket_updated', handleTicketUpdated);
-      socket.on('ticket_reassigned', handleTicketReassigned);
       socket.on('message', handleMessage);
       socket.on('ticket_closed', handleTicketClosed);
-      socket.on('ticket_reopened', handleTicketReopened);
-      socket.on('ticket_inactive', handleTicketInactive);
 
       return () => {
         socket.off('connect', handleConnect);
         socket.off('connect_error', handleConnectError);
         socket.off('disconnect', handleDisconnect);
-        socket.off('new_ticket', handleNewTicket);
         socket.off('ticket_updated', handleTicketUpdated);
-        socket.off('ticket_reassigned', handleTicketReassigned);
         socket.off('message', handleMessage);
         socket.off('ticket_closed', handleTicketClosed);
-        socket.off('ticket_reopened', handleTicketReopened);
-        socket.off('ticket_inactive', handleTicketInactive);
         if (currentTicketIdRef.current) {
           socket.emit('leave', { ticket_id: currentTicketIdRef.current });
         }
@@ -246,45 +195,6 @@ function TicketPage() {
     }
   };
 
-  const fetchMembers = useCallback(async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/users/members`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) {
-        if (res.status === 401) navigate('/auth');
-        throw new Error(await res.text());
-      }
-      const data = await res.json();
-      setMembers(data);
-    } catch (err) {
-      console.error('Error fetching members:', err);
-      setError('Failed to load members');
-    }
-  }, [navigate]);
-
-  const fetchUser = useCallback(async (userId, token) => {
-    if (userCache.current.has(userId)) {
-      return userCache.current.get(userId);
-    }
-    try {
-      const res = await fetch(`${API_URL}/api/users/${userId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!res.ok) {
-        if (res.status === 401) navigate('/auth');
-        throw new Error(await res.text());
-      }
-      const userData = await res.json();
-      userCache.current.set(userId, userData);
-      return userData;
-    } catch (err) {
-      console.error(`Error fetching user ${userId}:`, err);
-      return { first_name: '', last_name: '', email: '' };
-    }
-  }, [navigate]);
-
   const fetchData = useCallback(async () => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
@@ -293,16 +203,16 @@ function TicketPage() {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const ticketsRes = await fetch(`${API_URL}/api/tickets`, {
+      const res = await fetch(`${API_URL}/api/tickets/user`, {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
 
-      if (!ticketsRes.ok) {
-        if (ticketsRes.status === 401) navigate('/auth');
-        throw new Error(await ticketsRes.text());
+      if (!res.ok) {
+        if (res.status === 401) navigate('/auth');
+        throw new Error(await res.text());
       }
 
-      const ticketsData = await ticketsRes.json();
+      const ticketsData = await res.json();
 
       const ticketsWithDetails = await Promise.all(ticketsData.map(async ticket => {
         try {
@@ -312,12 +222,10 @@ function TicketPage() {
           const [unreadResponse] = await Promise.all([unreadRes]);
 
           const unreadCount = unreadResponse.ok ? await unreadResponse.json() : 0;
-          const userData = await fetchUser(ticket.user_id, token);
 
           return {
             ...ticket,
-            userName: `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Unknown User',
-            userEmail: userData.email || '',
+            userName: 'Support Team',
             lastMessage: ticket.last_message || 'No messages yet',
             lastMessageTime: ticket.last_message_time || ticket.created_at,
             unreadCount: unreadCount || 0
@@ -326,8 +234,7 @@ function TicketPage() {
           console.error(`Error fetching details for ticket ${ticket.id}:`, err);
           return {
             ...ticket,
-            userName: 'Unknown User',
-            userEmail: '',
+            userName: 'Support Team',
             lastMessage: 'No messages yet',
             lastMessageTime: ticket.created_at,
             unreadCount: 0
@@ -351,7 +258,7 @@ function TicketPage() {
       setLoading(false);
       isFetchingRef.current = false;
     }
-  }, [fetchUser, navigate]);
+  }, [navigate]);
 
   const debouncedHandleTicketSelect = useCallback(
     debounce(async (newTicketId) => {
@@ -364,7 +271,7 @@ function TicketPage() {
         const existingTicket = tickets.find(t => t.id === newTicketId);
         if (existingTicket?.chatHistory) {
           setSelectedTicket(existingTicket);
-          navigate(`/member/tickets/${newTicketId}`);
+          navigate(`/user/tickets/${newTicketId}`);
           if (socketRef.current) {
             socketRef.current.emit('join', { ticket_id: newTicketId });
           }
@@ -395,20 +302,17 @@ function TicketPage() {
 
         const chatData = chatRes.ok ? await chatRes.json() : [];
 
-        const userData = await fetchUser(ticketData.user_id, token);
-
         if (currentTicketIdRef.current !== newTicketId) return;
 
         const updatedTicket = {
           ...ticketData,
-          userName: `${userData.first_name} ${userData.last_name}`.trim() || 'Unknown User',
-          userEmail: userData.email || '',
+          userName: 'Support Team',
           chatHistory: chatData
         };
 
         setSelectedTicket(updatedTicket);
         setTickets(prev => prev.map(t => t.id === newTicketId ? { ...t, ...updatedTicket } : t));
-        navigate(`/member/tickets/${newTicketId}`);
+        navigate(`/user/tickets/${newTicketId}`);
 
         if (socketRef.current) {
           socketRef.current.emit('join', { ticket_id: newTicketId });
@@ -424,59 +328,20 @@ function TicketPage() {
         setSwitchingTicket(false);
       }
     }, 300),
-    [isMobile, fetchUser, navigate]
+    [isMobile, navigate]
   );
 
   useEffect(() => {
     fetchData();
-    fetchMembers();
     if (ticketId && !isNaN(parseInt(ticketId))) {
       debouncedHandleTicketSelect(parseInt(ticketId));
     }
-  }, [fetchData, fetchMembers, ticketId, debouncedHandleTicketSelect]);
-
-  const handleCloseTicket = async () => {
-    if (!closeReason.trim()) {
-      setError('Closure reason is required');
-      return;
-    }
-
-    try {
-      setError(null);
-      const token = localStorage.getItem('token');
-      const payload = { reason: closeReason };
-      if (reassignTo) {
-        payload.reassign_to = parseInt(reassignTo);
-      }
-
-      const res = await fetch(`${API_URL}/api/tickets/${selectedTicket.id}/close`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        if (res.status === 401) navigate('/auth');
-        throw new Error(errorData.error || 'Failed to close ticket');
-      }
-
-      setCloseDialogOpen(false);
-      setCloseReason('');
-      setReassignTo('');
-      setSelectedTicket(null);
-      setActiveSection('tickets');
-      navigate('/member/tickets');
-    } catch (err) {
-      console.error('Error closing ticket:', err);
-      setError('Failed to close ticket');
-    }
-  };
+  }, [fetchData, ticketId, debouncedHandleTicketSelect]);
 
   const filteredTickets = useMemo(() => {
     const searchLower = searchTerm?.toLowerCase() || '';
     return tickets.filter(ticket =>
-      (ticket.userName?.toLowerCase() || '').includes(searchLower) ||
+      (ticket.subject?.toLowerCase() || '').includes(searchLower) ||
       (ticket.description?.toLowerCase() || '').includes(searchLower) ||
       (ticket.lastMessage?.toLowerCase() || '').includes(searchLower)
     );
@@ -580,7 +445,7 @@ function TicketPage() {
         >
           <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
             <Typography variant="h6" fontWeight="bold" color="text.primary">
-              Support Tickets
+              My Support Tickets
             </Typography>
             <TextField
               fullWidth
@@ -654,7 +519,7 @@ function TicketPage() {
                     primary={
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body1" fontWeight="medium" noWrap>
-                          {ticket.userName}
+                          {ticket.subject || 'No subject'}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
                           {formatTime(ticket.lastMessageTime)}
@@ -731,22 +596,13 @@ function TicketPage() {
                       {selectedTicket.userName}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {selectedTicket.userEmail}
+                      Ticket #{selectedTicket.id}
                     </Typography>
                   </Box>
-                  {(selectedTicket.status === 'assigned' || selectedTicket.status === 'inactive') && (
-                    <IconButton
-                      color="error"
-                      onClick={() => setCloseDialogOpen(true)}
-                      title="Close Ticket"
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  )}
                 </Box>
                 <Box sx={{ p: 3, flex: 1, overflowY: 'auto' }}>
                   <Typography variant="h6" fontWeight="bold" gutterBottom>
-                    {selectedTicket.description}
+                    {selectedTicket.subject}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
                     <Chip
@@ -765,11 +621,24 @@ function TicketPage() {
                   </Box>
                   <Divider sx={{ my: 2 }} />
                   <Typography variant="body2" gutterBottom>
-                    <strong>Ticket ID:</strong> #{selectedTicket.id}
-                  </Typography>
-                  <Typography variant="body2">
                     <strong>Created:</strong>{' '}
                     {new Date(selectedTicket.created_at).toLocaleString('en-IN')}
+                  </Typography>
+                  {selectedTicket.closure_reason && (
+                    <>
+                      <Typography variant="body2" gutterBottom>
+                        <strong>Closure Reason:</strong>
+                      </Typography>
+                      <Typography variant="body2" sx={{ p: 1, bgcolor: theme.palette.grey[100], borderRadius: 1 }}>
+                        {selectedTicket.closure_reason}
+                      </Typography>
+                    </>
+                  )}
+                  <Typography variant="body2" gutterBottom sx={{ mt: 2 }}>
+                    <strong>Description:</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ p: 1, bgcolor: theme.palette.grey[100], borderRadius: 1 }}>
+                    {selectedTicket.description}
                   </Typography>
                 </Box>
               </Box>
@@ -824,7 +693,7 @@ function TicketPage() {
                   sx={{
                     flex: 1,
                     overflowY: 'auto',
-                    maxHeight: 'calc(100vh - 64px - 16px - 64px)', // Adjust for Navbar, Tabs, and header
+                    maxHeight: 'calc(100vh - 64px - 16px - 64px)',
                   }}
                 >
                   <ChatWindow
@@ -833,6 +702,7 @@ function TicketPage() {
                     initialMessages={selectedTicket.chatHistory || []}
                     readOnly={selectedTicket.status === 'closed'}
                     sx={{ height: '100%' }}
+                    isUser={true}
                   />
                 </Box>
               </Box>
@@ -846,59 +716,6 @@ function TicketPage() {
           )}
         </Grid>
       </Grid>
-
-      <Dialog open={closeDialogOpen} onClose={() => setCloseDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Close or Reassign Ticket</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              label="Reason for Closing"
-              value={closeReason}
-              onChange={(e) => setCloseReason(e.target.value)}
-              required
-              variant="outlined"
-            />
-            <FormControl fullWidth>
-              <InputLabel>Reassign To (Optional)</InputLabel>
-              <Select
-                value={reassignTo}
-                label="Reassign To (Optional)"
-                onChange={(e) => setReassignTo(e.target.value)}
-              >
-                <MenuItem value="">None</MenuItem>
-                {members.map((member) => (
-                  <MenuItem key={member.id} value={member.id}>
-                    {member.first_name} {member.last_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              setCloseDialogOpen(false);
-              setCloseReason('');
-              setReassignTo('');
-            }}
-            color="inherit"
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleCloseTicket}
-            disabled={!closeReason.trim()}
-            color="error"
-          >
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
@@ -917,4 +734,4 @@ function stringToColor(string) {
   return color;
 }
 
-export default TicketPage;
+export default UserChatPage;

@@ -10,68 +10,18 @@ import {
   Divider,
   Button,
   CircularProgress,
-  Alert
+  Alert,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import { getSocket } from './socket';
+import { useNavigate } from 'react-router-dom';
 
 function NotificationDrawer({ open, onClose, notifications }) {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (open) {
-      fetchOpenTickets();
-    }
-
-    let socket = null;
-    const initializeSocket = async () => {
-      try {
-        socket = await getSocket();
-        if (socket) {
-          socket.on('ticket_reassigned', async ({ ticket_id, reassigned_to }) => {
-            try {
-              const token = localStorage.getItem('token');
-              const res = await fetch(`http://localhost:5000/api/users/me`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-              });
-              if (!res.ok) throw new Error('Failed to fetch user');
-              const userData = await res.json();
-              if (userData.id === reassigned_to) {
-                setNotifications(prev => [
-                  ...prev,
-                  {
-                    type: 'info',
-                    message: `Ticket #${ticket_id} has been reassigned to you.`
-                  }
-                ]);
-                fetchOpenTickets();
-              }
-            } catch (err) {
-              console.error('Error fetching user:', err);
-            }
-          });
-          socket.on('connect_error', (err) => {
-            console.error('Socket error:', err.message);
-          });
-        }
-      } catch (err) {
-        console.error('Failed to initialize socket:', err);
-      }
-    };
-
-    initializeSocket();
-
-    return () => {
-      if (socket) {
-        socket.off('ticket_reassigned');
-        socket.off('connect_error');
-      }
-    };
-  }, [open]);
 
   const fetchOpenTickets = async () => {
     setLoading(true);
@@ -81,22 +31,33 @@ function NotificationDrawer({ open, onClose, notifications }) {
 
       const res = await fetch('http://localhost:5000/api/tickets', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!res.ok) throw new Error('Failed to fetch tickets');
 
       const data = await res.json();
-      const openTickets = data.filter(ticket => ticket.status === 'open');
+      const openTickets = data.filter((ticket) => ticket.status === 'open');
       setTickets(openTickets);
       setError(null);
     } catch (err) {
       setError(err.message);
+      if (err.message.includes('No token') || err.message.includes('Unauthorized')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/auth');
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (open) {
+      fetchOpenTickets();
+    }
+  }, [open]);
 
   const handleAcceptTicket = async (ticketId) => {
     try {
@@ -104,7 +65,7 @@ function NotificationDrawer({ open, onClose, notifications }) {
       const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/accept`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -114,6 +75,11 @@ function NotificationDrawer({ open, onClose, notifications }) {
       onClose();
     } catch (err) {
       setError(err.message);
+      if (err.message.includes('Unauthorized')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/auth');
+      }
     }
   };
 
@@ -123,7 +89,7 @@ function NotificationDrawer({ open, onClose, notifications }) {
       const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/reject`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -132,6 +98,11 @@ function NotificationDrawer({ open, onClose, notifications }) {
       await fetchOpenTickets();
     } catch (err) {
       setError(err.message);
+      if (err.message.includes('Unauthorized')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/auth');
+      }
     }
   };
 
@@ -141,7 +112,7 @@ function NotificationDrawer({ open, onClose, notifications }) {
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: { width: 350 }
+        sx: { width: 350 },
       }}
     >
       <Box sx={{ p: 2 }}>
@@ -184,7 +155,7 @@ function NotificationDrawer({ open, onClose, notifications }) {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'stretch',
-                    gap: 1
+                    gap: 1,
                   }}
                 >
                   <ListItemText
@@ -220,7 +191,7 @@ function NotificationDrawer({ open, onClose, notifications }) {
                       variant="outlined"
                       size="small"
                     >
-                    Reject
+                      Reject
                     </Button>
                   </Box>
                 </ListItem>

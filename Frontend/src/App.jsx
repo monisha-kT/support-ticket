@@ -40,6 +40,8 @@ function RedirectHandler() {
 }
 
 import Min from "./Components/Min";
+import UserTicketsPage from "./Components/UserTicketsPage";
+import UserChatPage from "./Components/UserChatPage";
 
 function App() {
   const { user } = useStore();
@@ -50,6 +52,8 @@ function App() {
         <Route path="/" element={<RedirectHandler />} />
         <Route path="/auth" element={<AuthForm />} />
         <Route path="/dashboard" element={<Min />} />
+        <Route path="/user/tickets" element={<UserChatPage />} />
+        <Route path="/user/tickets/:ticketId" element={<UserChatPage />} />
         <Route path="/member/tickets/:ticketId" element={<TicketPage />} />
         <Route path="*" element={<Navigate to="/auth" replace />} />
       </Routes>
