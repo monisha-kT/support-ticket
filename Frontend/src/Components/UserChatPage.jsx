@@ -203,7 +203,7 @@ function UserChatPage() {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/tickets/user`, {
+      const res = await fetch(`${API_URL}/api/tickets`, {
         headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
 
