@@ -101,6 +101,21 @@ function UserDashboard() {
           }
         });
 
+        socket.on('ticket_reassigned', ({ ticket_id, reassigned_to }) => {
+          setTickets((prev) =>
+            prev
+              .map((ticket) =>
+                ticket.id === ticket_id
+                  ? { ...ticket, status: 'reassigned', reassigned_to }
+                  : ticket
+              )
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          );
+          if (selectedTicket?.id === ticket_id) {
+            setSelectedTicket((prev) => ({ ...prev, status: 'reassigned', reassigned_to }));
+          }
+        });
+
         socket.on('ticket_reopened', ({ ticket_id }) => {
           setTickets((prev) =>
             prev

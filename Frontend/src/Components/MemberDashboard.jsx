@@ -198,7 +198,14 @@ function MemberDashboard() {
 
       socket.on('new_ticket', fetchTickets);
       socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
-        fetchTickets();
+        setTickets(prev =>
+          prev.map(ticket =>
+            ticket.id === ticket_id ? { ...ticket, status: 'reassigned', reassigned_to: assigned_to } : ticket
+          )
+        );
+        if (selectedTicket?.id === ticket_id) {
+          setSelectedTicket(prev => ({ ...prev, status: 'reassigned', reassigned_to: assigned_to }));
+        }
         if (user.id === assigned_to) {
           setNotifications(prev => [
             ...prev,
