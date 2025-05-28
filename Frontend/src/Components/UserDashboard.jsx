@@ -324,11 +324,20 @@ function UserDashboard() {
             sx={{
               maxHeight: 'calc(100% - 180px)',
               overflowY: 'auto',
+              
+
             }}
           >
             <Table>
               <TableHead>
-                <TableRow>
+                <TableRow sx={
+{position: 'sticky',
+top: 0,
+zIndex: 2,
+backgroundColor: '#00796b',
+
+}
+                }>
                   <TableCell sx={{ fontSize: '16px', fontWeight: 'bold', bgcolor: '#128C7E', color: 'white' }}>Ticket ID</TableCell>
                   <TableCell sx={{ fontSize: '16px', fontWeight: 'bold', bgcolor: '#128C7E', color: 'white' }}>Subject</TableCell>
                   <TableCell sx={{ fontSize: '16px', fontWeight: 'bold', bgcolor: '#128C7E', color: 'white' }}>Category</TableCell>

@@ -7,7 +7,7 @@ A real-time support ticket system with chat functionality built using React and 
 ### Ticket Management System
 
 1. **User Dashboard**
-   - Create new support tickets with category, urgency, and description
+   - Create new support tickets with category, priority, and description
    - View all tickets with their current status (open, assigned, rejected, closed)
    - Real-time status updates for ticket acceptance/rejection
    - Chat access for assigned tickets

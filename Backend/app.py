@@ -45,8 +45,8 @@ socketio = SocketIO(
     app,
     cors_allowed_origins="http://localhost:5173",
     async_mode='eventlet',
-    ping_timeout=10,
-    ping_interval=5,
+    ping_timeout=30,
+    ping_interval=10,
     max_http_buffer_size=1e4,
     manage_session=False,
     engineio_logger=True
@@ -67,13 +67,13 @@ class User(db.Model):
     phone = db.Column(db.String(15), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='user')
-
+    
 class Ticket(db.Model):
     __tablename__ = 'tickets'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     category = db.Column(db.String(50), nullable=False)
-    urgency = db.Column(db.String(20), nullable=False)
+    priority = db.Column(db.String(20), nullable=False)
     description = db.Column(db.Text, nullable=False)
     predefined_question = db.Column(db.String(255), nullable=True)
     visibility = db.Column(db.String(20), nullable=False, default='all_members')
@@ -84,6 +84,7 @@ class Ticket(db.Model):
     closure_reason = db.Column(db.Text, nullable=True)
     reassigned_to = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     last_message_at = db.Column(db.DateTime, nullable=True)
+    subject = db.Column(db.String(50), nullable=False)
 
 class ChatMessage(db.Model):
     __tablename__ = 'chat_messages'
@@ -94,7 +95,17 @@ class ChatMessage(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(IST))
     is_system = db.Column(db.Boolean, default=False)
 
+class UnreadMessage(db.Model):
+    __tablename__ = 'unread_messages'
+    id = db.Column(db.Integer, primary_key=True)
+    ticket_id = db.Column(db.Integer, db.ForeignKey('tickets.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    message_id = db.Column(db.Integer, db.ForeignKey('chat_messages.id'), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(IST))
+
 # Socket.IO Events
+
+   
 @socketio.on('connect')
 def handle_connect():
     try:
@@ -125,32 +136,7 @@ def handle_connect():
         logger.error(f"Connection error: {str(e)}")
         emit('error', {'message': f'Invalid token: {str(e)}'})
         return False
-    try:
-        token = request.args.get('token')
-        if not token:
-            logger.warning("No token provided for socket connection")
-            return False
-
-        decoded = decode_token(token)
-        user_id = decoded['sub']
-        
-        active_connections[request.sid] = {
-            'user_id': user_id,
-            'rooms': {str(user_id)}
-        }
-        
-        join_room(str(user_id))
-        
-        logger.info(f"User {user_id} connected with sid {request.sid}")
-        emit('connect_success', {
-            'message': 'Connected successfully',
-            'user_id': user_id
-        })
-        return True
     
-    except Exception as e:
-        logger.error(f"Connection error: {str(e)}")
-        return False
 
 @socketio.on('disconnect')
 def handle_disconnect():
@@ -159,7 +145,7 @@ def handle_disconnect():
         for room in user_data['rooms']:
             leave_room(room)
         del active_connections[request.sid]
-        logger.info(f"Client {request.sid} disconnected")
+        logger.info(f"Client {request.sid} disconnected : User {user_data['user_id']}")
 
 @socketio.on('join')
 def on_join(data):
@@ -200,8 +186,7 @@ def on_leave(data):
         logger.error(f"Error in leave: {str(e)}")
         emit('error', {'message': 'Failed to leave room'}, room=request.sid)
 
-@socketio.on('message')
-def handle_message(data):
+
     try:
         if request.sid not in active_connections:
             logger.error(f"Unknown client sending message: {request.sid}")
@@ -245,32 +230,279 @@ def handle_message(data):
     except Exception as e:
         logger.error(f"Error in message: {str(e)}")
         emit('error', {'message': 'Failed to send message'}, room=request.sid)
+# @socketio.on('message')
+# def handle_message(data):
+#     try:
+#         if request.sid not in active_connections:
+#             logger.error(f"Unknown client sending message: {request.sid}")
+#             return
 
-@socketio.on('inactivity_timeout')
-def handle_inactivity_timeout(data):
+#         user_data = active_connections[request.sid]
+#         ticket_id = str(data['ticket_id'])
+        
+#         if ticket_id not in user_data['rooms']:
+#             logger.error(f"User {user_data['user_id']} not in room {ticket_id}")
+#             return
+        
+#         ticket = Ticket.query.get_or_404(ticket_id)
+#         if ticket.status == 'closed':
+#             emit('error', {'message': 'Ticket is closed'}, room=request.sid)
+#             return
+
+#         message = ChatMessage(
+#             ticket_id=ticket_id,
+#             sender_id=data['sender_id'],
+#             message=data['message'],
+#             timestamp=datetime.now(IST)
+#         )
+#         ticket.last_message_at = datetime.now(IST)
+#         db.session.add(message)
+#         db.session.flush()  # Ensure message.id is available
+
+#         # Mark message as unread for other participants
+#         participants = {ticket.user_id, ticket.assigned_to} - {data['sender_id']}
+#         for participant_id in participants:
+#             if participant_id:
+#                 unread = UnreadMessage(
+#                     ticket_id=ticket_id,
+#                     user_id=participant_id,
+#                     message_id=message.id
+#                 )
+#                 db.session.add(unread)
+
+#         db.session.commit()
+        
+#         emit('message', {
+#             'id': message.id,
+#             'sender_id': message.sender_id,
+#             'message': message.message,
+#             'timestamp': message.timestamp.isoformat()
+#         }, room=ticket_id)
+        
+#         emit('message_sent', {
+#             'success': True,
+#             'message': message.message,
+#             'timestamp': message.timestamp.isoformat()
+#         }, to=request.sid)
+    
+#     except Exception as e:
+#         logger.error(f"Error in message: {str(e)}")
+#         db.session.rollback()
+#         emit('error', {'message': 'Failed to send message'}, room=request.sid)
+
+
+
+#     try:
+#         ticket_id = str(data['ticket_id'])
+#         ticket = Ticket.query.get_or_404(ticket_id)
+#         if ticket.status != 'closed':
+#             ticket.status = 'closed'
+#             ticket.closure_reason = 'Closed due to 2-minute inactivity'
+#             ticket.last_message_at = datetime.now(IST)
+#             system_message = ChatMessage(
+#                 ticket_id=ticket_id,
+#                 sender_id=None,
+#                 message="Ticket closed due to 2-minute inactivity",
+#                 timestamp=datetime.now(IST),
+#                 is_system=True
+#             )
+#             db.session.add(system_message)
+#             db.session.commit()
+#             emit('chat_inactive', {
+#                 'ticket_id': ticket_id,
+#                 'reason': ticket.closure_reason
+#             }, room=ticket_id)
+    
+#     except Exception as e:
+#         logger.error(f"Error in inactivity timeout: {str(e)}")
+
+#     try:
+#         ticket_id = str(data['ticket_id'])
+#         ticket = Ticket.query.get_or_404(ticket_id)
+        
+#         if ticket.status != 'closed':
+#             # Mark as inactive first
+#             ticket.status = 'inactive'
+#             db.session.commit()
+            
+#             # Emit inactive status
+#             socketio.emit('ticket_inactive', {
+#                 'ticket_id': ticket_id,
+#                 'status': 'inactive'
+#             }, room=ticket_id)
+            
+#             # After 1 minute of inactivity, close the ticket
+#             def close_after_delay():
+#                 with app.app_context():
+#                     ticket = Ticket.query.get(ticket_id)
+#                     if ticket and ticket.status == 'inactive':
+#                         ticket.status = 'closed'
+#                         ticket.closure_reason = 'Closed due to 2-minute inactivity'
+#                         system_message = ChatMessage(
+#                             ticket_id=ticket_id,
+#                             sender_id=None,
+#                             message="Ticket closed due to 2-minute inactivity",
+#                             timestamp=datetime.now(IST),
+#                             is_system=True
+#                         )
+#                         db.session.add(system_message)
+#                         db.session.commit()
+#                         socketio.emit('chat_inactive', {
+#                             'ticket_id': ticket_id,
+#                             'reason': 'Closed due to 2-minute inactivity'
+#                         }, room=ticket_id)
+            
+#             threading.Timer(60, close_after_delay).start()
+    
+#     except Exception as e:
+#         logger.error(f"Error in inactivity timeout: {str(e)}")
+
+#     try:
+#         ticket_id = str(data['ticket_id'])
+#         ticket = Ticket.query.get_or_404(ticket_id)
+        
+#         if ticket.status not in ['open', 'assigned']:
+#             return  # Do not modify closed or rejected tickets
+
+#         ticket.status = 'inactive'
+#         ticket.last_message_at = datetime.now(IST)
+#         system_message = ChatMessage(
+#             ticket_id=ticket_id,
+#             sender_id=None,
+#             message="Ticket marked as inactive due to 2-minute inactivity",
+#             timestamp=datetime.now(IST),
+#             is_system=True
+#         )
+#         db.session.add(system_message)
+#         db.session.commit()
+
+#         socketio.emit('ticket_inactive', {
+#             'ticket_id': ticket_id,
+#             'status': 'inactive',
+#             'reason': 'Marked inactive due to 2-minute inactivity'
+#         }, room=ticket_id)
+
+#         logger.info(f"Ticket {ticket_id} marked as inactive due to 2-minute inactivity")
+    
+#     except Exception as e:
+#         logger.error(f"Error in inactivity timeout: {str(e)}")
+#         db.session.rollback()
+
+@socketio.on('message')
+def handle_message(data):
     try:
+        if request.sid not in active_connections:
+            logger.error(f"Unknown client sending message: {request.sid}")
+            return
+
+        user_data = active_connections[request.sid]
         ticket_id = str(data['ticket_id'])
+        
+        if ticket_id not in user_data['rooms']:
+            logger.error(f"User {user_data['user_id']} not in room {ticket_id}")
+            return
+        
         ticket = Ticket.query.get_or_404(ticket_id)
-        if ticket.status != 'closed':
-            ticket.status = 'closed'
-            ticket.closure_reason = 'Closed due to 2-minute inactivity'
-            ticket.last_message_at = datetime.now(IST)
-            system_message = ChatMessage(
-                ticket_id=ticket_id,
-                sender_id=None,
-                message="Ticket closed due to 2-minute inactivity",
-                timestamp=datetime.now(IST),
-                is_system=True
-            )
-            db.session.add(system_message)
-            db.session.commit()
-            emit('chat_inactive', {
-                'ticket_id': ticket_id,
-                'reason': ticket.closure_reason
-            }, room=ticket_id)
+        if ticket.status == 'closed':
+            emit('error', {'message': 'Ticket is closed'}, room=request.sid)
+            return
+
+        message = ChatMessage(
+            ticket_id=ticket_id,
+            sender_id=data['sender_id'],
+            message=data['message'],
+            timestamp=datetime.now(IST)
+        )
+        ticket.last_message_at = datetime.now(IST)
+        db.session.add(message)
+        db.session.flush()  # Ensure message.id is available
+
+        # Mark message as unread for other participants
+        participants = {ticket.user_id, ticket.assigned_to} - {data['sender_id']}
+        for participant_id in participants:
+            if participant_id:
+                unread = UnreadMessage(
+                    ticket_id=ticket_id,
+                    user_id=participant_id,
+                    message_id=message.id
+                )
+                db.session.add(unread)
+
+        db.session.commit()
+        
+        emit('message', {
+            'id': message.id,
+            'sender_id': message.sender_id,
+            'message': message.message,
+            'timestamp': message.timestamp.isoformat()
+        }, room=ticket_id)
+        
+        emit('message_sent', {
+            'success': True,
+            'message': message.message,
+            'timestamp': message.timestamp.isoformat()
+        }, to=request.sid)
     
     except Exception as e:
-        logger.error(f"Error in inactivity timeout: {str(e)}")
+        logger.error(f"Error in message: {str(e)}")
+        db.session.rollback()
+        emit('error', {'message': 'Failed to send message'}, room=request.sid)
+
+# In your socket.io server code
+# @socketio.on('inactivity_timeout')
+# def handle_inactivity_timeout(data):
+#     try:
+#         ticket_id = str(data['ticket_id'])
+#         ticket = Ticket.query.get_or_404(ticket_id)
+        
+#         if ticket.status not in ['open', 'assigned']:
+#             return  # Do not modify closed or rejected tickets
+
+#         # First mark as inactive
+#         ticket.status = 'inactive'
+#         ticket.last_message_at = datetime.now(IST)
+#         system_message = ChatMessage(
+#             ticket_id=ticket_id,
+#             sender_id=None,
+#             message="Ticket marked as inactive due to 2-minute inactivity",
+#             timestamp=datetime.now(IST),
+#             is_system=True
+#         )
+#         db.session.add(system_message)
+#         db.session.commit()
+
+#         socketio.emit('ticket_inactive', {
+#             'ticket_id': ticket_id,
+#             'status': 'inactive',
+#             'reason': 'Marked inactive due to 2-minute inactivity'
+#         }, room=ticket_id)
+
+#         # Schedule closure after additional 5 minutes (total 7 minutes)
+#         def close_after_delay():
+#             with app.app_context():
+#                 ticket = Ticket.query.get(ticket_id)
+#                 if ticket and ticket.status == 'inactive':
+#                     ticket.status = 'closed'
+#                     ticket.closure_reason = 'Closed due to 7-minute inactivity'
+#                     system_message = ChatMessage(
+#                         ticket_id=ticket_id,
+#                         sender_id=None,
+#                         message="Ticket closed due to 7-minute inactivity",
+#                         timestamp=datetime.now(IST),
+#                         is_system=True
+#                     )
+#                     db.session.add(system_message)
+#                     db.session.commit()
+#                     socketio.emit('chat_inactive', {
+#                         'ticket_id': ticket_id,
+#                         'reason': 'Closed due to 7-minute inactivity'
+#                     }, room=ticket_id)
+        
+#         threading.Timer(300, close_after_delay).start()  # 5 minutes = 300 seconds
+
+#     except Exception as e:
+#         logger.error(f"Error in inactivity timeout: {str(e)}")
+#         db.session.rollback()
 
 # Auth Routes
 @app.route('/api/auth/signup', methods=['POST'])
@@ -438,7 +670,7 @@ def tickets():
                 return jsonify({'error': 'Unauthorized'}), 403
 
             data = request.get_json()
-            required_fields = ['category', 'urgency', 'description']
+            required_fields = ['category', 'priority', 'description']
             
             if not all(field in data for field in required_fields):
                 return jsonify({'error': 'Missing required fields'}), 400
@@ -446,7 +678,8 @@ def tickets():
             ticket = Ticket(
                 user_id=current_user_id,
                 category=data['category'],
-                urgency=data['urgency'],
+                priority=data['priority'],
+                subject=data['subject'],
                 description=data['description'],
                 predefined_question=data.get('predefined_question'),
                 visibility=data.get('visibility', 'all_members'),
@@ -462,7 +695,7 @@ def tickets():
             socketio.emit('new_ticket', {
                 'ticket_id': ticket.id,
                 'category': ticket.category,
-                'urgency': ticket.urgency
+                'priority': ticket.priority
             })
 
             return jsonify({
@@ -494,7 +727,8 @@ def tickets():
         return jsonify([{
             'id': t.id,
             'category': t.category,
-            'urgency': t.urgency,
+            'priority': t.priority,
+            'subject': t.subject,
             'status': t.status,
             'description': t.description,
             'user_id': t.user_id,
@@ -524,8 +758,9 @@ def get_ticket(ticket_id):
         return jsonify({
             'id': ticket.id,
             'status': ticket.status,
+            'subject': ticket.subject,
             'category': ticket.category,
-            'urgency': ticket.urgency,
+            'priority': ticket.priority,
             'description': ticket.description,
             'user_id': ticket.user_id,
             'assigned_to': ticket.assigned_to,
@@ -538,7 +773,7 @@ def get_ticket(ticket_id):
         logger.error(f"Error fetching ticket: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/tickets/accept/<ticket_id>', methods=['POST'])
+@app.route('/api/tickets/<ticket_id>/accept', methods=['POST'])
 @jwt_required()
 def accept_ticket(ticket_id):
     try:
@@ -608,9 +843,7 @@ def reject_ticket(ticket_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/tickets/<ticket_id>/reassign', methods=['PUT'])
-@jwt_required()
-def reassign_ticket(ticket_id):
+
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
@@ -648,7 +881,7 @@ def reassign_ticket(ticket_id):
         socketio.emit('ticket_reassigned', {
             'ticket_id': ticket_id,
             'category': ticket.category,
-            'urgency': ticket.urgency,
+            'priority': ticket.priority,
             'description': ticket.description,
             'user_id': ticket.user_id,
             'reassigned_to': reassign_to
@@ -664,10 +897,70 @@ def reassign_ticket(ticket_id):
         logger.error(f"Error reassigning ticket: {str(e)}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-
-@app.route('/api/tickets/<ticket_id>/close', methods=['PUT'])
+@app.route('/api/tickets/<ticket_id>/reassign', methods=['PUT'])
 @jwt_required()
-def close_ticket(ticket_id):
+def reassign_ticket(ticket_id):
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        
+        if not user or user.role not in ['admin', 'member']:
+            return jsonify({'error': 'Unauthorized'}), 403
+
+        ticket = Ticket.query.get_or_404(ticket_id)
+        if ticket.status not in ['open', 'assigned']:
+            return jsonify({'error': 'Cannot reassign closed or rejected ticket'}), 400
+
+        data = request.get_json()
+        reassign_to = data.get('reassign_to')
+        if not reassign_to:
+            return jsonify({'error': 'Reassignment member ID is required'}), 400
+
+        reassign_user = User.query.get(reassign_to)
+        if not reassign_user or reassign_user.role != 'member':
+            return jsonify({'error': 'Invalid reassignment member'}), 400
+
+        previous_assignee = ticket.assigned_to
+        ticket.assigned_to = reassign_to
+        ticket.reassigned_to = reassign_to
+        ticket.status = 'assigned'
+        ticket.last_message_at = datetime.now(IST)
+        
+        system_message = ChatMessage(
+            ticket_id=ticket_id,
+            sender_id=None,
+            message=f"Ticket reassigned from {previous_assignee} to {reassign_user.first_name} {reassign_user.last_name}",
+            timestamp=datetime.now(IST),
+            is_system=True
+        )
+        db.session.add(system_message)
+        db.session.commit()
+
+        # Notify all parties
+        socketio.emit('ticket_reassigned', {
+            'ticket_id': ticket_id,
+            'previous_assignee': previous_assignee,
+            'assigned_to': reassign_to,
+            'reassigned_by': current_user_id,
+            'member_name': f"{reassign_user.first_name} {reassign_user.last_name}"
+        }, room=ticket_id)
+
+        # Specific notification to new assignee
+        socketio.emit('reassignment_notification', {
+            'ticket_id': ticket_id,
+            'message': f'You have been assigned to ticket #{ticket_id}',
+            'category': ticket.category,
+            'priority': ticket.priority
+        }, room=str(reassign_to))
+
+        return jsonify({'message': 'Ticket reassigned successfully'}), 200
+    except Exception as e:
+        logger.error(f"Error reassigning ticket: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
+
+
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
@@ -715,6 +1008,164 @@ def close_ticket(ticket_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        ticket = Ticket.query.get(ticket_id)
+        if not ticket:
+            return jsonify({'error': 'Ticket not found'}), 404
+
+        data = request.get_json()
+        reason = data.get('reason')
+        reassign_to = data.get('reassign_to')
+
+        if not reason:
+            return jsonify({'error': 'Closure reason is required'}), 400
+
+        ticket.status = 'closed'
+        ticket.closure_reason = reason
+        ticket.last_message_at = datetime.now(IST)
+        
+        if reassign_to:
+            reassign_user = User.query.get(reassign_to)
+            if not reassign_user or reassign_user.role != 'member':
+                return jsonify({'error': 'Invalid reassignment member'}), 400
+            ticket.reassigned_to = reassign_to
+            ticket.assigned_to = reassign_to
+            ticket.status = 'assigned'  # Keep as assigned if being reassigned
+
+        system_message = ChatMessage(
+            ticket_id=ticket_id,
+            sender_id=None,
+            message=f"Ticket closed. Reason: {reason}" + 
+                   (f". Reassigned to {reassign_user.first_name} {reassign_user.last_name}" 
+                    if reassign_to else ""),
+            timestamp=datetime.now(IST),
+            is_system=True
+        )
+        db.session.add(system_message)
+        db.session.commit()
+
+        socketio.emit('ticket_closed', {
+            'ticket_id': ticket_id,
+            'reason': reason,
+            'reassigned_to': reassign_to,
+            'assigned_to': ticket.assigned_to
+        }, room=ticket_id)
+
+        return jsonify({'message': 'Ticket closed successfully'}), 200
+
+    except Exception as e:
+        logger.error(f"Error closing ticket: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        ticket = Ticket.query.get_or_404(ticket_id)
+        
+        if user.role != 'admin' and ticket.assigned_to != int(current_user_id):
+            return jsonify({'error': 'Unauthorized'}), 403
+
+        data = request.get_json()
+        reason = data.get('reason')
+        if not reason:
+            return jsonify({'error': 'Closure reason is required'}), 400
+
+        ticket.status = 'closed'
+        ticket.closure_reason = reason
+        ticket.closed_at = datetime.now(IST)
+        db.session.commit()
+
+        system_message = ChatMessage(
+            ticket_id=ticket_id,
+            sender_id=None,
+            message=f"Ticket closed. Reason: {reason}",
+            timestamp=datetime.now(IST),
+            is_system=True
+        )
+        db.session.add(system_message)
+        db.session.commit()
+
+        socketio.emit('ticket_closed', {
+            'ticket_id': ticket_id,
+            'reason': reason
+        }, room=ticket_id)
+
+        return jsonify({'message': 'Ticket closed successfully'}), 200
+    except Exception as e:
+        logger.error(f"Error closing ticket: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/tickets/<ticket_id>/close', methods=['PUT'])
+@jwt_required()
+def close_ticket(ticket_id):
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        ticket = Ticket.query.get_or_404(ticket_id)
+        
+        if user.role != 'admin' and ticket.assigned_to != int(current_user_id):
+            return jsonify({'error': 'Unauthorized'}), 403
+
+        data = request.get_json()
+        reason = data.get('reason')
+        reassign_to = data.get('reassign_to')  # Handle reassignment
+
+        if not reason:
+            return jsonify({'error': 'Closure reason is required'}), 400
+
+        if reassign_to:
+            reassign_user = User.query.get(reassign_to)
+            if not reassign_user or reassign_user.role != 'member':
+                return jsonify({'error': 'Invalid reassignment member'}), 400
+            ticket.reassigned_to = reassign_to
+            ticket.assigned_to = reassign_to
+            ticket.status = 'assigned'  # Keep as assigned if reassigned
+        else:
+            ticket.status = 'closed'
+            ticket.reassigned_to = None
+
+        ticket.closure_reason = reason
+        ticket.closed_at = datetime.now(IST)
+        ticket.last_message_at = datetime.now(IST)
+
+        system_message = ChatMessage(
+            ticket_id=ticket_id,
+            sender_id=None,
+            message=f"Ticket {'reassigned' if reassign_to else 'closed'}. Reason: {reason}" +
+                   (f". Reassigned to {reassign_user.first_name} {reassign_user.last_name}" if reassign_to else ""),
+            timestamp=datetime.now(IST),
+            is_system=True
+        )
+        db.session.add(system_message)
+        db.session.commit()
+
+        socketio.emit('ticket_closed', {
+            'ticket_id': ticket_id,
+            'reason': reason,
+            'reassigned_to': reassign_to,
+            'status': ticket.status
+        }, room=ticket_id)
+
+        return jsonify({'message': f"Ticket {'reassigned' if reassign_to else 'closed'} successfully"}), 200
+    except Exception as e:
+        logger.error(f"Error closing ticket: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/tickets/<ticket_id>/reopen', methods=['PUT'])
 @jwt_required()
 def reopen_ticket(ticket_id):
@@ -752,6 +1203,30 @@ def reopen_ticket(ticket_id):
         return jsonify({'error': str(e)}), 500
 
 # Chat Routes
+
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+            
+        ticket = Ticket.query.get_or_404(ticket_id)
+        
+        if user.role != 'admin' and ticket.user_id != int(current_user_id) and ticket.assigned_to != int(current_user_id):
+            return jsonify({'error': 'Unauthorized'}), 403
+
+        messages = ChatMessage.query.filter_by(ticket_id=ticket_id).order_by(ChatMessage.timestamp).all()
+        
+        return jsonify([{
+            'id': msg.id,
+            'sender_id': msg.sender_id,
+            'message': msg.message,
+            'timestamp': msg.timestamp.isoformat(),
+            'is_system': msg.is_system
+        } for msg in messages]), 200
+    except Exception as e:
+        logger.error(f"Error fetching chat messages: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 @app.route('/api/chats/<ticket_id>', methods=['GET'])
 @jwt_required()
 def get_chat_messages(ticket_id):
@@ -779,6 +1254,8 @@ def get_chat_messages(ticket_id):
         logger.error(f"Error fetching chat messages: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+
+
 @app.route('/api/chats/<ticket_id>/last', methods=['GET'])
 @jwt_required()
 def get_last_chat_message(ticket_id):
@@ -795,10 +1272,22 @@ def get_last_chat_message(ticket_id):
         return jsonify({'message': 'No messages found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+    try:
+        message = ChatMessage.query.filter_by(ticket_id=ticket_id)\
+                      .order_by(ChatMessage.timestamp.desc())\
+                      .first()
+        if message:
+            return jsonify({
+                'id': message.id,
+                'content': message.message,
+                'created_at': message.timestamp.isoformat()
+            }), 200
+        return jsonify({'message': 'No messages found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-@app.route('/api/tickets/<ticket_id>/read', methods=['PUT'])
-@jwt_required()
-def mark_ticket_as_read(ticket_id):
+
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
@@ -814,15 +1303,71 @@ def mark_ticket_as_read(ticket_id):
     except Exception as e:
         logger.error(f"Error marking ticket as read: {str(e)}")
         return jsonify({'error': str(e)}), 500
-
-@app.route('/api/tickets/<ticket_id>/unread', methods=['GET'])
+@app.route('/api/tickets/<ticket_id>/read', methods=['PUT'])
 @jwt_required()
-def get_unread_count(ticket_id):
+def mark_ticket_as_read(ticket_id):
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        ticket = Ticket.query.get(ticket_id)
+        if not ticket:
+            return jsonify({'error': 'Ticket not found'}), 404
+
+        UnreadMessage.query.filter_by(ticket_id=ticket_id, user_id=current_user_id).delete()
+        db.session.commit()
+
+        return jsonify({'message': 'Ticket marked as read'}), 200
+    except Exception as e:
+        logger.error(f"Error marking ticket as read: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    
+
+
     try:
         return jsonify(0), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/auth/validate', methods=['GET'])
+@jwt_required()
+def validate_token():
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        
+        if not user:
+            return jsonify({'valid': False, 'error': 'User not found'}), 404
+
+        return jsonify({
+            'valid': True,
+            'user': {
+                'id': user.id,
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'email': user.email,
+                'role': user.role
+            }
+        }), 200
+    except Exception as e:
+        logger.error(f"Token validation error: {str(E)}")
+        return jsonify({'valid': False, 'error': 'Invalid token'}), 401
+    
+@app.route('/api/tickets/<ticket_id>/unread', methods=['GET'])
+@jwt_required()
+def get_unread_count(ticket_id):
+    try:
+        current_user_id = get_jwt_identity()
+        count = UnreadMessage.query.filter_by(ticket_id=ticket_id, user_id=current_user_id).count()
+        return jsonify(count), 200
+    except Exception as e:
+        logger.error(f"Error fetching unread count: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+    
+    
 # Background task for 24-hour inactivity check
 def check_inactive_tickets():
     with app.app_context():
@@ -860,3 +1405,7 @@ if __name__ == '__main__':
         db.create_all()
     threading.Thread(target=start_inactivity_checker, daemon=True).start()
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+
+
+
+
