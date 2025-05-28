@@ -71,7 +71,8 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
     messages: initialMessages,
     ticketStatus: null
   });
-  const [loading, setLoading] = useState(Boolean(ticketId && !initialMessages.length));
+  // const [loading, setLoading] = useState(Boolean(ticketId && !initialMessages.length));
+  const [loading, setLoading] = useState();
   const [error, setError] = useState('');
   const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef(null);
