@@ -505,8 +505,7 @@ def handle_message(data):
 #         db.session.rollback()
 
 # Auth Routes
-@app.route('/api/auth/signup', methods=['POST'])
-def signup():
+
     try:
         data = request.get_json()
         
@@ -544,7 +543,53 @@ def signup():
         logger.error(f"Signup error: {str(e)}")
         db.session.rollback()
         return jsonify({'error': 'Internal server error'}), 500
+@app.route('/api/auth/signup', methods=['POST'])
+def signup():
+    try:
+        data = request.get_json()
+        if not data or not all(key in data for key in ['firstName', 'lastName', 'dob', 'email', 'phone', 'password']):
+            logger.error("Missing required fields in signup request")
+            return jsonify({'error': 'Missing required fields'}), 400
 
+        if User.query.filter_by(email=data['email']).first():
+            logger.error(f"Email already exists: {data['email']}")
+            return jsonify({'error': 'Email already exists'}), 400
+
+        user = User(
+            first_name=data['firstName'],
+            last_name=data['lastName'],
+            dob=datetime.strptime(data['dob'], '%Y-%m-%d').date(),
+            email=data['email'],
+            phone=data['phone'],
+            password=generate_password_hash(data['password']),
+            role='user'
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        access_token = create_access_token(identity=str(user.id))
+        logger.info(f"User created successfully: {user.email}")
+        return jsonify({
+            'message': 'User created successfully',
+            'access_token': access_token,
+            'user': {
+                'id': user.id,
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'email': user.email,
+                'role': user.role
+            }
+        }), 201
+    except ValueError as e:
+        logger.error(f"Invalid date format: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': 'Invalid date format for DOB'}), 400
+    except Exception as e:
+        logger.error(f"Signup error: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e) or 'Internal server error'}), 500
+    
+    
 @app.route('/api/auth/login', methods=['POST'])
 def login():
     try:
@@ -1335,6 +1380,26 @@ def mark_ticket_as_read(ticket_id):
 @app.route('/api/auth/validate', methods=['GET'])
 @jwt_required()
 def validate_token():
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        if not user:
+            logger.error(f"User not found for ID: {current_user_id}")
+            return jsonify({'valid': False, 'error': 'User not found'}), 404
+
+        return jsonify({
+            'valid': True,
+            'user': {
+                'id': user.id,
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'email': user.email,
+                'role': user.role
+            }
+        }), 200
+    except Exception as e:
+        logger.error(f"Token validation error: {str(e)}")
+        return jsonify({'valid': False, 'error': 'Invalid token'}), 401
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)

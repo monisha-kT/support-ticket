@@ -7,10 +7,12 @@ let connectionPromise = null;
 export const validateToken = async (token) => {
   try {
     const response = await fetch('http://localhost:5000/api/auth/validate', {
-      headers: { Authorization: `Bearer ${token}` }
+      method: 'GET',
+      headers: { Authorization: `Bearer ${token}` },
     });
+    const data = await response.json();
     if (!response.ok) {
-      console.warn('Token validation failed:', response.status);
+      console.warn('Token validation failed:', response.status, data.error);
       return false;
     }
     return true;
