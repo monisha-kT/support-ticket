@@ -337,7 +337,8 @@ function UserProfile() {
               '& .MuiInputLabel-root': {
                 fontSize: { xs: '0.875rem', sm: '0.9rem' },
               },
-              font:'times new roman'
+              font:'opensans',
+              mt:3
             }}
           />
           <TextField
@@ -356,7 +357,7 @@ function UserProfile() {
               '& .MuiInputLabel-root': {
                 fontSize: { xs: '0.875rem', sm: '0.9rem' },
               },
-              font:'times new roman'
+              font:'opensans'
             }}
           />
           <TextField
@@ -375,7 +376,7 @@ function UserProfile() {
               '& .MuiInputLabel-root': {
                 fontSize: { xs: '0.875rem', sm: '0.9rem' },
               },
-              font:'times new roman'
+              font:'Open sans'
             }}
           />
         </DialogContent>
