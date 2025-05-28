@@ -3,8 +3,9 @@ import {
   Box, Typography, CircularProgress, Alert, Button, Paper, Modal, Grid, Divider,
   Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem,
   TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  TablePagination
+  TablePagination,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { getSocket, useSocket } from './socket';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
@@ -54,7 +55,9 @@ function AdminDashboard() {
       navigate(user.role === 'user' ? '/dashboard' : '/member/tickets');
       return;
     }
+  }, [user, navigate]);
 
+  useEffect(() => {
     let socket = null;
     const setupSocket = async () => {
       socket = await getSocket();
@@ -131,7 +134,7 @@ function AdminDashboard() {
         socket.off('ticket_inactive');
       }
     };
-  }, [user, navigate, members]);
+  }, [user, navigate]);
 
   useEffect(() => {
     if (socketError) {
@@ -552,6 +555,7 @@ function AdminDashboard() {
                                   }}
                                 >
                                   Close
+
                                 </Button>
                               </>
                             )}
@@ -578,7 +582,13 @@ function AdminDashboard() {
         {/* Ticket Details Modal */}
         <Modal
           open={Boolean(selectedTicket)}
-          onClose={() => setSelectedTicket(null)}
+          onClose={(event, reason) => {
+   
+    if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+      return; 
+    }
+    setSelectedTicket(null);
+  }}
           aria-labelledby="ticket-details-modal"
           aria-describedby="ticket-details-description"
           sx={{
@@ -623,7 +633,7 @@ function AdminDashboard() {
                     onClick={() => setSelectedTicket(null)}
                     sx={{ font: 'Open Sans' }}
                   >
-                    Close
+                    <CloseIcon />
                   </Button>
                 </Box>
                 
@@ -736,7 +746,7 @@ function AdminDashboard() {
                               Assigned To
                             </Typography>
                             <Typography variant="body1" sx={{ font: 'Open Sans' }}>
-                              {selectedTicket.memberName}
+                              {selectedTicket.memberName} 
                             </Typography>
                           </Box>
                         )}
