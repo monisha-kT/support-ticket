@@ -3,10 +3,10 @@ import {
   Box, Typography, CircularProgress, Alert, Button, Container, Paper, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, TableSortLabel,
-  InputAdornment, IconButton, Badge
+  InputAdornment
 } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { getSocket } from './socket';
 import { useNavigate, useParams } from 'react-router-dom';
 import useStore from '../store/useStore';
@@ -14,6 +14,61 @@ import Navbar from '../Components/Navbar';
 import ChatWindow from './ChatWindow';
 import NotificationDrawer from './NotificationDrawer';
 import ErrorBoundary from './ErrorBoundary';
+
+const theme = createTheme({
+  typography: {
+    fontFamily: '"Open Sans", sans-serif',
+    h5: {
+      fontSize: '26px',
+      fontWeight: 'bold'
+    },
+    body1: {
+      fontSize: '16px'
+    }
+  },
+  components: {
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          fontSize: '16px',
+          padding: '12px 16px'
+        },
+        head: {
+          backgroundColor: '#128C7E',
+          color: 'white',
+          fontWeight: 'bold'
+          
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'capitalize',
+          fontSize: '14px',
+          padding: '6px 16px',
+          minWidth: '80px'
+        }
+      }
+    },
+    MuiTableSortLabel: {
+      styleOverrides: {
+        root: {
+          color: 'white !important',
+          '&:hover': {
+            color: 'white !important'
+          },
+          '&.Mui-active': {
+            color: 'white !important'
+          }
+        },
+        icon: {
+          color: 'white !important'
+        }
+      }
+    }
+  }
+});
 
 function MemberDashboard() {
   const [loading, setLoading] = useState(true);
@@ -27,15 +82,17 @@ function MemberDashboard() {
   const [members, setMembers] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [order, setOrder] = useState('asc');
-  const [orderBy, setOrderBy] = useState('id');
+  const [order, setOrder] = useState('desc');
+  const [orderBy, setOrderBy] = useState('createdAt');
   const [searchValues, setSearchValues] = useState({
     id: '',
     userName: '',
     category: '',
     priority: '',
     status: '',
-    lastResponseTime: ''
+    createdAt: '',
+    lastMessageAt: '',
+    lastResponseTime: '',
   });
   const [notifications, setNotifications] = useState([]);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
@@ -75,9 +132,29 @@ function MemberDashboard() {
           ? `${usersData[ticket.user_id].first_name} ${usersData[ticket.user_id].last_name}`
           : 'Unknown',
         userEmail: usersData[ticket.user_id]?.email || 'N/A',
+        createdAt: ticket.created_at ? new Date(ticket.created_at) : null,
+        createdAtFormatted: ticket.created_at
+          ? new Date(ticket.created_at).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+            })
+          : 'N/A',
+        lastResponseDate: ticket.last_message_at
+          ? new Date(ticket.last_message_at).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+            })
+          : 'No response yet',
         lastResponseTime: ticket.last_message_at
-          ? new Date(ticket.last_message_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
-          : 'No response yet'
+          ? new Date(ticket.last_message_at).toLocaleTimeString('en-IN', {
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'Asia/Kolkata',
+            })
+          : 'No response yet',
+        lastMessageAt: ticket.last_message_at ? new Date(ticket.last_message_at) : null,
       }));
 
       setTickets(ticketsWithDetails);
@@ -119,32 +196,24 @@ function MemberDashboard() {
 
       socketRef.current = socket;
 
-      socket.on('new_ticket', () => {
-        fetchTickets();
-      });
-
+      socket.on('new_ticket', fetchTickets);
       socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
         fetchTickets();
         if (user.id === assigned_to) {
           setNotifications(prev => [
             ...prev,
-            { type: 'info', message: `Ticket #${ticket_id} has been reassigned to you.` }
+            { type: 'info', message: `Ticket #${ticket_id} has been reassigned to you.` },
           ]);
         }
       });
-
-      socket.on('ticket_reopened', () => {
-        fetchTickets();
-      });
-
-      socket.on('ticket_closed', () => {
-        fetchTickets();
-      });
-
+      socket.on('ticket_reopened', fetchTickets);
+      socket.on('ticket_closed', fetchTickets);
       socket.on('chat_inactive', ({ ticket_id, reason, reassigned_to }) => {
-        setTickets(prev => prev.map(t =>
-          t.id === ticket_id ? { ...t, status: 'closed', closure_reason: reason, reassigned_to } : t
-        ));
+        setTickets(prev =>
+          prev.map(t =>
+            t.id === ticket_id ? { ...t, status: 'closed', closure_reason: reason, reassigned_to } : t
+          )
+        );
         if (selectedTicket?.id === ticket_id) {
           setSelectedTicket(null);
           navigate('/member/tickets');
@@ -171,9 +240,7 @@ function MemberDashboard() {
   useEffect(() => {
     if (ticketId && tickets.length > 0) {
       const ticket = tickets.find(t => t.id === parseInt(ticketId));
-      if (ticket) {
-        handleTicketSelect(ticket.id);
-      }
+      if (ticket) handleTicketSelect(ticket.id);
     }
   }, [ticketId, tickets]);
 
@@ -185,7 +252,12 @@ function MemberDashboard() {
     let filtered = tickets.filter(ticket => {
       return Object.keys(searchValues).every(key => {
         if (!searchValues[key]) return true;
-        return String(ticket[key] || '').toLowerCase().includes(searchValues[key].toLowerCase());
+        let value;
+        if (key === 'createdAt') value = ticket.createdAtFormatted;
+        else if (key === 'lastMessageAt') value = ticket.lastResponseDate;
+        else if (key === 'lastResponseTime') value = ticket.lastResponseTime;
+        else value = ticket[key];
+        return String(value || '').toLowerCase().includes(searchValues[key].toLowerCase());
       });
     });
     setFilteredTickets(filtered);
@@ -201,12 +273,10 @@ function MemberDashboard() {
         }),
         fetch(`http://localhost:5000/api/chats/${ticketId}`, {
           headers: { 'Authorization': `Bearer ${token}` },
-        })
+        }),
       ]);
 
-      if (!ticketRes.ok || !chatRes.ok) {
-        throw new Error('Failed to fetch ticket details');
-      }
+      if (!ticketRes.ok || !chatRes.ok) throw new Error('Failed to fetch ticket details');
 
       const ticketData = await ticketRes.json();
       const chatData = await chatRes.json();
@@ -222,7 +292,7 @@ function MemberDashboard() {
         ...ticketData,
         userName: `${userData.first_name} ${userData.last_name}`,
         userEmail: userData.email,
-        chatHistory: chatData
+        chatHistory: chatData,
       });
 
       navigate(`/member/tickets/${ticketId}`);
@@ -259,7 +329,7 @@ function MemberDashboard() {
         socket.emit('ticket_closed', {
           ticket_id: selectedTicket.id,
           reason: closeReason,
-          reassigned_to: reassignTo ? parseInt(reassignTo) : null
+          reassigned_to: reassignTo ? parseInt(reassignTo) : null,
         });
       }
 
@@ -267,7 +337,7 @@ function MemberDashboard() {
       setCloseReason('');
       setReassignTo('');
       setSelectedTicket(null);
-      navigate('/member/tickets');
+      navigate('/dashboard');
       fetchTickets();
     } catch (err) {
       setError(err.message);
@@ -370,17 +440,18 @@ function MemberDashboard() {
   };
 
   const descendingComparator = (a, b, orderBy) => {
-    if (b[orderBy] < a[orderBy]) {
-      return -1;
+    if (orderBy === 'createdAt' || orderBy === 'lastMessageAt') {
+      const aValue = a[orderBy] || new Date(0);
+      const bValue = b[orderBy] || new Date(0);
+      return bValue - aValue;
     }
-    if (b[orderBy] > a[orderBy]) {
-      return 1;
-    }
+    if (b[orderBy] < a[orderBy]) return -1;
+    if (b[orderBy] > a[orderBy]) return 1;
     return 0;
   };
 
   const renderStatusBadge = (status) => (
-    <Typography
+    <Box
       sx={{
         bgcolor:
           status === 'open' ? 'warning.main' :
@@ -388,14 +459,17 @@ function MemberDashboard() {
           status === 'closed' ? 'success.main' :
           status === 'rejected' ? 'error.main' : 'primary.main',
         color: 'white',
-        px: 2,
-        py: 1,
+        px: 1.5,
+        py: 0.5,
         borderRadius: 1,
-        display: 'inline-block'
+        display: 'inline-block',
+        fontSize: '14px',
+        fontWeight: 600,
+        textTransform: 'capitalize'
       }}
     >
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </Typography>
+      {status}
+    </Box>
   );
 
   const renderActionButtons = (ticket) => (
@@ -461,7 +535,9 @@ function MemberDashboard() {
     { label: 'Category', id: 'category' },
     { label: 'Priority', id: 'priority' },
     { label: 'Status', id: 'status' },
-    { label: 'Last Response', id: 'lastResponseTime' },
+    { label: 'Created At', id: 'createdAt' },
+    { label: 'Last Response Date', id: 'lastMessageAt' },
+    { label: 'Last Response Time', id: 'lastResponseTime' },
     { label: 'Actions', id: 'actions' },
   ];
 
@@ -488,157 +564,214 @@ function MemberDashboard() {
   }
 
   return (
-    <ErrorBoundary>
-      <Navbar />
-      <Container maxWidth="xl" sx={{ mt: 10, mb: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="h5" component="h1" sx={{ fontWeight: 'bold' }}>
+    <ThemeProvider theme={theme}>
+      <ErrorBoundary>
+        <Navbar />
+        <Container maxWidth="xl" sx={{ mt: 10, mb: 5 }}>
+          <Typography variant="h5" component="h1" gutterBottom>
             Member Support Dashboard
           </Typography>
-       
-        </Box>
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: 'calc(100vh - 230px)' }}>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  {headers.map((header) => (
-                    <TableCell key={header.id}>
-                      {header.id !== 'actions' ? (
-                        <>
-                          <TableSortLabel
-                            active={orderBy === header.id}
-                            direction={orderBy === header.id ? order : 'asc'}
-                            onClick={() => handleRequestSort(header.id)}
-                          >
-                            {header.label}
-                          </TableSortLabel>
-                          <TextField
-                            size="small"
-                            value={searchValues[header.id] || ''}
-                            onChange={handleSearchChange(header.id)}
-                            placeholder={`Search ${header.label}`}
-                            InputProps={{
-                              startAdornment: (
-                                <InputAdornment position="start">
-                                  <SearchIcon fontSize="small" />
-                                </InputAdornment>
-                              )
-                            }}
-                            sx={{ mt: 1, width: '100%', fontSize: '0.875rem' }}
-                          />
-                        </>) : (
-                        header.label
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {stableSort(filteredTickets, getComparator(order, orderBy))
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((ticket) => (
-                    <TableRow key={ticket.id} hover>
-                      <TableCell>#{ticket.id}</TableCell>
-                      <TableCell>{ticket.userName}</TableCell>
-                      <TableCell>{ticket.category}</TableCell>
-                      <TableCell>{ticket.priority}</TableCell>
-                      <TableCell>{renderStatusBadge(ticket.status)}</TableCell>
-                      <TableCell>{ticket.lastResponseTime}</TableCell>
-                      <TableCell>{renderActionButtons(ticket)}</TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}
-            component="div"
-            count={filteredTickets.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-        {selectedTicket && (
-          <Dialog
-            open={Boolean(selectedTicket)}
-            onClose={() => {
-              setSelectedTicket(null);
-              navigate('/member/tickets');
-            }}
-            maxWidth="lg"
-            fullWidth
+          
+          <Paper sx={{ width: '100%', overflow: 'hidden', mb: 2,mt:3 }}>
+            <TableContainer sx={{ maxHeight: 'calc(100vh - 220px)', overflowX: 'auto',}}>
+              <Table stickyHeader >
+                <TableHead>
+  {/* Header Row */}
+  <TableRow  >
+    {headers.map((header) => (
+      <TableCell
+        key={header.id}
+        sx={{
+          whiteSpace: 'nowrap',
+          backgroundColor: '#00796b',
+          color: 'white',
+          zIndex: 2, 
+          top:0,
+          position:'sticky'
+        }}
+      >
+        {header.id !== 'actions' ? (
+          <TableSortLabel
+            active={orderBy === header.id}
+            direction={orderBy === header.id ? order : 'asc'}
+            onClick={() => handleRequestSort(header.id)}
           >
-            <DialogTitle>Ticket #{selectedTicket.id}</DialogTitle>
+            {header.label}
+          </TableSortLabel>
+        ) : (
+          header.label
+        )}
+      </TableCell>
+    ))}
+  </TableRow>
+
+  {/* Filter Row */}
+  <TableRow>
+    {headers.map((header) => (
+      <TableCell
+        key={`${header.id}-filter`}
+        sx={{
+          backgroundColor: 'white',
+          color: 'black',
+          whiteSpace: 'nowrap',
+          zIndex: 2,
+         
+          top: 56, // header height
+        }}
+
+      >
+        {header.id !== 'actions' && (
+          <TextField
+            size="small"
+            variant="outlined"
+            value={searchValues[header.id] || ''}
+            onChange={handleSearchChange(header.id)}
+            placeholder={`Filter ${header.label}`}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" sx={{ color: 'black' }} />
+                </InputAdornment>
+              ),
+              sx: {
+                color: 'black',
+                '&::placeholder': {
+                  color: 'black!important',
+                },
+              },
+            }}
+            sx={{
+              mt: 1,
+              width: '100%',
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: 'rgba(0,0,0,0.2)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(0,0,0,0.5)',
+                },
+              },
+            }}
+          />
+        )}
+      </TableCell>
+    ))}
+  </TableRow>
+</TableHead>
+
+                <TableBody>
+                  {stableSort(filteredTickets, getComparator(order, orderBy))
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((ticket) => (
+                      <TableRow hover key={ticket.id}>
+                        <TableCell>{ticket.id}</TableCell>
+                        <TableCell>{ticket.userName}</TableCell>
+                        <TableCell>{ticket.category}</TableCell>
+                        <TableCell>{ticket.priority}</TableCell>
+                        <TableCell>{renderStatusBadge(ticket.status)}</TableCell>
+                        <TableCell>{ticket.createdAtFormatted}</TableCell>
+                        <TableCell>{ticket.lastResponseDate}</TableCell>
+                        <TableCell>{ticket.lastResponseTime}</TableCell>
+                        <TableCell>{renderActionButtons(ticket)}</TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredTickets.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Paper>
+
+          {selectedTicket && (
+            <Dialog
+              open={Boolean(selectedTicket)}
+              onClose={() => {
+                setSelectedTicket(null);
+                navigate('/member/tickets');
+              }}
+              maxWidth="lg"
+              fullWidth
+            >
+              <DialogTitle>Ticket #{selectedTicket.id}</DialogTitle>
+              <DialogContent>
+                <ChatWindow
+                  ticketId={selectedTicket.id}
+                  initialMessages={selectedTicket.chatHistory}
+                  readOnly={selectedTicket.status === 'closed'}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  onClick={() => {
+                    setSelectedTicket(null);
+                    navigate('/member/tickets');
+                  }}
+                >
+                  Close
+                </Button>
+              </DialogActions>
+            </Dialog>
+          )}
+
+          <Dialog open={closeDialogOpen} onClose={() => setCloseDialogOpen(false)}>
+            <DialogTitle>Close Ticket</DialogTitle>
             <DialogContent>
-              <ChatWindow
-                ticketId={selectedTicket.id}
-                initialMessages={selectedTicket.chatHistory}
-                readOnly={selectedTicket.status === 'closed'}
-              />
+              <Box sx={{ mt: 2 }}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Reason for closing"
+                  value={closeReason}
+                  onChange={(e) => setCloseReason(e.target.value)}
+                  sx={{ mb: 2 }}
+                />
+                <FormControl fullWidth>
+                  <InputLabel>Reassign to (optional)</InputLabel>
+                  <Select
+                    value={reassignTo}
+                    label="Reassign to (optional)"
+                    onChange={(e) => setReassignTo(e.target.value)}
+                  >
+                    <MenuItem value="">None</MenuItem>
+                    {members.map((member) => (
+                      <MenuItem key={member.id} value={member.id}>
+                        {member.first_name} {member.last_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
             </DialogContent>
             <DialogActions>
+              <Button onClick={() => setCloseDialogOpen(false)}>
+                Cancel
+              </Button>
               <Button
-                onClick={() => {
-                  setSelectedTicket(null);
-                  navigate('/member/tickets');
-                }}
+                variant="contained"
+                onClick={handleCloseTicket}
+                disabled={!closeReason.trim()}
               >
-                Close
+                Confirm
               </Button>
             </DialogActions>
           </Dialog>
-        )}
-        <Dialog open={closeDialogOpen} onClose={() => setCloseDialogOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Close Ticket</DialogTitle>
-          <DialogContent>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                label="Reason for Closing"
-                value={closeReason}
-                onChange={(e) => setCloseReason(e.target.value)}
-                required
-              />
-              <FormControl fullWidth>
-                <InputLabel>Reassign To (Optional)</InputLabel>
-                <Select
-                  value={reassignTo}
-                  label="Reassign To (Optional)"
-                  onChange={(e) => setReassignTo(e.target.value)}
-                >
-                  <MenuItem value="">None</MenuItem>
-                  {members.map((member) => (
-                    <MenuItem key={member.id} value={member.id}>
-                      {member.first_name} {member.last_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setCloseDialogOpen(false)}>Cancel</Button>
-            <Button
-              variant="contained"
-              onClick={handleCloseTicket}
-              disabled={!closeReason.trim()}
-            >
-              Confirm
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <NotificationDrawer
-          open={notificationDrawerOpen}
-          onClose={() => setNotificationDrawerOpen(false)}
-          notifications={notifications}
-        />
-      </Container>
-    </ErrorBoundary>
+
+          <NotificationDrawer
+            open={notificationDrawerOpen}
+            onClose={() => setNotificationDrawerOpen(false)}
+            notifications={notifications}
+          />
+        </Container>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
 

@@ -19,7 +19,7 @@
 #     id = db.Column(db.Integer, primary_key=True)
 #     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 #     category = db.Column(db.String(50), nullable=False)
-#     urgency = db.Column(db.String(20), nullable=False)
+#     priority = db.Column(db.String(20), nullable=False)
 #     description = db.Column(db.Text, nullable=False)
 #     predefined_question = db.Column(db.String(255), nullable=True)
 #     visibility = db.Column(db.String(20), nullable=False, default='all_members')
