@@ -30,10 +30,26 @@ const chatReducer = (state, action) => {
   console.log('Reducer action:', action.type, action.payload);
   switch (action.type) {
     case 'ADD_MESSAGE':
+      // If message with same id exists, ignore
       if (state.messages.some((msg) => msg.id === action.payload.id)) {
         console.warn('Duplicate message ignored:', action.payload.id);
         return state; // Prevent duplicates
       }
+      // If incoming message is from server (not optimistic), remove matching optimistic message
+      if (!action.payload.isOptimistic) {
+        const filteredMessages = state.messages.filter(msg => {
+          if (!msg.isOptimistic) return true;
+          // Remove optimistic message if same sender, message content, and timestamp close enough (within 5 seconds)
+          const sameSender = msg.sender_id === action.payload.sender_id;
+          const sameMessage = msg.message === action.payload.message;
+          const timeDiff = Math.abs(new Date(msg.timestamp) - new Date(action.payload.timestamp));
+          return !(sameSender && sameMessage && timeDiff < 5000);
+        });
+        const newState = { ...state, messages: [...filteredMessages, action.payload] };
+        console.log('New state after reconciling optimistic message:', newState);
+        return newState;
+      }
+      // For optimistic messages, just add
       const newState = { ...state, messages: [...state.messages, action.payload] };
       console.log('New state:', newState);
       return newState;
@@ -132,16 +148,23 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
         reconnectAttemptsRef.current = 0;
       });
 
+      socketInstance.on('disconnect', (reason) => {
+        console.log('WebSocket disconnected for ticket:', ticketId, 'Reason:', reason);
+      });
+
       socketInstance.on('message', (newMessage) => {
-        console.log('Received message:', newMessage);
-        if (newMessage.ticket_id === String(ticketId)) {
+        console.log('Socket message event received full:', newMessage);
+        // Relax ticket_id check: accept message if ticket_id matches or is missing but sender_id matches current user or message has no ticket_id
+        const messageTicketId = newMessage.ticket_id || newMessage.ticketId || null;
+        if (messageTicketId === String(ticketId) || !messageTicketId) {
+          console.log('Dispatching ADD_MESSAGE for message:', newMessage);
           dispatch({
             type: 'ADD_MESSAGE',
             payload: {
               id: newMessage.id || crypto.randomUUID(),
               message: newMessage.message,
               sender_id: newMessage.sender_id,
-              sender_name: newMessage.sender_name || 'Unknown',
+              sender_name: newMessage.sender_name || (newMessage.sender_id === user.id ? `${user.firstName} ${user.lastName}` : 'Unknown'),
               timestamp: newMessage.timestamp || new Date().toISOString(),
               is_system: false
             }
@@ -355,9 +378,21 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
   }, [chatState.messages]);
 
   const handleSend = async () => {
-    
     if (!message.trim() || !socketRef.current || chatState.ticketStatus === 'closed') return;
     try {
+      // Optimistically add the message to chat state for instant UI update
+      const tempId = crypto.randomUUID();
+      const newMessage = {
+        id: tempId,
+        message: message.trim(),
+        sender_id: user.id,
+        sender_name: `${user.firstName} ${user.lastName}`,
+        timestamp: new Date().toISOString(),
+        is_system: false,
+        isOptimistic: true
+      };
+      dispatch({ type: 'ADD_MESSAGE', payload: newMessage });
+
       socketRef.current.emit('message', {
         ticket_id: ticketId,
         sender_id: user.id,

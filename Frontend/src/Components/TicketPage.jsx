@@ -94,7 +94,8 @@ function TicketPage() {
         console.log('Ticket updated:', ticket_id);
         if (!ticket_id) return;
         if (selectedTicket?.id === ticket_id) {
-          debouncedHandleTicketSelect(ticket_id);
+          // Avoid calling debouncedHandleTicketSelect if already selected
+          return;
         } else {
           fetch(`${API_URL}/api/tickets/${ticket_id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -355,6 +356,7 @@ function TicketPage() {
 
   const debouncedHandleTicketSelect = useCallback(
     debounce(async (newTicketId) => {
+      if (selectedTicket?.id === newTicketId) return;
       try {
         setSwitchingTicket(true);
         setError(null);
@@ -627,8 +629,10 @@ function TicketPage() {
                   button
                   selected={selectedTicket?.id === ticket.id}
                   onClick={() => {
-                    debouncedHandleTicketSelect(ticket.id);
-                    if (isMobile) setActiveSection('chat');
+                    if (selectedTicket?.id !== ticket.id) {
+                      debouncedHandleTicketSelect(ticket.id);
+                      if (isMobile) setActiveSection('chat');
+                    }
                   }}
                   sx={{
                     p: 2,
@@ -793,7 +797,9 @@ function TicketPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
-            height: 'calc(100vh - 64px - 16px)'
+            height: 'calc(100vh - 64px - 16px)',
+            flexGrow: 1,
+            minWidth: 0
           }}
         >
           {selectedTicket ? (

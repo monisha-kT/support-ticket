@@ -84,7 +84,16 @@ function UserChatPage() {
         console.log('Ticket updated:', ticket_id);
         if (!ticket_id) return;
         if (selectedTicket?.id === ticket_id) {
-          debouncedHandleTicketSelect(ticket_id);
+          // Update selectedTicket with latest ticket info
+          fetch(`${API_URL}/api/tickets/${ticket_id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+            .then(res => res.ok ? res.json() : Promise.reject(new Error('Failed to fetch ticket')))
+            .then(updatedTicket => {
+              setSelectedTicket(prev => prev ? { ...prev, ...updatedTicket } : prev);
+              setTickets(prev => prev.map(t => t.id === ticket_id ? { ...t, ...updatedTicket } : t));
+            })
+            .catch(err => console.error('Error updating ticket:', err));
         } else {
           fetch(`${API_URL}/api/tickets/${ticket_id}`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -117,19 +126,7 @@ function UserChatPage() {
         });
 
         if (selectedTicket?.id === data.ticket_id) {
-          setSelectedTicket(prev => ({
-            ...prev,
-            chatHistory: [
-              ...(prev.chatHistory || []),
-              {
-                id: data.id || Date.now(),
-                content: data.message,
-                sender_id: data.sender_id,
-                timestamp: data.timestamp || new Date().toISOString(),
-                sender_name: data.sender_name || 'Support'
-              }
-            ]
-          }));
+          // Do not update chatHistory here, ChatWindow manages messages internally
           setUnreadCounts(prev => ({ ...prev, [data.ticket_id]: 0 }));
         } else {
           setUnreadCounts(prev => ({
@@ -262,6 +259,7 @@ function UserChatPage() {
 
   const debouncedHandleTicketSelect = useCallback(
     debounce(async (newTicketId) => {
+      if (selectedTicket?.id === newTicketId) return;
       try {
         setSwitchingTicket(true);
         setError(null);
@@ -269,7 +267,7 @@ function UserChatPage() {
         currentTicketIdRef.current = newTicketId;
 
         const existingTicket = tickets.find(t => t.id === newTicketId);
-        if (existingTicket?.chatHistory) {
+        if (existingTicket) {
           setSelectedTicket(existingTicket);
           navigate(`/user/tickets/${newTicketId}`);
           if (socketRef.current) {
@@ -420,7 +418,8 @@ function UserChatPage() {
           sx={{
             bgcolor: 'white',
             boxShadow: theme.shadows[1],
-            borderBottom: `1px solid ${theme.palette.divider}`
+            borderBottom: `1px solid ${theme.palette.divider}`,
+           mt:8
           }}
         >
           <Tab label="Tickets" value="tickets" />
@@ -443,7 +442,7 @@ function UserChatPage() {
             overflow: 'hidden'
           }}
         >
-          <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
+          <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}`, }}>
             <Typography variant="h6" fontWeight="bold" color="text.primary">
               My Support Tickets
             </Typography>
@@ -492,8 +491,10 @@ function UserChatPage() {
                   button
                   selected={selectedTicket?.id === ticket.id}
                   onClick={() => {
-                    debouncedHandleTicketSelect(ticket.id);
-                    if (isMobile) setActiveSection('chat');
+                    if (selectedTicket?.id !== ticket.id) {
+                      debouncedHandleTicketSelect(ticket.id);
+                      if (isMobile) setActiveSection('chat');
+                    }
                   }}
                   sx={{
                     p: 2,
@@ -563,7 +564,7 @@ function UserChatPage() {
         >
           {selectedTicket ? (
             switchingTicket ? (
-              <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center'  }}>
                 <CircularProgress />
               </Box>
             ) : (
@@ -573,7 +574,8 @@ function UserChatPage() {
                     p: 2,
                     borderBottom: `1px solid ${theme.palette.divider}`,
                     display: 'flex',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    
                   }}
                 >
                   {isMobile && (
@@ -662,7 +664,9 @@ function UserChatPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
-            height: 'calc(100vh - 64px - 16px)'
+            height: 'calc(100vh - 64px - 16px)',
+            flexGrow: 1,
+            minWidth: 0
           }}
         >
           {selectedTicket ? (
@@ -696,14 +700,13 @@ function UserChatPage() {
                     maxHeight: 'calc(100vh - 64px - 16px - 64px)',
                   }}
                 >
-                  <ChatWindow
-                    key={selectedTicket.id}
-                    ticketId={selectedTicket.id}
-                    initialMessages={selectedTicket.chatHistory || []}
-                    readOnly={selectedTicket.status === 'closed'}
-                    sx={{ height: '100%' }}
-                    isUser={true}
-                  />
+          <ChatWindow
+            key={selectedTicket.id}
+            ticketId={selectedTicket.id}
+            readOnly={selectedTicket.status === 'closed'}
+            sx={{ height: '100%' }}
+            isUser={true}
+          />
                 </Box>
               </Box>
             )
