@@ -14,16 +14,24 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
   Paper,
   Snackbar,
   Modal,
   Divider,
   IconButton,
+  Grid,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import Navbar from './Navbar';
@@ -34,6 +42,7 @@ function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [tickets, setTickets] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [notification, setNotification] = useState(null);
   const [newTicket, setNewTicket] = useState({
@@ -43,6 +52,15 @@ function UserDashboard() {
     description: '',
   });
   const [selectedTicket, setSelectedTicket] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [searchFilters, setSearchFilters] = useState({
+    id: '',
+    subject: '',
+    category: '',
+    priority: '',
+    status: '',
+  });
   const user = useStore((state) => state.user);
   const navigate = useNavigate();
   const socketRef = useRef(null);
@@ -70,11 +88,13 @@ function UserDashboard() {
 
         socket.on('ticket_closed', ({ ticket_id, reason, reassigned_to }) => {
           setTickets((prev) =>
-            prev.map((ticket) =>
-              ticket.id === ticket_id
-                ? { ...ticket, status: 'closed', closure_reason: reason, reassigned_to }
-                : ticket
-            )
+            prev
+              .map((ticket) =>
+                ticket.id === ticket_id
+                  ? { ...ticket, status: 'closed', closure_reason: reason, reassigned_to }
+                  : ticket
+              )
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           );
           if (selectedTicket?.id === ticket_id) {
             setSelectedTicket((prev) => ({ ...prev, status: 'closed', closure_reason: reason, reassigned_to }));
@@ -83,11 +103,13 @@ function UserDashboard() {
 
         socket.on('ticket_reopened', ({ ticket_id }) => {
           setTickets((prev) =>
-            prev.map((ticket) =>
-              ticket.id === ticket_id
-                ? { ...ticket, status: 'assigned', closure_reason: null, reassigned_to: null }
-                : ticket
-            )
+            prev
+              .map((ticket) =>
+                ticket.id === ticket_id
+                  ? { ...ticket, status: 'assigned', closure_reason: null, reassigned_to: null }
+                  : ticket
+              )
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           );
           if (selectedTicket?.id === ticket_id) {
             setSelectedTicket((prev) => ({ ...prev, status: 'assigned', closure_reason: null, reassigned_to: null }));
@@ -96,11 +118,13 @@ function UserDashboard() {
 
         socket.on('chat_inactive', ({ ticket_id, reason }) => {
           setTickets((prev) =>
-            prev.map((ticket) =>
-              ticket.id === ticket_id
-                ? { ...ticket, status: 'closed', closure_reason: reason }
-                : ticket
-            )
+            prev
+              .map((ticket) =>
+                ticket.id === ticket_id
+                  ? { ...ticket, status: 'closed', closure_reason: reason }
+                  : ticket
+              )
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           );
           if (selectedTicket?.id === ticket_id) {
             setSelectedTicket((prev) => ({ ...prev, status: 'closed', closure_reason: reason }));
@@ -124,6 +148,21 @@ function UserDashboard() {
     };
   }, [user?.role, navigate, selectedTicket?.id]);
 
+  useEffect(() => {
+    const sortedTickets = [...tickets].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const filtered = sortedTickets.filter((ticket) => {
+      const idMatch = ticket.id ? ticket.id.toString().includes(searchFilters.id.toLowerCase()) : true;
+      const subjectMatch = ticket.subject ? ticket.subject.toLowerCase().includes(searchFilters.subject.toLowerCase()) : true;
+      const categoryMatch = ticket.category ? ticket.category.toLowerCase().includes(searchFilters.category.toLowerCase()) : true;
+      const priorityMatch = ticket.priority ? ticket.priority.toLowerCase().includes(searchFilters.priority.toLowerCase()) : true;
+      const statusMatch = ticket.status ? ticket.status.toLowerCase().includes(searchFilters.status.toLowerCase()) : true;
+
+      return idMatch && subjectMatch && categoryMatch && priorityMatch && statusMatch;
+    });
+    setFilteredTickets(filtered);
+    setPage(0); // Reset to first page when filters change
+  }, [tickets, searchFilters]);
+
   const fetchTickets = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -136,7 +175,9 @@ function UserDashboard() {
       if (!res.ok) throw new Error('Failed to fetch tickets');
 
       const data = await res.json();
-      setTickets(data);
+      const sortedData = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      setTickets(sortedData);
+      setFilteredTickets(sortedData);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -195,53 +236,25 @@ function UserDashboard() {
     }
   };
 
-  // const handleChatClick = async (ticket) => {
-  //   try {
-  //     if (ticket.status !== 'assigned') {
-  //       throw new Error('Can only chat with assigned tickets');
-  //     }
-
-  //     if (!socketRef.current || !socketRef.current.connected) {
-  //       socketRef.current = await getSocket();
-  //       if (!socketRef.current) {
-  //         throw new Error('Failed to initialize chat connection');
-  //       }
-  //     }
-
-  //     socketRef.current.emit('join', { ticket_id: ticket.id });
-
-  //     socketRef.current.on('joined', (data) => {
-  //       console.log('Joined chat room:', data.room);
-  //     });
-
-  //     const token = localStorage.getItem('token');
-  //     const chatRes = await fetch(`http://localhost:5000/api/chats/${ticket.id}`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-
-  //     if (!chatRes.ok) throw new Error('Failed to load chat history');
-
-  //     const chatHistory = await chatRes.json();
-
-  //     setSelectedTicket({
-  //       ...ticket,
-  //       userName: `${user.first_name} ${user.last_name}`,
-  //       userEmail: user.email,
-  //       chatHistory,
-  //     });
-  //   } catch (err) {
-  //     setNotification({
-  //       type: 'error',
-  //       message: err.message,
-  //     });
-  //   }
-  // };
-
   const handleChatClick = (ticket) => {
-  navigate(`/user/tickets/${ticket.id}`);
-};
+    navigate(`/user/tickets/${ticket.id}`);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleSearchFilterChange = (field, value) => {
+    setSearchFilters((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   if (loading) {
     return (
@@ -259,7 +272,9 @@ function UserDashboard() {
       <>
         <Navbar />
         <Box sx={{ p: 2, mt: 8 }}>
-          <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
         </Box>
       </>
     );
@@ -273,7 +288,8 @@ function UserDashboard() {
           p: 4,
           mt: '64px',
           bgcolor: '#f0f2f5',
-          minHeight: 'calc(100vh - 64px)',
+          height: 'calc(100vh - 70px)',
+          position: 'fixed',
         }}
       >
         <Box
@@ -283,10 +299,11 @@ function UserDashboard() {
             display: 'flex',
             flexDirection: 'column',
             gap: 3,
+            height: '100%',
           }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+            <Typography variant="h5" sx={{ fontWeight: 'bold', fontSize: '26px' }}>
               My Support Tickets
             </Typography>
             <Button
@@ -302,116 +319,111 @@ function UserDashboard() {
             </Button>
           </Box>
 
-          <Grid container spacing={4}>
-            {tickets.map((ticket) => (
-              <Grid item xs={12} sm={6} md={4} key={ticket.id}>
-                <Paper
-                  elevation={3}
-                  sx={{
-                    p: 2,
-                    width: 250,
-                    height: 200,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 1,
-                    position: 'relative',
-                    '&:hover': { boxShadow: 6 },
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: 1,
-                      color: 'white',
-                      bgcolor:
-                        ticket.status === 'open' ? '#ff9800' :
-                        ticket.status === 'assigned' ? '#4caf50' :
-                        ticket.status === 'rejected' ? '#f44336' :
-                        ticket.status === 'closed' ? '#2196f3' : 
-                        ticket.status === 'inactive' ? '#9e9e9e' : 'inherit',
-                    }}
-                  >
-                    {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                  >
-                    Ticket #{ticket.id}
-                  </Typography>
-                  <Typography variant="h6" noWrap>
-                    {ticket.subject}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                  >
-                    Category: {ticket.category}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                  >
-                    Priority: {ticket.priority}
-                  </Typography>
-                  
-                  {ticket.closure_reason && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      <strong>Closure Reason:</strong> {ticket.closure_reason}
-                    </Typography>
-                  )}
-                  {ticket.reassigned_to && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    >
-                      <strong>Reassigned To:</strong> Member ID {ticket.reassigned_to}
-                    </Typography>
-                  )}
-                  {ticket.status === 'assigned' && ticket.last_message_at && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    >
-                      <strong>Status:</strong> Active
-                    </Typography>
-                  )}
-                  {ticket.status === 'assigned' && (
-                    <Button
-                      startIcon={<ChatIcon />}
-                      onClick={() => handleChatClick(ticket)}
-                      sx={{
-                        mt: 'auto',
-                        color: '#128C7E',
-                        '&:hover': { bgcolor: 'rgba(18, 140, 126, 0.08)' },
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      Chat with Support
-                    </Button>
-                  )}
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
+          <TableContainer
+            component={Paper}
+            sx={{
+              maxHeight: 'calc(100% - 180px)',
+              overflowY: 'auto',
+            }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontSize: '16px', fontWeight: 'bold', bgcolor: '#128C7E', color: 'white' }}>Ticket ID</TableCell>
+                  <TableCell sx={{ fontSize: '16px', fontWeight: 'bold', bgcolor: '#128C7E', color: 'white' }}>Subject</TableCell>
+                  <TableCell sx={{ fontSize: '16px', fontWeight: 'bold', bgcolor: '#128C7E', color: 'white' }}>Category</TableCell>
+                  <TableCell sx={{ fontSize: '16px', fontWeight: 'bold', bgcolor: '#128C7E', color: 'white' }}>Priority</TableCell>
+                  <TableCell sx={{ fontSize: '16px', fontWeight: 'bold', bgcolor: '#128C7E', color: 'white' }}>Status</TableCell>
+                  <TableCell sx={{ fontSize: '16px', fontWeight: 'bold', bgcolor: '#128C7E', color: 'white' }}>Action</TableCell>
+                </TableRow>
+                <TableRow>
+                  {['id', 'subject', 'category', 'priority', 'status', ''].map((field) => (
+                    <TableCell key={field} sx={{ bgcolor: '#f5f5f5', p: 1 }}>
+                      {field ? (
+                        <TextField
+                          fullWidth
+                          size="small"
+                          variant="outlined"
+                          placeholder={`Filter ${field}`}
+                          value={searchFilters[field] || ''}
+                          onChange={(e) => handleSearchFilterChange(field, e.target.value)}
+                          InputProps={{
+                            startAdornment: <SearchIcon fontSize="small" sx={{ color: 'action.active', mr: 1 }} />,
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              backgroundColor: 'white',
+                            },
+                          }}
+                        />
+                      ) : null}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredTickets
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((ticket) => (
+                    <TableRow key={ticket.id} hover>
+                      <TableCell sx={{ fontSize: '16px' }}>{ticket.id}</TableCell>
+                      <TableCell sx={{ fontSize: '16px' }}>{ticket.subject}</TableCell>
+                      <TableCell sx={{ fontSize: '16px' }}>{ticket.category}</TableCell>
+                      <TableCell sx={{ fontSize: '16px' }}>{ticket.priority}</TableCell>
+                      <TableCell sx={{ fontSize: '16px' }}>
+                        <Button
+                          size="small"
+                          sx={{
+                            color: 'white',
+                            bgcolor:
+                              ticket.status === 'open' ? '#ff9800' :
+                              ticket.status === 'assigned' ? '#4caf50' :
+                              ticket.status === 'rejected' ? '#f44336' :
+                              ticket.status === 'closed' ? '#2196f3' :
+                              ticket.status === 'inactive' ? '#9e9e9e' : 'inherit',
+                            '&:hover': {
+                              bgcolor:
+                                ticket.status === 'open' ? '#fb8c00' :
+                                ticket.status === 'assigned' ? '#43a047' :
+                                ticket.status === 'rejected' ? '#d32f2f' :
+                                ticket.status === 'closed' ? '#1976d2' :
+                                ticket.status === 'inactive' ? '#757575' : 'inherit',
+                            },
+                          }}
+                        >
+                          {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                        </Button>
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '16px' }}>
+                        {ticket.status === 'assigned' && (
+                          <Button
+                            startIcon={<ChatIcon />}
+                            onClick={() => handleChatClick(ticket)}
+                            sx={{
+                              color: '#128C7E',
+                              '&:hover': {
+                                bgcolor: 'rgba(18, 140, 126, 0.1)',
+                              },
+                            }}
+                          >
+                            Chat
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredTickets.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Box>
       </Box>
 
@@ -476,7 +488,7 @@ function UserDashboard() {
                   </Typography>
                   <Divider sx={{ my: 2 }} />
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Typography><strong>Ticket ID:</strong> #{selectedTicket.id}</Typography>
+                    <Typography><strong>Ticket ID:</strong> {selectedTicket.id}</Typography>
                     <Typography><strong>Subject:</strong> {selectedTicket.subject}</Typography>
                     <Typography><strong>User Email:</strong> {selectedTicket.userEmail}</Typography>
                     <Typography><strong>Category:</strong> {selectedTicket.category}</Typography>
