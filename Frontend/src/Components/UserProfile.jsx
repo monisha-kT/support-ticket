@@ -210,49 +210,49 @@ function UserProfile() {
         </DialogTitle>
         <DialogContent sx={{ p: 0 }}>
           <Paper elevation={0} sx={{ m: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, p: 2,fontFamily:'times new roman' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' ,fontFamily:'times new roman'}}>
-                <Typography variant="body2" color="text.secondary" sx={{ flex: 1,fontFamily:'times new roman' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, p: 2,font:'times new roman' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' ,font:'times new roman'}}>
+                <Typography variant="body2" color="text.secondary" sx={{ flex: 1,font:'times new roman' }}>
                   First Name
                 </Typography>
-                <Typography variant="body1" fontWeight={500} sx={{ flex: 1, textAlign: 'right' ,fontFamily:'times new roman'}}>
+                <Typography variant="body1" fontWeight={500} sx={{ flex: 1, textAlign: 'right' ,font:'times new roman'}}>
                   {user?.firstName || 'N/A'}
                 </Typography>
               </Box>
               <Divider sx={{ bgcolor: '#e0e0e0' }} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' ,fontFamily:'times new roman'}}>
-                <Typography variant="body2" color="text.secondary" sx={{ flex: 1,fontFamily:'times new roman' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' ,font:'times new roman'}}>
+                <Typography variant="body2" color="text.secondary" sx={{ flex: 1,font:'times new roman' }}>
                   Last Name
                 </Typography>
-                <Typography variant="body1" fontWeight={500} sx={{ flex: 1, textAlign: 'right',fontFamily:'times new roman' }}>
+                <Typography variant="body1" fontWeight={500} sx={{ flex: 1, textAlign: 'right',font:'times new roman' }}>
                   {user?.lastName || 'N/A'}
                 </Typography>
               </Box>
               <Divider sx={{ bgcolor: '#e0e0e0' }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="body2" color="text.secondary" sx={{ flex: 1 ,fontFamily:'times new roman'}}>
+                <Typography variant="body2" color="text.secondary" sx={{ flex: 1 ,font:'times new roman'}}>
                   Email
                 </Typography>
                 <Typography
                   variant="body1"
                   fontWeight={500}
-                  sx={{ flex: 1, textAlign: 'right', overflowWrap: 'break-word',fontFamily:'times new roman' }}
+                  sx={{ flex: 1, textAlign: 'right', overflowWrap: 'break-word',font:'times new roman' }}
                 >
                   {user?.email || 'N/A'}
                 </Typography>
               </Box>
               <Divider sx={{ bgcolor: '#e0e0e0' }} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',fontFamily:'times new roman' }}>
-                <Typography variant="body2" color="text.secondary" sx={{ flex: 1,fontFamily:'times new roman' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',font:'times new roman' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ flex: 1,font:'times new roman' }}>
                   Phone
                 </Typography>
-                <Typography variant="body1" fontWeight={500} sx={{ flex: 1, textAlign: 'right' ,fontFamily:'times new roman'}}>
+                <Typography variant="body1" fontWeight={500} sx={{ flex: 1, textAlign: 'right' ,font:'times new roman'}}>
                   {user?.phone || 'N/A'}
                 </Typography>
               </Box>
               <Divider sx={{ bgcolor: '#e0e0e0' }} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',fontFamily:'times new roman' }}>
-                <Typography variant="body2" color="text.secondary" sx={{ flex: 1,fontFamily:'times new roman' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',font:'times new roman' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ flex: 1,font:'times new roman' }}>
                   Date of Birth
                 </Typography>
                 <Typography
@@ -262,7 +262,7 @@ function UserProfile() {
                     flex: 1,
                     textAlign: 'right',
                     color: dobError ? 'error.main' : 'text.primary',
-                    fontFamily:'times new roman'
+                    font:'times new roman'
                   }}
                 >
                   {dobError || (user?.dob ? moment(user.dob).format('MMM D, YYYY') : 'N/A')}
@@ -278,7 +278,7 @@ function UserProfile() {
             sx={{
               bgcolor: '#128C7E',
               color: 'white',
-              fontFamily:'times new roman',
+              font:'times new roman',
               textTransform: 'none',
               
               '&:hover': { bgcolor: '#129C7E' },
@@ -309,7 +309,7 @@ function UserProfile() {
             textAlign: 'center',
           }}
         >
-          <Typography variant="h6" sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' ,fontFamily:'times new roman'} }}>
+          <Typography variant="h6" sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' ,font:'times new roman'} }}>
             Change Password
           </Typography>
         </DialogTitle>
@@ -337,7 +337,7 @@ function UserProfile() {
               '& .MuiInputLabel-root': {
                 fontSize: { xs: '0.875rem', sm: '0.9rem' },
               },
-              fontFamily:'times new roman'
+              font:'times new roman'
             }}
           />
           <TextField
@@ -356,7 +356,7 @@ function UserProfile() {
               '& .MuiInputLabel-root': {
                 fontSize: { xs: '0.875rem', sm: '0.9rem' },
               },
-              fontFamily:'times new roman'
+              font:'times new roman'
             }}
           />
           <TextField
@@ -375,7 +375,7 @@ function UserProfile() {
               '& .MuiInputLabel-root': {
                 fontSize: { xs: '0.875rem', sm: '0.9rem' },
               },
-              fontFamily:'times new roman'
+              font:'times new roman'
             }}
           />
         </DialogContent>
@@ -408,7 +408,7 @@ function UserProfile() {
               color: 'white',
               textTransform: 'none',
               width: { xs: 80, sm: 100 },
-              fontFamily:'times new roman',
+              font:'times new roman',
               fontSize: { xs: '0.75rem', sm: '0.875rem' },
               '&:hover': { bgcolor: '#129C7E' },
             }}

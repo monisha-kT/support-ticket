@@ -17,7 +17,7 @@ import ErrorBoundary from './ErrorBoundary';
 
 const theme = createTheme({
   typography: {
-    fontFamily: '"Open Sans", sans-serif',
+    font: '"Open Sans", sans-serif',
     h5: {
       fontSize: '26px',
       fontWeight: 'bold'
@@ -452,22 +452,31 @@ function MemberDashboard() {
 
   const renderStatusBadge = (status) => (
     <Box
-      sx={{
-        bgcolor:
-          status === 'open' ? 'warning.main' :
-          status === 'assigned' ? 'info.main' :
-          status === 'closed' ? 'success.main' :
-          status === 'rejected' ? 'error.main' : 'primary.main',
-        color: 'white',
-        px: 1.5,
-        py: 0.5,
-        borderRadius: 1,
-        display: 'inline-block',
-        fontSize: '14px',
-        fontWeight: 600,
-        textTransform: 'capitalize'
-      }}
-    >
+      
+  sx={{
+    bgcolor:
+      status === 'open' ? 'warning.main' :
+      status === 'assigned' ? 'info.main' :
+      status === 'inactive' ? 'error.main' :
+      status === 'reassigned' ? 'secondary.main' :
+      status === 'closed' ? 'success.main' :
+      status === 'rejected' ? 'error.main' : 'inherit',
+    color: 'white',
+    width: 120, // static width
+    height: 32, // static height
+    lineHeight: '32px', // vertically center the text
+    textAlign: 'center',
+    borderRadius: 1,
+    display: 'inline-block',
+    fontFamily: 'Open Sans',
+    fontSize: '16px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    textTransform: 'capitalize',
+  }}
+>
+  
       {status}
     </Box>
   );

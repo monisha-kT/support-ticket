@@ -188,7 +188,7 @@ function Navbar() {
         <Toolbar>
           <Typography
             variant="h6"
-            sx={{ flexGrow: 1, fontWeight: 'bold', fontFamily: 'Times New Roman' }}
+            sx={{ flexGrow: 1, fontWeight: 'bold', font: 'Times New Roman' }}
           >
             Support Chat
           </Typography>
