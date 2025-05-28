@@ -29,7 +29,7 @@
 //     },
 //   },
 //   typography: {
-//     fontFamily: '"Open Sans", sans-serif',
+//     font: '"Open Sans", sans-serif',
 //     h4: {
 //       fontWeight: 700,
 //       color: "#fff",
@@ -621,7 +621,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: '"Open Sans", sans-serif',
+    font: '"Open Sans", sans-serif',
     h4: {
       fontWeight: 700,
       color: '#fff',

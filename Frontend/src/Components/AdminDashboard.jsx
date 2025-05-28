@@ -1,18 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, CircularProgress, Alert, Button, Paper, Modal, Grid, Divider,
   Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem,
-  TextField, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,Badge,
+  TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   TablePagination
 } from '@mui/material';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { getSocket, useSocket } from './socket';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import Navbar from './Navbar';
 import ChatWindow from './ChatWindow';
-import NotificationDrawer from './NotificationDrawer';
 
 function AdminDashboard() {
   const [loading, setLoading] = useState(true);
@@ -29,21 +26,18 @@ function AdminDashboard() {
   const [closeTicketId, setCloseTicketId] = useState(null);
   const [reassignTo, setReassignTo] = useState('');
   const [closeReason, setCloseReason] = useState('');
-  const [notifications, setNotifications] = useState([]);
-  const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchFilters, setSearchFilters] = useState({
     id: '',
-    category: '',
-    priority: '',
     subject: '',
+    description: '',
+    created_at: '',
     status: '',
-    last_message_at: '',
     activeStatus: '',
-    closure_reason: '',
     userName: '',
-    memberName: ''
+    memberName: '',
+    closure_reason: ''
   });
   const user = useStore((state) => state.user);
   const navigate = useNavigate();
@@ -78,10 +72,6 @@ function AdminDashboard() {
               : ticket
           )
         );
-        setNotifications((prev) => [
-          ...prev,
-          { type: 'info', message: `Ticket #${ticket_id} ${reassigned_to ? 'reassigned' : 'closed'}: ${reason}` }
-        ]);
       });
       socket.on('ticket_reopened', ({ ticket_id }) => {
         setTickets((prev) =>
@@ -115,10 +105,6 @@ function AdminDashboard() {
               : ticket
           )
         );
-        setNotifications((prev) => [
-          ...prev,
-          { type: 'info', message: `Ticket #${ticket_id} reassigned to ${member ? `${member.first_name} ${member.last_name}` : 'Unassigned'}` }
-        ]);
       });
       socket.on('ticket_inactive', ({ ticket_id, status, reason }) => {
         setTickets((prev) =>
@@ -213,8 +199,14 @@ function AdminDashboard() {
               : 'Inactive'
             : 'N/A',
       }));
-      setTickets(ticketsWithDetails);
-      setFilteredTickets(ticketsWithDetails);
+      
+      // Sort tickets by created_at in descending order (newest first)
+      const sortedTickets = ticketsWithDetails.sort((a, b) => 
+        new Date(b.created_at) - new Date(a.created_at)
+      );
+      
+      setTickets(sortedTickets);
+      setFilteredTickets(sortedTickets);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -353,38 +345,51 @@ function AdminDashboard() {
     setPage(0);
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
   const columns = [
     { field: 'id', headerName: 'Ticket ID', minWidth: 100 },
-    { field: 'category', headerName: 'Category', minWidth: 120 },
-    { field: 'priority', headerName: 'Priority', minWidth: 100 },
     { field: 'subject', headerName: 'Subject', minWidth: 150 },
+    { field: 'description', headerName: 'Description', minWidth: 200 },
+    { field: 'created_at', headerName: 'Created Date', minWidth: 120 },
+    { field: 'created_at_time', headerName: 'Created Time', minWidth: 100 },
     { field: 'status', headerName: 'Status', minWidth: 100 },
-    { field: 'last_message_at', headerName: 'Last Response', minWidth: 180 },
     { field: 'activeStatus', headerName: 'Active Status', minWidth: 120 },
-    { field: 'closure_reason', headerName: 'Closure Reason', minWidth: 150 },
     { field: 'userName', headerName: 'Created By', minWidth: 150 },
     { field: 'memberName', headerName: 'Assigned To', minWidth: 150 },
-    { field: 'actions', headerName: 'Actions', minWidth: 250 }
+    { field: 'closure_reason', headerName: 'Closure Reason', minWidth: 150 },
+    { field: 'actions', headerName: 'Action', minWidth: 200 }
   ];
 
   return (
     <>
       <Navbar />
-      <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', bgcolor: '#f5f5f5' }}>
+      <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' ,position:'sticky' }}>
         <Box sx={{ p: 2, marginBottom: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', mt: 7 }}>
-              Admin Dashboard
-            </Typography>
-            <IconButton onClick={() => setNotificationDrawerOpen(true)}>
-              <Badge badgeContent={notifications.length} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-          </Box>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', mt: 8, font: 'Open Sans', fontSize: '26px' }}>
+            Admin Dashboard
+          </Typography>
         </Box>
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, flexGrow: 1 }}>
             <CircularProgress />
           </Box>
         ) : error ? (
@@ -393,47 +398,50 @@ function AdminDashboard() {
           </Alert>
         ) : (
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', px: 2, pb: 2 }}>
-            <TableContainer component={Paper} sx={{ flexGrow: 1, maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}>
+            <TableContainer component={Paper} sx={{ flexGrow: 1, maxHeight: 'calc(100vh - 200px)', overflowY: 'auto'}}>
               <Table stickyHeader>
                 <TableHead>
                   <TableRow>
                     {columns.map((column) => (
-                      <TableCell key={column.field} sx={{ fontWeight: 'bold', bgcolor: '#f5f5f5', minWidth: column.minWidth }}>
+                      <TableCell 
+                        key={column.field} 
+                        sx={{ 
+                          fontWeight: 'bold', 
+                          bgcolor: '#128C7E', 
+                          color: 'white',
+                          minWidth: column.minWidth,
+                          font: 'Open Sans',
+                          fontSize: '16px'
+                        }}
+                      >
                         {column.headerName}
                       </TableCell>
                     ))}
                   </TableRow>
+                </TableHead>
+                <TableHead>
                   <TableRow>
                     {columns.map((column) => (
-                      <TableCell key={column.field} sx={{ minWidth: column.minWidth }}>
-                        {column.field !== 'actions' && column.field !== 'status' && column.field !== 'last_message_at' ? (
+                      <TableCell key={`search-${column.field}`} sx={{ bgcolor: '#e0f2f1', p: 1 }}>
+                        {column.field !== 'actions' && (
                           <TextField
                             size="small"
-                            placeholder={`Search ${column.headerName}`}
-                            value={searchFilters[column.field]}
-                            onChange={(e) => handleSearchChange(column.field, e.target.value)}
                             fullWidth
+                            variant="outlined"
+                            placeholder={`Search ${column.headerName}`}
+                            value={searchFilters[column.field] || ''}
+                            onChange={(e) => handleSearchChange(column.field, e.target.value)}
+                            sx={{
+                              '& .MuiInputBase-root': {
+                                height: 40,
+                                font: 'Open Sans',
+
+                                
+                              },
+                             
+                            }}
                           />
-                        ) : column.field === 'status' ? (
-                          <FormControl fullWidth size="small">
-                            <InputLabel>Status</InputLabel>
-                            <Select
-                              value={searchFilters.status}
-                              label="Status"
-                              onChange={(e) => handleSearchChange('status', e.target.value)}
-                            >
-                              <MenuItem value="">All</MenuItem>
-                              <MenuItem value="open">Open</MenuItem>
-                              <MenuItem value="assigned">Assigned</MenuItem>
-                              <MenuItem value="inactive">Inactive</MenuItem>
-                              <MenuItem value="reassigned">Reassigned</MenuItem>
-                              <MenuItem value="closed">Closed</MenuItem>
-                              <MenuItem value="rejected">Rejected</MenuItem>
-                            </Select>
-                          </FormControl>
-                        ) : column.field === 'last_message_at' ? (
-                          <Box sx={{ minWidth: 180 }} />
-                        ) : null}
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -442,48 +450,79 @@ function AdminDashboard() {
                   {filteredTickets
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((ticket) => (
-                      <TableRow key={ticket.id}>
-                        <TableCell>{ticket.id}</TableCell>
-                        <TableCell>{ticket.category}</TableCell>
-                        <TableCell>{ticket.priority}</TableCell>
-                        <TableCell>{ticket.subject}</TableCell>
-                        <TableCell>
-                          <Typography
-                            sx={{
-                              bgcolor:
-                                ticket.status === 'open' ? 'warning.main' :
-                                ticket.status === 'assigned' ? 'info.main' :
-                                ticket.status === 'inactive' ? 'error.main' :
-                                ticket.status === 'reassigned' ? 'secondary.main' :
-                                ticket.status === 'closed' ? 'success.main' :
-                                ticket.status === 'rejected' ? 'error.main' : 'inherit',
-                              color: 'white',
-                              px: 2,
-                              py: 0.5,
-                              borderRadius: 1,
-                              display: 'inline-block',
-                            }}
-                          >
-                            {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
-                          </Typography>
+                      <TableRow key={ticket.id} hover>
+                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>{ticket.id}</TableCell>
+                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>{ticket.subject}</TableCell>
+                        <TableCell sx={{ 
+                          whiteSpace: 'nowrap', 
+                          overflow: 'hidden', 
+                          textOverflow: 'ellipsis', 
+                          maxWidth: 200,
+                          
+                          font: 'Open Sans',
+                          fontSize: '16px'
+                        }}>
+                          {ticket.description}
                         </TableCell>
-                        <TableCell>
-                          {ticket.last_message_at
-                            ? new Date(ticket.last_message_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true })
-                            : 'N/A'}
+                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                          {formatDate(ticket.created_at)}
                         </TableCell>
-                        <TableCell>{ticket.activeStatus}</TableCell>
-                        <TableCell>{ticket.closure_reason || 'N/A'}</TableCell>
-                        <TableCell>{ticket.userName}</TableCell>
-                        <TableCell>{ticket.memberName}</TableCell>
+                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                          {formatDateTime(ticket.created_at)}
+                        </TableCell>
+                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                        <Typography
+  sx={{
+    bgcolor:
+      ticket.status === 'open' ? 'warning.main' :
+      ticket.status === 'assigned' ? 'info.main' :
+      ticket.status === 'inactive' ? 'error.main' :
+      ticket.status === 'reassigned' ? 'secondary.main' :
+      ticket.status === 'closed' ? 'success.main' :
+      ticket.status === 'rejected' ? 'error.main' : 'inherit',
+    color: 'white',
+    width: 120, // static width
+    height: 32, // static height
+    lineHeight: '32px', // vertically center the text
+    textAlign: 'center',
+    borderRadius: 1,
+    display: 'inline-block',
+    fontFamily: 'Open Sans',
+    fontSize: '16px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  }}
+>
+  {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+</Typography>
+
+                        </TableCell>
+                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                          {ticket.activeStatus}
+                        </TableCell>
+                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                          {ticket.userName}
+                        </TableCell>
+                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                          {ticket.memberName}
+                        </TableCell>
+                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                          {ticket.closure_reason || 'N/A'}
+                        </TableCell>
                         <TableCell>
                           <Box sx={{ display: 'flex', gap: 1 }}>
                             <Button
                               variant="contained"
                               size="small"
                               onClick={() => handleViewDetails(ticket)}
+                              sx={{ 
+                                textTransform: 'capitalize',
+                                font: 'Open Sans',
+                                fontSize: '14px'
+                              }}
                             >
-                              View Details
+                              View
                             </Button>
                             {ticket.status !== 'closed' && ticket.status !== 'rejected' && (
                               <>
@@ -495,6 +534,11 @@ function AdminDashboard() {
                                     setReassignTicketId(ticket.id);
                                     setReassignDialogOpen(true);
                                   }}
+                                  sx={{ 
+                                    textTransform: 'capitalize',
+                                    font: 'Open Sans',
+                                    fontSize: '14px'
+                                  }}
                                 >
                                   Reassign
                                 </Button>
@@ -505,6 +549,11 @@ function AdminDashboard() {
                                   onClick={() => {
                                     setCloseTicketId(ticket.id);
                                     setCloseDialogOpen(true);
+                                  }}
+                                  sx={{ 
+                                    textTransform: 'capitalize',
+                                    font: 'Open Sans',
+                                    fontSize: '14px'
                                   }}
                                 >
                                   Close
@@ -526,6 +575,7 @@ function AdminDashboard() {
               page={page}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
+              sx={{ font: 'Open Sans' }}
             />
           </Box>
         )}
@@ -545,31 +595,61 @@ function AdminDashboard() {
               <Grid container spacing={2} sx={{ height: '100%' }}>
                 <Grid item xs={4}>
                   <Paper elevation={2} sx={{ p: 2, height: '100%', overflow: 'auto' }}>
-                    <Typography variant="h6" gutterBottom id="ticket-details-modal">Ticket Details</Typography>
+                    <Typography variant="h6" gutterBottom id="ticket-details-modal" sx={{ font: 'Open Sans' }}>
+                      Ticket Details
+                    </Typography>
                     <Divider sx={{ my: 2 }} />
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }} id="ticket-details-description">
-                      <Typography><strong>Ticket ID:</strong> #{selectedTicket.id}</Typography>
-                      <Typography><strong>Subject:</strong> {selectedTicket.subject}</Typography>
-                      <Typography><strong>Created By:</strong> {selectedTicketDetails?.userName || 'Loading...'}</Typography>
-                      <Typography><strong>User Email:</strong> {selectedTicketDetails?.userEmail || 'Loading...'}</Typography>
-                      <Typography><strong>Category:</strong> {selectedTicket.category}</Typography>
-                      <Typography><strong>Priority:</strong> {selectedTicket.priority}</Typography>
-                      <Typography><strong>Status:</strong> {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}</Typography>
-                      <Typography><strong>Active Status:</strong> {selectedTicket.activeStatus}</Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>Ticket ID:</strong> #{selectedTicket.id}
+                      </Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>Subject:</strong> {selectedTicket.subject}
+                      </Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>Created By:</strong> {selectedTicketDetails?.userName || 'Loading...'}
+                      </Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>User Email:</strong> {selectedTicketDetails?.userEmail || 'Loading...'}
+                      </Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>Category:</strong> {selectedTicket.category}
+                      </Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>Priority:</strong> {selectedTicket.priority}
+                      </Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>Status:</strong> {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}
+                      </Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>Active Status:</strong> {selectedTicket.activeStatus}
+                      </Typography>
                       {selectedTicket.closure_reason && (
-                        <Typography><strong>Closure Reason:</strong> {selectedTicket.closure_reason}</Typography>
+                        <Typography sx={{ font: 'Open Sans' }}>
+                          <strong>Closure Reason:</strong> {selectedTicket.closure_reason}
+                        </Typography>
                       )}
                       {selectedTicket.reassigned_to && (
-                        <Typography><strong>Reassigned To:</strong> Member ID {selectedTicket.reassigned_to}</Typography>
+                        <Typography sx={{ font: 'Open Sans' }}>
+                          <strong>Reassigned To:</strong> Member ID {selectedTicket.reassigned_to}
+                        </Typography>
                       )}
-                      <Typography><strong>Created:</strong> {new Date(selectedTicket.created_at).toLocaleString()}</Typography>
-                      <Typography><strong>Description:</strong></Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>Created:</strong> {formatDate(selectedTicket.created_at)} {formatDateTime(selectedTicket.created_at)}
+                      </Typography>
+                      <Typography sx={{ font: 'Open Sans' }}>
+                        <strong>Description:</strong>
+                      </Typography>
                       <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-                        {selectedTicket.description}
+                        <Typography sx={{ font: 'Open Sans' }}>
+                          {selectedTicket.description}
+                        </Typography>
                       </Paper>
                       {selectedTicket.assigned_to && (
                         <>
-                          <Typography><strong>Current Status:</strong></Typography>
+                          <Typography sx={{ font: 'Open Sans' }}>
+                            <strong>Current Status:</strong>
+                          </Typography>
                           <Alert
                             severity={
                               selectedTicket.status === 'open' ? 'warning' :
@@ -577,6 +657,7 @@ function AdminDashboard() {
                               selectedTicket.status === 'reassigned' ? 'secondary' :
                               selectedTicket.status === 'rejected' ? 'error' : 'success'
                             }
+                            sx={{ font: 'Open Sans' }}
                           >
                             {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}
                           </Alert>
@@ -588,8 +669,14 @@ function AdminDashboard() {
                 <Grid item xs={8}>
                   <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography variant="h6">Chat History</Typography>
-                      <Button variant="outlined" onClick={() => setSelectedTicket(null)}>
+                      <Typography variant="h6" sx={{ font: 'Open Sans' }}>
+                        Chat History
+                      </Typography>
+                      <Button 
+                        variant="outlined" 
+                        onClick={() => setSelectedTicket(null)}
+                        sx={{ font: 'Open Sans' }}
+                      >
                         Close
                       </Button>
                     </Box>
@@ -606,20 +693,30 @@ function AdminDashboard() {
             )}
           </Paper>
         </Modal>
-        <Dialog open={reassignDialogOpen} onClose={() => setReassignDialogOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Reassign Ticket</DialogTitle>
+        <Dialog 
+          open={reassignDialogOpen} 
+          onClose={() => setReassignDialogOpen(false)} 
+          maxWidth="sm" 
+          fullWidth
+        >
+          <DialogTitle sx={{ font: 'Open Sans' }}>Reassign Ticket</DialogTitle>
           <DialogContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
               <FormControl fullWidth>
-                <InputLabel>Reassign To</InputLabel>
+                <InputLabel sx={{ font: 'Open Sans' }}>Reassign To</InputLabel>
                 <Select
                   value={reassignTo}
                   label="Reassign To"
                   onChange={(e) => setReassignTo(e.target.value)}
+                  sx={{ font: 'Open Sans' }}
                 >
-                  <MenuItem value="">Select Member</MenuItem>
+                  <MenuItem value="" sx={{ font: 'Open Sans' }}>Select Member</MenuItem>
                   {members.map(member => (
-                    <MenuItem key={member.id} value={member.id}>
+                    <MenuItem 
+                      key={member.id} 
+                      value={member.id}
+                      sx={{ font: 'Open Sans' }}
+                    >
                       {member.first_name} {member.last_name}
                     </MenuItem>
                   ))}
@@ -628,18 +725,29 @@ function AdminDashboard() {
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setReassignDialogOpen(false)}>Cancel</Button>
+            <Button 
+              onClick={() => setReassignDialogOpen(false)}
+              sx={{ font: 'Open Sans' }}
+            >
+              Cancel
+            </Button>
             <Button
               variant="contained"
               onClick={handleReassignTicket}
               disabled={!reassignTo}
+              sx={{ font: 'Open Sans' }}
             >
               Confirm
             </Button>
           </DialogActions>
         </Dialog>
-        <Dialog open={closeDialogOpen} onClose={() => setCloseDialogOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Close Ticket</DialogTitle>
+        <Dialog 
+          open={closeDialogOpen} 
+          onClose={() => setCloseDialogOpen(false)} 
+          maxWidth="sm" 
+          fullWidth
+        >
+          <DialogTitle sx={{ font: 'Open Sans' }}>Close Ticket</DialogTitle>
           <DialogContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
               <TextField
@@ -650,25 +758,27 @@ function AdminDashboard() {
                 value={closeReason}
                 onChange={(e) => setCloseReason(e.target.value)}
                 placeholder="Enter reason for closing the ticket"
+                sx={{ font: 'Open Sans' }}
               />
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setCloseDialogOpen(false)}>Cancel</Button>
+            <Button 
+              onClick={() => setCloseDialogOpen(false)}
+              sx={{ font: 'Open Sans' }}
+            >
+              Cancel
+            </Button>
             <Button
               variant="contained"
               onClick={handleCloseTicket}
               disabled={!closeReason.trim()}
+              sx={{ font: 'Open Sans' }}
             >
               Confirm
             </Button>
           </DialogActions>
         </Dialog>
-        <NotificationDrawer
-          open={notificationDrawerOpen}
-          onClose={() => setNotificationDrawerOpen(false)}
-          notifications={notifications}
-        />
       </Box>
     </>
   );

@@ -122,7 +122,7 @@ function MemberChatPage() {
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
       <Box sx={{ width: '30%', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
-        <Typography variant="h5" sx={{ p: 2, fontWeight: 'bold', fontFamily: 'Open Sans' }}>
+        <Typography variant="h5" sx={{ p: 2, fontWeight: 'bold', font: 'Open Sans' }}>
           Tickets
         </Typography>
         {tickets.map(ticket => (
@@ -133,7 +133,7 @@ function MemberChatPage() {
               m: 1,
               cursor: 'pointer',
               bgcolor: selectedTicket?.id === ticket.id ? '#e0e0e0' : 'white',
-              fontFamily: 'Open Sans',
+              font: 'Open Sans',
             }}
             onClick={() => navigate(`/member/chat/${ticket.id}`)}
           >
@@ -150,7 +150,7 @@ function MemberChatPage() {
         {selectedTicket ? (
           <>
             <Box sx={{ mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', fontFamily: 'Open Sans' }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', font: 'Open Sans' }}>
                 Ticket Details
               </Typography>
               <Divider sx={{ my: 1 }} />
