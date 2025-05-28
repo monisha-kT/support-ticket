@@ -382,7 +382,7 @@ function AdminDashboard() {
   return (
     <>
       <Navbar />
-      <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' ,position:'sticky' }}>
+      <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ p: 2, marginBottom: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', mt: 8, font: 'Open Sans', fontSize: '26px' }}>
             Admin Dashboard
@@ -398,7 +398,7 @@ function AdminDashboard() {
           </Alert>
         ) : (
           <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', px: 2, pb: 2 }}>
-            <TableContainer component={Paper} sx={{ flexGrow: 1, maxHeight: 'calc(100vh - 200px)', overflowY: 'auto'}}>
+            <TableContainer component={Paper} sx={{ flexGrow: 1, maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
               <Table stickyHeader>
                 <TableHead>
                   <TableRow>
@@ -435,10 +435,7 @@ function AdminDashboard() {
                               '& .MuiInputBase-root': {
                                 height: 40,
                                 font: 'Open Sans',
-
-                                
                               },
-                             
                             }}
                           />
                         )}
@@ -458,7 +455,6 @@ function AdminDashboard() {
                           overflow: 'hidden', 
                           textOverflow: 'ellipsis', 
                           maxWidth: 200,
-                          
                           font: 'Open Sans',
                           fontSize: '16px'
                         }}>
@@ -471,32 +467,31 @@ function AdminDashboard() {
                           {formatDateTime(ticket.created_at)}
                         </TableCell>
                         <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
-                        <Typography
-  sx={{
-    bgcolor:
-      ticket.status === 'open' ? 'warning.main' :
-      ticket.status === 'assigned' ? 'info.main' :
-      ticket.status === 'inactive' ? 'error.main' :
-      ticket.status === 'reassigned' ? 'secondary.main' :
-      ticket.status === 'closed' ? 'success.main' :
-      ticket.status === 'rejected' ? 'error.main' : 'inherit',
-    color: 'white',
-    width: 120, // static width
-    height: 32, // static height
-    lineHeight: '32px', // vertically center the text
-    textAlign: 'center',
-    borderRadius: 1,
-    display: 'inline-block',
-    fontFamily: 'Open Sans',
-    fontSize: '16px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  }}
->
-  {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
-</Typography>
-
+                          <Typography
+                            sx={{
+                              bgcolor:
+                                ticket.status === 'open' ? 'warning.main' :
+                                ticket.status === 'assigned' ? 'info.main' :
+                                ticket.status === 'inactive' ? 'error.main' :
+                                ticket.status === 'reassigned' ? 'secondary.main' :
+                                ticket.status === 'closed' ? 'success.main' :
+                                ticket.status === 'rejected' ? 'error.main' : 'inherit',
+                              color: 'white',
+                              width: 120,
+                              height: 32,
+                              lineHeight: '32px',
+                              textAlign: 'center',
+                              borderRadius: 1,
+                              display: 'inline-block',
+                              fontFamily: 'Open Sans',
+                              fontSize: '16px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                          </Typography>
                         </TableCell>
                         <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
                           {ticket.activeStatus}
@@ -579,120 +574,269 @@ function AdminDashboard() {
             />
           </Box>
         )}
+
+        {/* Ticket Details Modal */}
         <Modal
           open={Boolean(selectedTicket)}
           onClose={() => setSelectedTicket(null)}
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           aria-labelledby="ticket-details-modal"
           aria-describedby="ticket-details-description"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(2px)'
+          }}
         >
-          <Paper sx={{ width: '90%', height: '90vh', maxWidth: 1200, p: 3, position: 'relative', overflow: 'hidden' }}>
+          <Box sx={{
+            width: '90%',
+            maxWidth: '1200px',
+            height: '90vh',
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
             {detailsLoading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
                 <CircularProgress />
               </Box>
             ) : selectedTicket && (
-              <Grid container spacing={2} sx={{ height: '100%' }}>
-                <Grid item xs={4}>
-                  <Paper elevation={2} sx={{ p: 2, height: '100%', overflow: 'auto' }}>
-                    <Typography variant="h6" gutterBottom id="ticket-details-modal" sx={{ font: 'Open Sans' }}>
-                      Ticket Details
+              <>
+                <Box sx={{
+                  p: 2,
+                  bgcolor: '#128C7E',
+                  color: 'white',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <Typography variant="h6" sx={{ font: 'Open Sans', fontWeight: 'bold' }}>
+                    Ticket #{selectedTicket.id} - {selectedTicket.subject}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    onClick={() => setSelectedTicket(null)}
+                    sx={{ font: 'Open Sans' }}
+                  >
+                    Close
+                  </Button>
+                </Box>
+                
+                <Box sx={{ flexGrow: 1, overflow: 'hidden', display: 'flex' }}>
+                  {/* Left Panel - Ticket Details */}
+                  <Box sx={{
+                    width: '30%',
+                    p: 2,
+                    overflowY: 'auto',
+                    borderRight: '1px solid #e0e0e0'
+                  }}>
+                    <Typography variant="h6" sx={{ mb: 2, font: 'Open Sans', fontWeight: 'bold' }}>
+                      Ticket Information
                     </Typography>
-                    <Divider sx={{ my: 2 }} />
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }} id="ticket-details-description">
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>Ticket ID:</strong> #{selectedTicket.id}
+                    
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="subtitle2" sx={{ font: 'Open Sans', fontWeight: 'bold', color: 'text.secondary' }}>
+                        BASIC INFORMATION
                       </Typography>
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>Subject:</strong> {selectedTicket.subject}
+                      <Divider sx={{ my: 1 }} />
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                        <Box>
+                          <Typography variant="body2" sx={{ font: 'Open Sans', color: 'text.secondary' }}>
+                            Created By
+                          </Typography>
+                          <Typography variant="body1" sx={{ font: 'Open Sans' }}>
+                            {selectedTicketDetails?.userName || 'Loading...'}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="body2" sx={{ font: 'Open Sans', color: 'text.secondary' }}>
+                            User Email
+                          </Typography>
+                          <Typography variant="body1" sx={{ font: 'Open Sans' }}>
+                            {selectedTicketDetails?.userEmail || 'Loading...'}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="body2" sx={{ font: 'Open Sans', color: 'text.secondary' }}>
+                            Created On
+                          </Typography>
+                          <Typography variant="body1" sx={{ font: 'Open Sans' }}>
+                            {formatDate(selectedTicket.created_at)} at {formatDateTime(selectedTicket.created_at)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                    
+                    <Box sx={{ mb: 3 }}>
+                      <Typography variant="subtitle2" sx={{ font: 'Open Sans', fontWeight: 'bold', color: 'text.secondary' }}>
+                        TICKET DETAILS
                       </Typography>
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>Created By:</strong> {selectedTicketDetails?.userName || 'Loading...'}
+                      <Divider sx={{ my: 1 }} />
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                        <Box>
+                          <Typography variant="body2" sx={{ font: 'Open Sans', color: 'text.secondary' }}>
+                            Category
+                          </Typography>
+                          <Typography variant="body1" sx={{ font: 'Open Sans' }}>
+                            {selectedTicket.category}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="body2" sx={{ font: 'Open Sans', color: 'text.secondary' }}>
+                            Priority
+                          </Typography>
+                          <Typography variant="body1" sx={{ font: 'Open Sans' }}>
+                            {selectedTicket.priority}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="body2" sx={{ font: 'Open Sans', color: 'text.secondary' }}>
+                            Status
+                          </Typography>
+                          <Typography variant="body1" sx={{ font: 'Open Sans' }}>
+                            <Box
+                              component="span"
+                              sx={{
+                                display: 'inline-block',
+                                px: 1,
+                                py: 0.5,
+                                borderRadius: 1,
+                                bgcolor:
+                                  selectedTicket.status === 'open' ? 'warning.main' :
+                                  selectedTicket.status === 'assigned' ? 'info.main' :
+                                  selectedTicket.status === 'inactive' ? 'error.main' :
+                                  selectedTicket.status === 'reassigned' ? 'secondary.main' :
+                                  selectedTicket.status === 'closed' ? 'success.main' :
+                                  selectedTicket.status === 'rejected' ? 'error.main' : 'inherit',
+                                color: 'white',
+                                font: 'Open Sans',
+                                fontSize: '14px'
+                              }}
+                            >
+                              {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}
+                            </Box>
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="body2" sx={{ font: 'Open Sans', color: 'text.secondary' }}>
+                            Active Status
+                          </Typography>
+                          <Typography variant="body1" sx={{ font: 'Open Sans' }}>
+                            {selectedTicket.activeStatus}
+                          </Typography>
+                        </Box>
+                        {selectedTicket.assigned_to && (
+                          <Box>
+                            <Typography variant="body2" sx={{ font: 'Open Sans', color: 'text.secondary' }}>
+                              Assigned To
+                            </Typography>
+                            <Typography variant="body1" sx={{ font: 'Open Sans' }}>
+                              {selectedTicket.memberName}
+                            </Typography>
+                          </Box>
+                        )}
+                        {selectedTicket.closure_reason && (
+                          <Box>
+                            <Typography variant="body2" sx={{ font: 'Open Sans', color: 'text.secondary' }}>
+                              Closure Reason
+                            </Typography>
+                            <Typography variant="body1" sx={{ font: 'Open Sans' }}>
+                              {selectedTicket.closure_reason}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    </Box>
+                    
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ font: 'Open Sans', fontWeight: 'bold', color: 'text.secondary' }}>
+                        DESCRIPTION
                       </Typography>
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>User Email:</strong> {selectedTicketDetails?.userEmail || 'Loading...'}
-                      </Typography>
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>Category:</strong> {selectedTicket.category}
-                      </Typography>
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>Priority:</strong> {selectedTicket.priority}
-                      </Typography>
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>Status:</strong> {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}
-                      </Typography>
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>Active Status:</strong> {selectedTicket.activeStatus}
-                      </Typography>
-                      {selectedTicket.closure_reason && (
-                        <Typography sx={{ font: 'Open Sans' }}>
-                          <strong>Closure Reason:</strong> {selectedTicket.closure_reason}
-                        </Typography>
-                      )}
-                      {selectedTicket.reassigned_to && (
-                        <Typography sx={{ font: 'Open Sans' }}>
-                          <strong>Reassigned To:</strong> Member ID {selectedTicket.reassigned_to}
-                        </Typography>
-                      )}
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>Created:</strong> {formatDate(selectedTicket.created_at)} {formatDateTime(selectedTicket.created_at)}
-                      </Typography>
-                      <Typography sx={{ font: 'Open Sans' }}>
-                        <strong>Description:</strong>
-                      </Typography>
+                      <Divider sx={{ my: 1 }} />
                       <Paper variant="outlined" sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-                        <Typography sx={{ font: 'Open Sans' }}>
+                        <Typography variant="body1" sx={{ font: 'Open Sans' }}>
                           {selectedTicket.description}
                         </Typography>
                       </Paper>
-                      {selectedTicket.assigned_to && (
-                        <>
-                          <Typography sx={{ font: 'Open Sans' }}>
-                            <strong>Current Status:</strong>
-                          </Typography>
-                          <Alert
-                            severity={
-                              selectedTicket.status === 'open' ? 'warning' :
-                              selectedTicket.status === 'assigned' ? 'info' :
-                              selectedTicket.status === 'reassigned' ? 'secondary' :
-                              selectedTicket.status === 'rejected' ? 'error' : 'success'
-                            }
-                            sx={{ font: 'Open Sans' }}
-                          >
-                            {selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}
-                          </Alert>
-                        </>
-                      )}
                     </Box>
-                  </Paper>
-                </Grid>
-                <Grid item xs={8}>
-                  <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                      <Typography variant="h6" sx={{ font: 'Open Sans' }}>
+                  </Box>
+                  
+                  {/* Right Panel - Chat Window */}
+                  <Box sx={{
+                    width: '70%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                  }}>
+                    <Box sx={{
+                      p: 2,
+                      borderBottom: '1px solid #e0e0e0',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <Typography variant="h6" sx={{ font: 'Open Sans', fontWeight: 'bold' }}>
                         Chat History
                       </Typography>
-                      <Button 
-                        variant="outlined" 
-                        onClick={() => setSelectedTicket(null)}
-                        sx={{ font: 'Open Sans' }}
-                      >
-                        Close
-                      </Button>
+                      {selectedTicket.status !== 'closed' && selectedTicket.status !== 'rejected' && (
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="secondary"
+                            onClick={() => {
+                              setReassignTicketId(selectedTicket.id);
+                              setReassignDialogOpen(true);
+                            }}
+                            sx={{ 
+                              textTransform: 'capitalize',
+                              font: 'Open Sans',
+                              fontSize: '14px'
+                            }}
+                          >
+                            Reassign
+                          </Button>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="error"
+                            onClick={() => {
+                              setCloseTicketId(selectedTicket.id);
+                              setCloseDialogOpen(true);
+                            }}
+                            sx={{ 
+                              textTransform: 'capitalize',
+                              font: 'Open Sans',
+                              fontSize: '14px'
+                            }}
+                          >
+                            Close Ticket
+                          </Button>
+                        </Box>
+                      )}
                     </Box>
-                    <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+                    
+                    <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
                       <ChatWindow
                         ticketId={selectedTicket.id}
-                        readOnly={false}
+                        readOnly={selectedTicket.status === 'closed' || selectedTicket.status === 'rejected'}
                         initialMessages={selectedTicket.chats}
+                        height="100%"
                       />
                     </Box>
                   </Box>
-                </Grid>
-              </Grid>
+                </Box>
+              </>
             )}
-          </Paper>
+          </Box>
         </Modal>
+
+        {/* Reassign Dialog */}
         <Dialog 
           open={reassignDialogOpen} 
           onClose={() => setReassignDialogOpen(false)} 
@@ -741,6 +885,8 @@ function AdminDashboard() {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Close Ticket Dialog */}
         <Dialog 
           open={closeDialogOpen} 
           onClose={() => setCloseDialogOpen(false)} 
