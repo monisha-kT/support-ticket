@@ -80,6 +80,15 @@ function UserTicketsPage() {
     }
   };
 
+  // Add console log for unread messages count when tickets update
+  useEffect(() => {
+    tickets.forEach(ticket => {
+      if (ticket.unreadCount && ticket.unreadCount > 0) {
+        console.log(`Unread messages for ticket ${ticket.id}: ${ticket.unreadCount}`);
+      }
+    });
+  }, [tickets]);
+
   const formatTime = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);

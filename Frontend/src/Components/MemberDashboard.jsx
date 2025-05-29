@@ -134,19 +134,25 @@ function MemberDashboard() {
         userEmail: usersData[ticket.user_id]?.email || 'N/A',
         createdAt: ticket.created_at ? new Date(ticket.created_at) : null,
         createdAtFormatted: ticket.created_at
-          ? new Date(ticket.created_at).toLocaleDateString('en-GB', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-            })
-          : 'N/A',
-        lastResponseDate: ticket.last_message_at
-          ? new Date(ticket.last_message_at).toLocaleDateString('en-GB', {
-              day: '2-digit',
-              month: 'short',
-              year: 'numeric',
-            })
-          : 'No response yet',
+  ? (() => {
+      const date = new Date(ticket.created_at);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      const year = date.getFullYear();
+      return `${day} ${month} ${year}`;
+    })()
+  : 'N/A',
+
+lastResponseDate: ticket.last_message_at
+  ? (() => {
+      const date = new Date(ticket.last_message_at);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = date.toLocaleString('en-US', { month: 'short' });
+      const year = date.getFullYear();
+      return `${day} ${month} ${year}`;
+    })()
+  : 'No response yet',
+
         lastResponseTime: ticket.last_message_at
           ? new Date(ticket.last_message_at).toLocaleTimeString('en-IN', {
               hour: '2-digit',

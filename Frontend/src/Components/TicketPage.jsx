@@ -158,6 +158,7 @@ function TicketPage() {
             ...prev,
             [data.ticket_id]: (prev[data.ticket_id] || 0) + 1
           }));
+          console.log(`Unread messages for ticket ${data.ticket_id}: ${(unreadCounts[data.ticket_id] || 0) + 1}`);
         }
       };
 
@@ -565,7 +566,7 @@ function TicketPage() {
           <Tab label="Chat" value="chat" disabled={!selectedTicket} />
         </Tabs>
       )}
-      <Grid container sx={{ flex: 1, mt: isMobile ? 0 : 8 }}>
+      <Grid container sx={{ flex: 1, mt: isMobile ? 0 : 8, minHeight: 'calc(100vh - 64px - 16px)' }}>
         {/* Ticket List */}
         <Grid
           item
@@ -576,8 +577,10 @@ function TicketPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
-            height: 'calc(100vh - 64px - 16px)',
-            overflow: 'hidden'
+            height: '100%',
+            overflow: 'hidden',
+            minWidth: 300,
+            maxWidth: 350,
           }}
         >
           <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
