@@ -558,7 +558,8 @@ function TicketPage() {
           sx={{
             bgcolor: 'white',
             boxShadow: theme.shadows[1],
-            borderBottom: `1px solid ${theme.palette.divider}`
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            mt:8
           }}
         >
           <Tab label="Tickets" value="tickets" />
@@ -577,10 +578,19 @@ function TicketPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
+
             height: '100%',
             overflow: 'hidden',
             minWidth: 300,
             maxWidth: 350,
+
+            height: 'calc(100vh - 49px - 18px)',
+            overflow: 'auto',
+   
+            width: isMobile ? '100%' : '300px',
+            minWidth: isMobile ? '100%' : '300px',
+            maxWidth: isMobile ? '100%' : '300px',
+
           }}
         >
           <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}>
@@ -800,9 +810,14 @@ function TicketPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
-            height: 'calc(100vh - 64px - 16px)',
+            height: 'calc(100vh - 50px - 16px)',
             flexGrow: 1,
-            minWidth: 0
+
+            minWidth: 0,
+
+             minWidth: isMobile ? '100%' : '600px',
+            maxWidth: isMobile ? '100%' : '680px',
+
           }}
         >
           {selectedTicket ? (

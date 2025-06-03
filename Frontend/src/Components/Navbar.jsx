@@ -22,33 +22,62 @@ function Navbar() {
   const [notifications, setNotifications] = useState([]);
 
   // Fetch new tickets count
+  // const fetchNewTicketsCount = async () => {
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     if (!token) throw new Error('No token available');
+
+  //     const res = await fetch('http://localhost:5000/api/tickets', {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     if (!res.ok) throw new Error('Failed to fetch tickets');
+
+  //     const data = await res.json();
+  //     const openCount = data.filter((ticket) => ticket.status === 'open').length;
+  //     setNewTickets(openCount);
+  //   } catch (err) {
+  //     console.error('Error fetching tickets:', err);
+  //     setNotifications((prev) => [
+  //       ...prev,
+  //       { type: 'error', message: `Failed to fetch tickets: ${err.message}` },
+  //     ]);
+  //     if (err.message.includes('No token') || err.message.includes('Unauthorized')) {
+  //       handleLogout();
+  //     }
+  //   }
+  // };
+
   const fetchNewTicketsCount = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('No token available');
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('No token available');
 
-      const res = await fetch('http://localhost:5000/api/tickets', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const res = await fetch('http://localhost:5000/api/tickets', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      if (!res.ok) throw new Error('Failed to fetch tickets');
+    if (!res.ok) throw new Error('Failed to fetch tickets');
 
-      const data = await res.json();
-      const openCount = data.filter((ticket) => ticket.status === 'open').length;
-      setNewTickets(openCount);
-    } catch (err) {
-      console.error('Error fetching tickets:', err);
-      setNotifications((prev) => [
-        ...prev,
-        { type: 'error', message: `Failed to fetch tickets: ${err.message}` },
-      ]);
-      if (err.message.includes('No token') || err.message.includes('Unauthorized')) {
-        handleLogout();
-      }
+    const data = await res.json();
+    const openCount = data.filter((ticket) => ticket.status === 'open').length;
+
+    console.log('Fetched open ticket count:', openCount);
+    setNewTickets(openCount); // This should always be a new value
+  } catch (err) {
+    console.error('Error fetching tickets:', err);
+    setNotifications((prev) => [
+      ...prev,
+      { type: 'error', message: `Failed to fetch tickets: ${err.message}` },
+    ]);
+    if (err.message.includes('No token') || err.message.includes('Unauthorized')) {
+      handleLogout();
     }
-  };
+  }
+};
+
 
   // Initialize socket for ticket updates and reassignment notifications
   useEffect(() => {

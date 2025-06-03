@@ -203,22 +203,46 @@ lastResponseDate: ticket.last_message_at
       socketRef.current = socket;
 
       socket.on('new_ticket', fetchTickets);
+      // socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
+      //   setTickets(prev =>
+      //     prev.map(ticket =>
+      //       ticket.id === ticket_id ? { ...ticket, status: 'reassigned', reassigned_to: assigned_to } : ticket
+      //     )
+      //   );
+      //   if (selectedTicket?.id === ticket_id) {
+      //     setSelectedTicket(prev => ({ ...prev, status: 'reassigned', reassigned_to: assigned_to }));
+      //   }
+      //   if (user.id === assigned_to) {
+      //     setNotifications(prev => [
+      //       ...prev,
+      //       { type: 'info', message: `Ticket #${ticket_id} has been reassigned to you.` },
+      //     ]);
+      //   }
+      // });
       socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
-        setTickets(prev =>
-          prev.map(ticket =>
-            ticket.id === ticket_id ? { ...ticket, status: 'reassigned', reassigned_to: assigned_to } : ticket
-          )
-        );
-        if (selectedTicket?.id === ticket_id) {
-          setSelectedTicket(prev => ({ ...prev, status: 'reassigned', reassigned_to: assigned_to }));
-        }
-        if (user.id === assigned_to) {
-          setNotifications(prev => [
-            ...prev,
-            { type: 'info', message: `Ticket #${ticket_id} has been reassigned to you.` },
-          ]);
-        }
-      });
+  setTickets(prev =>
+    prev.map(ticket =>
+      ticket.id === ticket_id ? { 
+        ...ticket, 
+        status: assigned_to === user.id ? 'assigned' : 'reassigned',
+        assigned_to: assigned_to 
+      } : ticket
+    )
+  );
+  if (selectedTicket?.id === ticket_id) {
+    setSelectedTicket(prev => ({ 
+      ...prev, 
+      status: assigned_to === user.id ? 'assigned' : 'reassigned',
+      assigned_to: assigned_to 
+    }));
+  }
+  if (user.id === assigned_to) {
+    setNotifications(prev => [
+      ...prev,
+      { type: 'info', message: `Ticket #${ticket_id} has been reassigned to you.` },
+    ]);
+  }
+});
       socket.on('ticket_reopened', fetchTickets);
       socket.on('ticket_closed', fetchTickets);
       socket.on('chat_inactive', ({ ticket_id, reason, reassigned_to }) => {
@@ -407,6 +431,9 @@ lastResponseDate: ticket.last_message_at
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+        reason: 'Reopening ticket from UI',
+        }),
       });
 
       if (!res.ok) throw new Error('Failed to reopen ticket');
@@ -467,22 +494,23 @@ lastResponseDate: ticket.last_message_at
     <Box
       
   sx={{
-    bgcolor:
+    color:
       status === 'open' ? 'warning.main' :
       status === 'assigned' ? 'info.main' :
       status === 'inactive' ? 'error.main' :
       status === 'reassigned' ? 'secondary.main' :
-      status === 'closed' ? 'success.main' :
+      status === 'closed' ? '#23ce16' :
       status === 'rejected' ? 'error.main' : 'inherit',
-    color: 'white',
-    width: 120, // static width
-    height: 32, // static height
+    // color: 'black',
+    // width: 120, // static width
+    // height: 32, // static height
     lineHeight: '32px', // vertically center the text
     textAlign: 'center',
-    borderRadius: 1,
+    // borderRadius: 1,
     display: 'inline-block',
-    fontFamily: 'Open Sans',
+    font: 'Open Sans',
     fontSize: '16px',
+    fontWeight: '700',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -516,7 +544,7 @@ lastResponseDate: ticket.last_message_at
           </Button>
         </>
       )}
-      {ticket.status === 'assigned' && (
+      {(ticket.status === 'assigned' || ticket.status === 'reassigned') &&(
         <>
           <Button
             variant="contained"

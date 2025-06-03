@@ -100,7 +100,7 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
 
   // Fetch messages
   const fetchMessages = useCallback(async () => {
-    if (!ticketId) return;
+    if (!ticketId || loading) return;
     const token = localStorage.getItem('token');
     if (!token) {
       setError('Please log in to view messages.');
@@ -305,7 +305,7 @@ function ChatWindow({ ticketId, readOnly = false, initialMessages = [], inactivi
   useEffect(() => {
     if (!readOnly && ticketId && ticketId !== 'null' && !socketRef.current?.connected) {
       console.log('Starting polling for ticket:', ticketId);
-      const pollingInterval = setInterval(fetchMessages, 10000); // Poll every 10 seconds
+      const pollingInterval = setInterval(fetchMessages, 100000); // Poll every 10 seconds
       return () => clearInterval(pollingInterval);
     }
   }, [ticketId, readOnly, fetchMessages]);

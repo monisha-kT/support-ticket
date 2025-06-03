@@ -383,201 +383,190 @@ function AdminDashboard() {
   ];
 
   return (
-    <>
-      <Navbar />
-      <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ p: 2, marginBottom: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: 'bold', mt: 8, font: 'Open Sans', fontSize: '26px' }}>
-            Admin Dashboard
-          </Typography>
+  <>
+    <Navbar />
+    <Box sx={{ height: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ p: 2, marginBottom: 2 }}>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', mt: 8, font: 'Open Sans', fontSize: '26px' }}>
+          Admin Dashboard
+        </Typography>
+      </Box>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, flexGrow: 1 }}>
+          <CircularProgress />
         </Box>
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, flexGrow: 1 }}>
-            <CircularProgress />
-          </Box>
-        ) : error ? (
-          <Alert severity="error" sx={{ m: 2, flexGrow: 1 }}>
-            {error}
-          </Alert>
-        ) : (
-          <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', px: 2, pb: 2 }}>
-            <TableContainer component={Paper} sx={{ flexGrow: 1, maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
-              <Table stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell 
-                        key={column.field} 
-                        sx={{ 
-                          fontWeight: 'bold', 
-                          bgcolor: '#128C7E', 
-                          color: 'white',
-                          minWidth: column.minWidth,
+      ) : error ? (
+        <Alert severity="error" sx={{ m: 2, flexGrow: 1 }}>
+          {error}
+        </Alert>
+      ) : (
+        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', px: 2, pb: 2 }}>
+          <TableContainer component={Paper} sx={{ flexGrow: 1, maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.field}
+                      sx={{
+                        fontWeight: 'bold',
+                        bgcolor: '#128C7E',
+                        color: 'white',
+                        minWidth: column.minWidth,
+                        font: 'Open Sans',
+                        fontSize: '16px'
+                      }}
+                    >
+                      {column.headerName}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableHead>
+                <TableRow>
+                  {columns.map((column) => (
+                    <TableCell key={`search-${column.field}`} sx={{ bgcolor: '#e0f2f1', p: 1 }}>
+                      {column.field !== 'actions' && (
+                        <TextField
+                          size="small"
+                          fullWidth
+                          variant="outlined"
+                          placeholder={`Search ${column.headerName}`}
+                          value={searchFilters[column.field] || ''}
+                          onChange={(e) => handleSearchChange(column.field, e.target.value)}
+                          sx={{
+                            '& .MuiInputBase-root': {
+                              height: 40,
+                              font: 'Open Sans',
+                            },
+                          }}
+                        />
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredTickets
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((ticket) => (
+                    <TableRow key={ticket.id} hover>
+                      <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>{ticket.id}</TableCell>
+                      <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>{ticket.subject}</TableCell>
+                      <TableCell
+                        sx={{
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          maxWidth: 200,
                           font: 'Open Sans',
                           fontSize: '16px'
                         }}
                       >
-                        {column.headerName}
+                        {ticket.description}
                       </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell key={`search-${column.field}`} sx={{ bgcolor: '#e0f2f1', p: 1 }}>
-                        {column.field !== 'actions' && (
-                          <TextField
+                      <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                        {formatDate(ticket.created_at)}
+                      </TableCell>
+                      <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                        {formatDateTime(ticket.created_at)}
+                      </TableCell>
+                      <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                        <Typography
+                          sx={{
+                            bgcolor:
+                              ticket.status === 'open' ? 'warning.main' :
+                              ticket.status === 'assigned' ? 'info.main' :
+                              ticket.status === 'inactive' ? 'error.main' :
+                              ticket.status === 'reassigned' ? 'secondary.main' :
+                              ticket.status === 'closed' ? 'success.main' :
+                              ticket.status === 'rejected' ? 'error.main' : 'inherit',
+                            color: 'white',
+                            width: 120,
+                            height: 32,
+                            lineHeight: '32px',
+                            textAlign: 'center',
+                            borderRadius: 1,
+                            display: 'inline-block',
+                            fontFamily: 'Open Sans',
+                            fontSize: '16px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                        {ticket.activeStatus}
+                      </TableCell>
+                      <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                        {ticket.userName}
+                      </TableCell>
+                      <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                        {ticket.memberName}
+                      </TableCell>
+                      <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
+                        {ticket.closure_reason || 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            variant="contained"
                             size="small"
-                            fullWidth
-                            variant="outlined"
-                            placeholder={`Search ${column.headerName}`}
-                            value={searchFilters[column.field] || ''}
-                            onChange={(e) => handleSearchChange(column.field, e.target.value)}
-                            sx={{
-                              '& .MuiInputBase-root': {
-                                height: 40,
-                                font: 'Open Sans',
-                              },
-                            }}
-                          />
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredTickets
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((ticket) => (
-                      <TableRow key={ticket.id} hover>
-                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>{ticket.id}</TableCell>
-                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>{ticket.subject}</TableCell>
-                        <TableCell sx={{ 
-                          whiteSpace: 'nowrap', 
-                          overflow: 'hidden', 
-                          textOverflow: 'ellipsis', 
-                          maxWidth: 200,
-                          font: 'Open Sans',
-                          fontSize: '16px'
-                        }}>
-                          {ticket.description}
-                        </TableCell>
-                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
-                          {formatDate(ticket.created_at)}
-                        </TableCell>
-                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
-                          {formatDateTime(ticket.created_at)}
-                        </TableCell>
-                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
-                          <Typography
-                            sx={{
-                              bgcolor:
-                                ticket.status === 'open' ? 'warning.main' :
-                                ticket.status === 'assigned' ? 'info.main' :
-                                ticket.status === 'inactive' ? 'error.main' :
-                                ticket.status === 'reassigned' ? 'secondary.main' :
-                                ticket.status === 'closed' ? 'success.main' :
-                                ticket.status === 'rejected' ? 'error.main' : 'inherit',
-                              color: 'white',
-                              width: 120,
-                              height: 32,
-                              lineHeight: '32px',
-                              textAlign: 'center',
-                              borderRadius: 1,
-                              display: 'inline-block',
-                              fontFamily: 'Open Sans',
-                              fontSize: '16px',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
+                            onClick={() => handleViewDetails(ticket)}
+                            sx={{ textTransform: 'capitalize', font: 'Open Sans', fontSize: '14px' }}
                           >
-                            {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
-                          {ticket.activeStatus}
-                        </TableCell>
-                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
-                          {ticket.userName}
-                        </TableCell>
-                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
-                          {ticket.memberName}
-                        </TableCell>
-                        <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>
-                          {ticket.closure_reason || 'N/A'}
-                        </TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', gap: 1 }}>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              onClick={() => handleViewDetails(ticket)}
-                              sx={{ 
-                                textTransform: 'capitalize',
-                                font: 'Open Sans',
-                                fontSize: '14px'
-                              }}
-                            >
-                              View
-                            </Button>
-                            {ticket.status !== 'closed' && ticket.status !== 'rejected' && (
-                              <>
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  color="secondary"
-                                  onClick={() => {
-                                    setReassignTicketId(ticket.id);
-                                    setReassignDialogOpen(true);
-                                  }}
-                                  sx={{ 
-                                    textTransform: 'capitalize',
-                                    font: 'Open Sans',
-                                    fontSize: '14px'
-                                  }}
-                                >
-                                  Reassign
-                                </Button>
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  color="error"
-                                  onClick={() => {
-                                    setCloseTicketId(ticket.id);
-                                    setCloseDialogOpen(true);
-                                  }}
-                                  sx={{ 
-                                    textTransform: 'capitalize',
-                                    font: 'Open Sans',
-                                    fontSize: '14px'
-                                  }}
-                                >
-                                  Close
-
-                                </Button>
-                              </>
-                            )}
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={filteredTickets.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              sx={{ font: 'Open Sans' }}
-            />
-          </Box>
-        )}
+                            View
+                          </Button>
+                          {ticket.status !== 'closed' && ticket.status !== 'rejected' && (
+                            <>
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="secondary"
+                                onClick={() => {
+                                  setReassignTicketId(ticket.id);
+                                  setReassignDialogOpen(true);
+                                }}
+                                sx={{ textTransform: 'capitalize', font: 'Open Sans', fontSize: '14px' }}
+                              >
+                                Reassign
+                              </Button>
+                              <Button
+                                variant="contained"
+                                size="small"
+                                color="error"
+                                onClick={() => {
+                                  setCloseTicketId(ticket.id);
+                                  setCloseDialogOpen(true);
+                                }}
+                                sx={{ textTransform: 'capitalize', font: 'Open Sans', fontSize: '14px' }}
+                              >
+                                Close
+                              </Button>
+                            </>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={filteredTickets.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            sx={{ font: 'Open Sans' }}
+          />
+        </Box>
+      )}
 
         {/* Ticket Details Modal */}
         <Modal
@@ -627,11 +616,11 @@ function AdminDashboard() {
                     Ticket #{selectedTicket.id} - {selectedTicket.subject}
                   </Typography>
                   <Button
-                    variant="contained"
-                    color="error"
+                    color="white"
+                  
                     size="small"
                     onClick={() => setSelectedTicket(null)}
-                    sx={{ font: 'Open Sans' }}
+                    sx={{ font: 'Open Sans'}}
                   >
                     <CloseIcon />
                   </Button>

@@ -438,8 +438,16 @@ function UserChatPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
+
             height: 'calc(100vh - 64px - 16px)',
-            overflow: 'hidden'
+            overflow: 'hidden',
+
+            height: 'calc(100vh - 49px - 18px)',
+            overflow: 'auto',
+            width: isMobile ? '100%' : '300px',
+            minWidth: isMobile ? '100%' : '300px',
+            maxWidth: isMobile ? '100%' : '300px',
+
           }}
         >
           <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}`, }}>
@@ -664,9 +672,14 @@ function UserChatPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
-            height: 'calc(100vh - 64px - 16px)',
+            height: 'calc(100vh - 50px - 16px)',
             flexGrow: 1,
+
             minWidth: 0
+
+             minWidth: isMobile ? '100%' : '600px',
+            maxWidth: isMobile ? '100%' : '670px',
+
           }}
         >
           {selectedTicket ? (
