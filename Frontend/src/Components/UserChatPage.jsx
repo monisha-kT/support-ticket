@@ -675,7 +675,7 @@ function UserChatPage() {
             height: 'calc(100vh - 50px - 16px)',
             flexGrow: 1,
 
-            minWidth: 0
+            minWidth: 0,
 
              minWidth: isMobile ? '100%' : '600px',
             maxWidth: isMobile ? '100%' : '670px',
