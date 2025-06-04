@@ -1,45 +1,43 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Box, Typography, CircularProgress, Alert, Button, Container, Paper, Dialog, DialogTitle,
-  DialogContent, DialogActions, TextField, Select, MenuItem, FormControl, InputLabel,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, TableSortLabel,
-  InputAdornment
+  Box, Container, Typography, Table, TableBody, TableContainer, TableHead, TableRow, TableCell,
+  TablePagination, TableSortLabel, Paper, TextField, Button, Dialog, DialogTitle, DialogContent,
+  DialogActions, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, InputAdornment,
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
-import { getSocket } from './socket';
-import { useNavigate, useParams } from 'react-router-dom';
 import useStore from '../store/useStore';
-import Navbar from '../Components/Navbar';
-import ChatWindow from './ChatWindow';
+import useTickets from './useTickets';
+import Navbar from './Navbar';
 import NotificationDrawer from './NotificationDrawer';
 import ErrorBoundary from './ErrorBoundary';
+import { getSocket, disconnectSocket } from './socket';
 
 const theme = createTheme({
   typography: {
-    font: '"Open Sans", sans-serif',
+    fontFamily: '"Open Sans", sans-serif',
     h5: {
       fontSize: '26px',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
     },
     body1: {
-      fontSize: '16px'
-    }
+      fontSize: '16px',
+    },
   },
   components: {
     MuiTableCell: {
       styleOverrides: {
         root: {
           fontSize: '16px',
-          padding: '12px 16px'
+          padding: '12px 16px',
         },
         head: {
           backgroundColor: '#128C7E',
           color: 'white',
-          fontWeight: 'bold'
-          
-        }
-      }
+          fontWeight: 'bold',
+        },
+      },
     },
     MuiButton: {
       styleOverrides: {
@@ -47,310 +45,151 @@ const theme = createTheme({
           textTransform: 'capitalize',
           fontSize: '14px',
           padding: '6px 16px',
-          minWidth: '80px'
-        }
-      }
+          minWidth: '100px',
+        },
+      },
     },
     MuiTableSortLabel: {
       styleOverrides: {
         root: {
           color: 'white !important',
           '&:hover': {
-            color: 'white !important'
+            color: 'white !important',
           },
           '&.Mui-active': {
-            color: 'white !important'
-          }
+            color: 'white !important',
+          },
         },
         icon: {
-          color: 'white !important'
-        }
-      }
-    }
-  }
+          color: 'white !important',
+        },
+      },
+    },
+  },
 });
 
+const headers = [
+  { label: 'Ticket ID', id: 'id' },
+  { label: 'Created By', id: 'userName' },
+  { label: 'Category', id: 'category' },
+  { label: 'Priority', id: 'priority' },
+  { label: 'Status', id: 'status' },
+  { label: 'Created At', id: 'createdAt' },
+  { label: 'Last Response Date', id: 'lastMessageAt' },
+  { label: 'Last Response Time', id: 'lastResponseTime' },
+  { label: 'Actions', id: 'actions' },
+];
+
 function MemberDashboard() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [tickets, setTickets] = useState([]);
-  const [filteredTickets, setFilteredTickets] = useState([]);
-  const [selectedTicket, setSelectedTicket] = useState(null);
+  const navigate = useNavigate();
+  const { ticketId } = useParams();
+  const user = useStore((state) => state.user);
+  
+  // Move useTickets hook to the top level
+  const { 
+    tickets = [], 
+    filteredTickets = [], 
+    loading, 
+    error, 
+    searchFilters, 
+    handleSearchChange, 
+    fetchTickets 
+  } = useTickets('member');
+
+  const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   const [closeReason, setCloseReason] = useState('');
   const [reassignTo, setReassignTo] = useState('');
   const [members, setMembers] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [order, setOrder] = useState('desc');
   const [orderBy, setOrderBy] = useState('createdAt');
-  const [searchValues, setSearchValues] = useState({
-    id: '',
-    userName: '',
-    category: '',
-    priority: '',
-    status: '',
-    createdAt: '',
-    lastMessageAt: '',
-    lastResponseTime: '',
-  });
   const [notifications, setNotifications] = useState([]);
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
-
-  const user = useStore((state) => state.user);
-  const navigate = useNavigate();
-  const { ticketId } = useParams();
+  const [isProcessing, setIsProcessing] = useState(false);
   const socketRef = useRef(null);
+  const socketInitialized = useRef(false);
 
-  const fetchTickets = async () => {
+  const fetchMembers = useCallback(async () => {
+    console.log('Fetching members at:', new Date().toISOString());
     try {
-      setError(null);
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/tickets', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Failed to fetch tickets');
-
-      const data = await res.json();
-      const userIds = [...new Set(data.map(ticket => ticket.user_id))];
-
-      const usersRes = await fetch('http://localhost:5000/api/users/bulk', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ user_ids: userIds }),
-      });
-
-      if (!usersRes.ok) throw new Error('Failed to fetch user details');
-      const usersData = await usersRes.json();
-
-      const ticketsWithDetails = data.map(ticket => ({
-        ...ticket,
-        userName: usersData[ticket.user_id]
-          ? `${usersData[ticket.user_id].first_name} ${usersData[ticket.user_id].last_name}`
-          : 'Unknown',
-        userEmail: usersData[ticket.user_id]?.email || 'N/A',
-        createdAt: ticket.created_at ? new Date(ticket.created_at) : null,
-        createdAtFormatted: ticket.created_at
-  ? (() => {
-      const date = new Date(ticket.created_at);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = date.toLocaleString('en-US', { month: 'short' });
-      const year = date.getFullYear();
-      return `${day} ${month} ${year}`;
-    })()
-  : 'N/A',
-
-lastResponseDate: ticket.last_message_at
-  ? (() => {
-      const date = new Date(ticket.last_message_at);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = date.toLocaleString('en-US', { month: 'short' });
-      const year = date.getFullYear();
-      return `${day} ${month} ${year}`;
-    })()
-  : 'No response yet',
-
-        lastResponseTime: ticket.last_message_at
-          ? new Date(ticket.last_message_at).toLocaleTimeString('en-IN', {
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: 'Asia/Kolkata',
-            })
-          : 'No response yet',
-        lastMessageAt: ticket.last_message_at ? new Date(ticket.last_message_at) : null,
-      }));
-
-      setTickets(ticketsWithDetails);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchMembers = async () => {
-    try {
-      setError(null);
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/users/members', {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Failed to fetch members');
-      setMembers(await res.json());
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  useEffect(() => {
-    const initialize = async () => {
-      const token = localStorage.getItem('token');
-      if (!token || !user) {
+      if (!token) {
         navigate('/auth');
         return;
       }
-
-      const socket = await getSocket();
-      if (!socket) {
-        setError('Failed to initialize real-time connection');
-        setLoading(false);
-        return;
+      const response = await fetch('http://localhost:5000/api/users/members', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch members');
       }
-
-      socketRef.current = socket;
-
-      socket.on('new_ticket', fetchTickets);
-      // socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
-      //   setTickets(prev =>
-      //     prev.map(ticket =>
-      //       ticket.id === ticket_id ? { ...ticket, status: 'reassigned', reassigned_to: assigned_to } : ticket
-      //     )
-      //   );
-      //   if (selectedTicket?.id === ticket_id) {
-      //     setSelectedTicket(prev => ({ ...prev, status: 'reassigned', reassigned_to: assigned_to }));
-      //   }
-      //   if (user.id === assigned_to) {
-      //     setNotifications(prev => [
-      //       ...prev,
-      //       { type: 'info', message: `Ticket #${ticket_id} has been reassigned to you.` },
-      //     ]);
-      //   }
-      // });
-      socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
-  setTickets(prev =>
-    prev.map(ticket =>
-      ticket.id === ticket_id ? { 
-        ...ticket, 
-        status: assigned_to === user.id ? 'assigned' : 'reassigned',
-        assigned_to: assigned_to 
-      } : ticket
-    )
-  );
-  if (selectedTicket?.id === ticket_id) {
-    setSelectedTicket(prev => ({ 
-      ...prev, 
-      status: assigned_to === user.id ? 'assigned' : 'reassigned',
-      assigned_to: assigned_to 
-    }));
-  }
-  if (user.id === assigned_to) {
-    setNotifications(prev => [
-      ...prev,
-      { type: 'info', message: `Ticket #${ticket_id} has been reassigned to you.` },
-    ]);
-  }
-});
-      socket.on('ticket_reopened', fetchTickets);
-      socket.on('ticket_closed', fetchTickets);
-      socket.on('chat_inactive', ({ ticket_id, reason, reassigned_to }) => {
-        setTickets(prev =>
-          prev.map(t =>
-            t.id === ticket_id ? { ...t, status: 'closed', closure_reason: reason, reassigned_to } : t
-          )
-        );
-        if (selectedTicket?.id === ticket_id) {
-          setSelectedTicket(null);
-          navigate('/member/tickets');
-        }
-      });
-
-      await Promise.all([fetchTickets(), fetchMembers()]);
-    };
-
-    initialize();
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.off('new_ticket');
-        socketRef.current.off('ticket_reassigned');
-        socketRef.current.off('ticket_reopened');
-        socketRef.current.off('ticket_closed');
-        socketRef.current.off('chat_inactive');
-        socketRef.current.disconnect();
-      }
-    };
-  }, [user, navigate]);
-
-  useEffect(() => {
-    if (ticketId && tickets.length > 0) {
-      const ticket = tickets.find(t => t.id === parseInt(ticketId));
-      if (ticket) handleTicketSelect(ticket.id);
-    }
-  }, [ticketId, tickets]);
-
-  useEffect(() => {
-    filterTickets();
-  }, [tickets, searchValues]);
-
-  const filterTickets = () => {
-    let filtered = tickets.filter(ticket => {
-      return Object.keys(searchValues).every(key => {
-        if (!searchValues[key]) return true;
-        let value;
-        if (key === 'createdAt') value = ticket.createdAtFormatted;
-        else if (key === 'lastMessageAt') value = ticket.lastResponseDate;
-        else if (key === 'lastResponseTime') value = ticket.lastResponseTime;
-        else value = ticket[key];
-        return String(value || '').toLowerCase().includes(searchValues[key].toLowerCase());
-      });
-    });
-    setFilteredTickets(filtered);
-  };
-
-  const handleTicketSelect = async (ticketId) => {
-    try {
-      setError(null);
-      const token = localStorage.getItem('token');
-      const [ticketRes, chatRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/tickets/${ticketId}`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        }),
-        fetch(`http://localhost:5000/api/chats/${ticketId}`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-        }),
-      ]);
-
-      if (!ticketRes.ok || !chatRes.ok) throw new Error('Failed to fetch ticket details');
-
-      const ticketData = await ticketRes.json();
-      const chatData = await chatRes.json();
-
-      const userRes = await fetch(`http://localhost:5000/api/users/${ticketData.user_id}`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-
-      if (!userRes.ok) throw new Error('Failed to fetch user details');
-      const userData = await userRes.json();
-
-      setSelectedTicket({
-        ...ticketData,
-        userName: `${userData.first_name} ${userData.last_name}`,
-        userEmail: userData.email,
-        chatHistory: chatData,
-      });
-
-      navigate(`/member/tickets/${ticketId}`);
+      const data = await response.json();
+      setMembers(data);
     } catch (err) {
-      setError(err.message);
+      console.error('Error fetching members:', err);
+      setNotifications(prev => [...prev, { type: 'error', message: err.message }]);
     }
-  };
+  }, [navigate]);
 
-  const handleCloseTicket = async () => {
+  const handleAcceptTicket = useCallback(async (ticketId) => {
+    setIsProcessing(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/tickets/${ticketId}/accept`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw new Error('Failed to accept ticket');
+      await fetchTickets();
+      setNotifications(prev => [...prev, { type: 'success', message: `Ticket #${ticketId} accepted.` }]);
+    } catch (err) {
+      console.error('Error accepting ticket:', err);
+      setNotifications(prev => [...prev, { type: 'error', message: err.message }]);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [fetchTickets]);
+
+  const handleRejectTicket = useCallback(async (ticketId) => {
+    setIsProcessing(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`http://localhost:5000/api/tickets/${ticketId}/reject`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw new Error('Failed to reject ticket');
+      await fetchTickets();
+      setNotifications(prev => [...prev, { type: 'info', message: `Ticket #${ticketId} rejected.` }]);
+    } catch (err) {
+      console.error('Error rejecting ticket:', err);
+      setNotifications(prev => [...prev, { type: 'error', message: err.message }]);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [fetchTickets]);
+
+  const handleCloseTicket = useCallback(async () => {
     if (!closeReason.trim()) {
-      setError('Closure reason is required');
+      setNotifications(prev => [...prev, { type: 'error', message: 'Closure reason is required' }]);
       return;
     }
 
+    setIsProcessing(true);
     try {
-      setError(null);
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/tickets/${selectedTicket.id}/close`, {
+      const response = await fetch(`http://localhost:5000/api/tickets/${selectedTicketId}/close`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -358,171 +197,98 @@ lastResponseDate: ticket.last_message_at
           reassign_to: reassignTo ? parseInt(reassignTo) : null,
         }),
       });
-
-      if (!res.ok) throw new Error(await res.text());
-
-      const socket = socketRef.current;
-      if (socket) {
-        socket.emit('ticket_closed', {
-          ticket_id: selectedTicket.id,
+      if (!response.ok) throw new Error('Failed to close ticket');
+      
+      await fetchTickets();
+      setCloseDialogOpen(false);
+      setCloseReason('');
+      setReassignTo('');
+      setSelectedTicketId(null);
+      setNotifications(prev => [...prev, { type: 'success', message: `Ticket #${selectedTicketId} closed.` }]);
+      
+      if (socketRef.current) {
+        socketRef.current.emit('ticket_closed', {
+          ticket_id: selectedTicketId,
           reason: closeReason,
           reassigned_to: reassignTo ? parseInt(reassignTo) : null,
         });
       }
-
-      setCloseDialogOpen(false);
-      setCloseReason('');
-      setReassignTo('');
-      setSelectedTicket(null);
-      navigate('/dashboard');
-      fetchTickets();
     } catch (err) {
-      setError(err.message);
+      console.error('Error closing ticket:', err);
+      setNotifications(prev => [...prev, { type: 'error', message: err.message }]);
+    } finally {
+      setIsProcessing(false);
     }
-  };
+  }, [closeReason, selectedTicketId, reassignTo, fetchTickets]);
 
-  const handleAcceptTicket = async (ticketId) => {
+  const handleReopenTicket = useCallback(async (ticketId) => {
+    setIsProcessing(true);
     try {
-      setError(null);
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/tickets/${ticketId}/accept`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) throw new Error('Failed to accept ticket');
-
-      fetchTickets();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleRejectTicket = async (ticketId) => {
-    try {
-      setError(null);
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/reject`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!res.ok) throw new Error('Failed to reject ticket');
-
-      fetchTickets();
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleReopenTicket = async (ticketId) => {
-    try {
-      setError(null);
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/tickets/${ticketId}/reopen`, {
+      const response = await fetch(`http://localhost:5000/api/tickets/${ticketId}/reopen`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-        reason: 'Reopening ticket from UI',
-        }),
+        body: JSON.stringify({ reason: 'Reopening ticket from UI' }),
       });
-
-      if (!res.ok) throw new Error('Failed to reopen ticket');
-
-      fetchTickets();
+      if (!response.ok) throw new Error('Failed to reopen ticket');
+      await fetchTickets();
+      setNotifications(prev => [...prev, { type: 'info', message: `Ticket #${ticketId} reopened.` }]);
     } catch (err) {
-      setError(err.message);
+      console.error('Error reopening ticket:', err);
+      setNotifications(prev => [...prev, { type: 'error', message: err.message }]);
+    } finally {
+      setIsProcessing(false);
     }
-  };
+  }, [fetchTickets]);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  const formatDate = useCallback((date) => {
+    if (!date) return 'N/A';
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = d.toLocaleString('en-US', { month: 'short' });
+    const year = d.getFullYear();
+    return `${day} ${month} ${year}`;
+  }, []);
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleRequestSort = (property) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
-    setOrderBy(property);
-  };
-
-  const handleSearchChange = (prop) => (event) => {
-    setSearchValues({ ...searchValues, [prop]: event.target.value });
-  };
-
-  const stableSort = (array, comparator) => {
-    const stabilizedThis = array.map((el, index) => [el, index]);
-    stabilizedThis.sort((a, b) => {
-      const order = comparator(a[0], b[0]);
-      if (order !== 0) return order;
-      return a[1] - b[1];
+  const formatTime = useCallback((date) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Kolkata',
     });
-    return stabilizedThis.map((el) => el[0]);
-  };
+  }, []);
 
-  const getComparator = (order, orderBy) => {
-    return order === 'desc'
-      ? (a, b) => descendingComparator(a, b, orderBy)
-      : (a, b) => -descendingComparator(a, b, orderBy);
-  };
-
-  const descendingComparator = (a, b, orderBy) => {
-    if (orderBy === 'createdAt' || orderBy === 'lastMessageAt') {
-      const aValue = a[orderBy] || new Date(0);
-      const bValue = b[orderBy] || new Date(0);
-      return bValue - aValue;
-    }
-    if (b[orderBy] < a[orderBy]) return -1;
-    if (b[orderBy] > a[orderBy]) return 1;
-    return 0;
-  };
-
-  const renderStatusBadge = (status) => (
+  const renderStatusBadge = useCallback((status) => (
     <Box
-      
-  sx={{
-    color:
-      status === 'open' ? 'warning.main' :
-      status === 'assigned' ? 'info.main' :
-      status === 'inactive' ? 'error.main' :
-      status === 'reassigned' ? 'secondary.main' :
-      status === 'closed' ? '#23ce16' :
-      status === 'rejected' ? 'error.main' : 'inherit',
-    // color: 'black',
-    // width: 120, // static width
-    // height: 32, // static height
-    lineHeight: '32px', // vertically center the text
-    textAlign: 'center',
-    // borderRadius: 1,
-    display: 'inline-block',
-    font: 'Open Sans',
-    fontSize: '16px',
-    fontWeight: '700',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    textTransform: 'capitalize',
-  }}
->
-  
+      sx={{
+        color: 'white',
+        bgcolor:
+          status === 'open' ? '#ff9800' :
+          status === 'assigned' ? '#4caf50' :
+          status === 'inactive' ? '#9e9e9e' :
+          status === 'reassigned' ? '#f44336' :
+          status === 'closed' ? '#2196f3' :
+          status === 'rejected' ? '#f44336' : 'inherit',
+        width: 120,
+        height: 32,
+        lineHeight: '32px',
+        textAlign: 'center',
+        borderRadius: 1,
+        display: 'inline-block',
+        fontFamily: '"Open Sans", sans-serif',
+        fontSize: '16px',
+        textTransform: 'capitalize',
+      }}
+    >
       {status}
     </Box>
-  );
+  ), []);
 
-  const renderActionButtons = (ticket) => (
+  const renderActionButtons = useCallback((ticket) => (
     <Box sx={{ display: 'flex', gap: 1 }}>
       {ticket.status === 'open' && (
         <>
@@ -531,6 +297,7 @@ lastResponseDate: ticket.last_message_at
             size="small"
             color="success"
             onClick={() => handleAcceptTicket(ticket.id)}
+            disabled={isProcessing}
           >
             Accept
           </Button>
@@ -539,17 +306,19 @@ lastResponseDate: ticket.last_message_at
             size="small"
             color="error"
             onClick={() => handleRejectTicket(ticket.id)}
+            disabled={isProcessing}
           >
             Reject
           </Button>
         </>
       )}
-      {(ticket.status === 'assigned' || ticket.status === 'reassigned') &&(
+      {(ticket.status === 'assigned' || ticket.status === 'reassigned') && (
         <>
           <Button
             variant="contained"
             size="small"
-            onClick={() => handleTicketSelect(ticket.id)}
+            onClick={() => navigate(`/member/tickets/${ticket.id}`)}
+            disabled={isProcessing}
           >
             View
           </Button>
@@ -558,9 +327,10 @@ lastResponseDate: ticket.last_message_at
             color="error"
             size="small"
             onClick={() => {
-              setSelectedTicket(ticket);
+              setSelectedTicketId(ticket.id);
               setCloseDialogOpen(true);
             }}
+            disabled={isProcessing}
           >
             Close
           </Button>
@@ -572,44 +342,193 @@ lastResponseDate: ticket.last_message_at
           size="small"
           color="primary"
           onClick={() => handleReopenTicket(ticket.id)}
+          disabled={isProcessing}
         >
           Reopen
         </Button>
       )}
     </Box>
-  );
+  ), [handleAcceptTicket, handleRejectTicket, handleReopenTicket, isProcessing, navigate]);
 
-  const headers = [
-    { label: 'Ticket ID', id: 'id' },
-    { label: 'Created By', id: 'userName' },
-    { label: 'Category', id: 'category' },
-    { label: 'Priority', id: 'priority' },
-    { label: 'Status', id: 'status' },
-    { label: 'Created At', id: 'createdAt' },
-    { label: 'Last Response Date', id: 'lastMessageAt' },
-    { label: 'Last Response Time', id: 'lastResponseTime' },
-    { label: 'Actions', id: 'actions' },
-  ];
+  const handleRequestSort = useCallback((property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  }, [order, orderBy]);
+
+  const handleChangePage = useCallback((_, newPage) => {
+    setPage(newPage);
+  }, []);
+
+  const handleChangeRowsPerPage = useCallback((event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  }, []);
+
+  const stableSort = useCallback((array, comparator) => {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map((el) => el[0]);
+  }, []);
+
+  const getComparator = useCallback((order, orderBy) => {
+    return order === 'desc'
+      ? (a, b) => descendingComparator(a, b, orderBy)
+      : (a, b) => -descendingComparator(a, b, orderBy);
+  }, []);
+
+  const descendingComparator = useCallback((a, b, orderBy) => {
+    if (orderBy === 'createdAt' || orderBy === 'lastMessageAt') {
+      const aValue = a[orderBy] || new Date(0);
+      const bValue = b[orderBy] || new Date(0);
+      return bValue - aValue;
+    }
+    if (b[orderBy] < a[orderBy]) return -1;
+    if (b[orderBy] > a[orderBy]) return 1;
+    return 0;
+  }, []);
+
+  const sortedTickets = useMemo(() => {
+    return stableSort(filteredTickets, getComparator(order, orderBy));
+  }, [filteredTickets, stableSort, getComparator, order, orderBy]);
+
+  const visibleTickets = useMemo(() => {
+    return sortedTickets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [sortedTickets, page, rowsPerPage]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token || !user || user.role !== 'member') {
+      navigate('/auth');
+      return;
+    }
+
+    fetchMembers();
+  }, [user, navigate, fetchMembers]);
+
+  useEffect(() => {
+    const initializeSocket = async () => {
+      try {
+        const socket = await getSocket();
+        if (!socket) {
+          setNotifications(prev => [...prev, { type: 'error', message: 'Failed to initialize real-time connection' }]);
+          return;
+        }
+
+        socketRef.current = socket;
+        socketInitialized.current = true;
+
+        const handleNewTicket = (newTicket) => {
+          setNotifications(prev => [
+            ...prev,
+            { type: 'info', message: `New ticket #${newTicket.id} created.` },
+          ]);
+          fetchTickets();
+        };
+
+        const handleTicketReassigned = ({ ticket_id, assigned_to, status }) => {
+          const member = members.find((m) => m.id === assigned_to);
+          setNotifications(prev => [
+            ...prev,
+            { type: 'info', message: `Ticket #${ticket_id} has been reassigned to ${member ? `${member.first_name} ${member.last_name}` : 'another member'}.` },
+          ]);
+          fetchTickets();
+        };
+
+        const handleTicketReopened = () => fetchTickets();
+        const handleTicketClosed = () => fetchTickets();
+        const handleChatInactive = ({ ticket_id }) => {
+          if (selectedTicketId === ticket_id) {
+            setSelectedTicketId(null);
+            navigate('/member/tickets');
+          }
+          fetchTickets();
+        };
+
+        const handleTicketAccepted = ({ ticket_id }) => {
+          setNotifications(prev => [
+            ...prev,
+            { type: 'success', message: `Ticket #${ticket_id} has been accepted.` },
+          ]);
+          fetchTickets();
+        };
+
+        const handleTicketRejected = ({ ticket_id }) => {
+          setNotifications(prev => [
+            ...prev,
+            { type: 'info', message: `Ticket #${ticket_id} has been rejected.` },
+          ]);
+          fetchTickets();
+        };
+
+        socket.on('new_ticket', handleNewTicket);
+        socket.on('ticket_reassigned', handleTicketReassigned);
+        socket.on('ticket_reopened', handleTicketReopened);
+        socket.on('ticket_closed', handleTicketClosed);
+        socket.on('chat_inactive', handleChatInactive);
+        socket.on('ticket_accepted', handleTicketAccepted);
+        socket.on('ticket_rejected', handleTicketRejected);
+
+        return () => {
+          socket.off('new_ticket', handleNewTicket);
+          socket.off('ticket_reassigned', handleTicketReassigned);
+          socket.off('ticket_reopened', handleTicketReopened);
+          socket.off('ticket_closed', handleTicketClosed);
+          socket.off('chat_inactive', handleChatInactive);
+          socket.off('ticket_accepted', handleTicketAccepted);
+          socket.off('ticket_rejected', handleTicketRejected);
+        };
+      } catch (err) {
+        console.error('Socket initialization error:', err);
+        setNotifications(prev => [...prev, { type: 'error', message: 'Failed to initialize socket connection' }]);
+      }
+    };
+
+    initializeSocket();
+
+    return () => {
+      if (socketRef.current && socketInitialized.current) {
+        disconnectSocket();
+        socketRef.current = null;
+        socketInitialized.current = false;
+      }
+    };
+  }, [navigate, fetchTickets, members, selectedTicketId]);
+
+  useEffect(() => {
+    if (ticketId && tickets.length > 0) {
+      const ticket = tickets.find((t) => t.id === parseInt(ticketId));
+      if (ticket) setSelectedTicketId(ticket.id);
+    }
+  }, [ticketId, tickets]);
 
   if (loading) {
     return (
-      <ErrorBoundary>
-        <Navbar />
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <CircularProgress />
-        </Box>
-      </ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <ErrorBoundary>
+          <Navbar />
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <CircularProgress />
+          </Box>
+        </ErrorBoundary>
+      </ThemeProvider>
     );
   }
 
   if (error) {
     return (
-      <ErrorBoundary>
-        <Navbar />
-        <Box sx={{ p: 2, mt: 8 }}>
-          <Alert severity="error">{error}</Alert>
-        </Box>
-      </ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <ErrorBoundary>
+          <Navbar />
+          <Box sx={{ p: 2, mt: 8 }}>
+            <Alert severity="error">{error}</Alert>
+          </Box>
+        </ErrorBoundary>
+      </ThemeProvider>
     );
   }
 
@@ -621,110 +540,102 @@ lastResponseDate: ticket.last_message_at
           <Typography variant="h5" component="h1" gutterBottom>
             Member Support Dashboard
           </Typography>
-          
-          <Paper sx={{ width: '100%', overflow: 'hidden', mb: 2,mt:3 }}>
-            <TableContainer sx={{ maxHeight: 'calc(100vh - 220px)', overflowX: 'auto',}}>
-              <Table stickyHeader >
+          <Paper sx={{ width: '100%', overflow: 'hidden', mb: 2, mt: 3 }}>
+            <TableContainer sx={{ maxHeight: 'calc(100vh - 220px)' }}>
+              <Table stickyHeader>
                 <TableHead>
-  {/* Header Row */}
-  <TableRow  >
-    {headers.map((header) => (
-      <TableCell
-        key={header.id}
-        sx={{
-          whiteSpace: 'nowrap',
-          backgroundColor: '#00796b',
-          color: 'white',
-          zIndex: 2, 
-          top:0,
-          position:'sticky'
-        }}
-      >
-        {header.id !== 'actions' ? (
-          <TableSortLabel
-            active={orderBy === header.id}
-            direction={orderBy === header.id ? order : 'asc'}
-            onClick={() => handleRequestSort(header.id)}
-          >
-            {header.label}
-          </TableSortLabel>
-        ) : (
-          header.label
-        )}
-      </TableCell>
-    ))}
-  </TableRow>
-
-  {/* Filter Row */}
-  <TableRow>
-    {headers.map((header) => (
-      <TableCell
-        key={`${header.id}-filter`}
-        sx={{
-          backgroundColor: 'white',
-          color: 'black',
-          whiteSpace: 'nowrap',
-          zIndex: 2,
-         
-          top: 56, // header height
-        }}
-
-      >
-        {header.id !== 'actions' && (
-          <TextField
-            size="small"
-            variant="outlined"
-            value={searchValues[header.id] || ''}
-            onChange={handleSearchChange(header.id)}
-            placeholder={`Filter ${header.label}`}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: 'black' }} />
-                </InputAdornment>
-              ),
-              sx: {
-                color: 'black',
-                '&::placeholder': {
-                  color: 'black!important',
-                },
-              },
-            }}
-            sx={{
-              mt: 1,
-              width: '100%',
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'rgba(0,0,0,0.2)',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'rgba(0,0,0,0.5)',
-                },
-              },
-            }}
-          />
-        )}
-      </TableCell>
-    ))}
-  </TableRow>
-</TableHead>
-
-                <TableBody>
-                  {stableSort(filteredTickets, getComparator(order, orderBy))
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((ticket) => (
-                      <TableRow hover key={ticket.id}>
-                        <TableCell>{ticket.id}</TableCell>
-                        <TableCell>{ticket.userName}</TableCell>
-                        <TableCell>{ticket.category}</TableCell>
-                        <TableCell>{ticket.priority}</TableCell>
-                        <TableCell>{renderStatusBadge(ticket.status)}</TableCell>
-                        <TableCell>{ticket.createdAtFormatted}</TableCell>
-                        <TableCell>{ticket.lastResponseDate}</TableCell>
-                        <TableCell>{ticket.lastResponseTime}</TableCell>
-                        <TableCell>{renderActionButtons(ticket)}</TableCell>
-                      </TableRow>
+                  <TableRow>
+                    {headers.map((header) => (
+                      <TableCell
+                        key={header.id}
+                        sx={{
+                          whiteSpace: 'nowrap',
+                          backgroundColor: '#00796b',
+                          color: 'white',
+                          position: 'sticky',
+                          top: 0,
+                          zIndex: 2,
+                        }}
+                      >
+                        {header.id !== 'actions' ? (
+                          <TableSortLabel
+                            active={orderBy === header.id}
+                            direction={orderBy === header.id ? order : 'asc'}
+                            onClick={() => handleRequestSort(header.id)}
+                          >
+                            {header.label}
+                          </TableSortLabel>
+                        ) : (
+                          header.label
+                        )}
+                      </TableCell>
                     ))}
+                  </TableRow>
+                  <TableRow>
+                    {headers.map((header) => (
+                      <TableCell
+                        key={`${header.id}-filter`}
+                        sx={{
+                          backgroundColor: 'white',
+                          color: 'black',
+                          whiteSpace: 'nowrap',
+                          position: 'sticky',
+                          top: 56,
+                          zIndex: 2,
+                        }}
+                      >
+                        {header.id !== 'actions' && (
+                          <TextField
+                            size="small"
+                            variant="outlined"
+                            value={searchFilters[header.id] || ''}
+                            onChange={(e) => handleSearchChange(header.id, e.target.value)}
+                            placeholder={`Filter ${header.label}`}
+                            InputProps={{
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <SearchIcon fontSize="small" sx={{ color: 'black' }} />
+                                </InputAdornment>
+                              ),
+                              sx: {
+                                color: 'black',
+                                '&::placeholder': {
+                                  color: 'black !important',
+                                },
+                              },
+                            }}
+                            sx={{
+                              mt: 1,
+                              width: '100%',
+                              '& .MuiOutlinedInput-root': {
+                                '& fieldset': {
+                                  borderColor: 'rgba(0,0,0,0.2)',
+                                },
+                                '&:hover fieldset': {
+                                  borderColor: 'rgba(0,0,0,0.5)',
+                                },
+                              },
+                            }}
+                          />
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {visibleTickets.map((ticket) => (
+                    <TableRow hover key={ticket.id}>
+                     <TableCell>{ticket.auto_generated_key || ticket.id || 'N/A'}</TableCell>
+                      <TableCell>{ticket.userName}</TableCell>
+                      <TableCell>{ticket.category}</TableCell>
+                      <TableCell>{ticket.priority}</TableCell>
+                      <TableCell>{renderStatusBadge(ticket.status)}</TableCell>
+                      <TableCell>{formatDate(ticket.createdAt)}</TableCell>
+                      <TableCell>{formatDate(ticket.lastMessageAt)}</TableCell>
+                      <TableCell>{formatTime(ticket.lastMessageAt)}</TableCell>
+                      <TableCell>{renderActionButtons(ticket)}</TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -738,37 +649,6 @@ lastResponseDate: ticket.last_message_at
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
           </Paper>
-
-          {selectedTicket && (
-            <Dialog
-              open={Boolean(selectedTicket)}
-              onClose={() => {
-                setSelectedTicket(null);
-                navigate('/member/tickets');
-              }}
-              maxWidth="lg"
-              fullWidth
-            >
-              <DialogTitle>Ticket #{selectedTicket.id}</DialogTitle>
-              <DialogContent>
-                <ChatWindow
-                  ticketId={selectedTicket.id}
-                  initialMessages={selectedTicket.chatHistory}
-                  readOnly={selectedTicket.status === 'closed'}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  onClick={() => {
-                    setSelectedTicket(null);
-                    navigate('/member/tickets');
-                  }}
-                >
-                  Close
-                </Button>
-              </DialogActions>
-            </Dialog>
-          )}
 
           <Dialog open={closeDialogOpen} onClose={() => setCloseDialogOpen(false)}>
             <DialogTitle>Close Ticket</DialogTitle>
@@ -801,15 +681,13 @@ lastResponseDate: ticket.last_message_at
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setCloseDialogOpen(false)}>
-                Cancel
-              </Button>
+              <Button onClick={() => setCloseDialogOpen(false)}>Cancel</Button>
               <Button
                 variant="contained"
                 onClick={handleCloseTicket}
-                disabled={!closeReason.trim()}
+                disabled={!closeReason.trim() || isProcessing}
               >
-                Confirm
+                {isProcessing ? <CircularProgress size={24} /> : 'Confirm'}
               </Button>
             </DialogActions>
           </Dialog>
@@ -825,4 +703,4 @@ lastResponseDate: ticket.last_message_at
   );
 }
 
-export default MemberDashboard;
+export default React.memo(MemberDashboard);

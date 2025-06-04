@@ -85,6 +85,7 @@ class Ticket(db.Model):
     reassigned_to = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     last_message_at = db.Column(db.DateTime, nullable=True)
     subject = db.Column(db.String(50), nullable=False)
+    auto_generated_key=db.Column(db.String(50), nullable=True)
 
 class ChatMessage(db.Model):
     __tablename__ = 'chat_messages'
@@ -715,7 +716,7 @@ def tickets():
                 return jsonify({'error': 'Unauthorized'}), 403
 
             data = request.get_json()
-            required_fields = ['category', 'priority', 'description']
+            required_fields = ['subject','category', 'priority', 'description']
             
             if not all(field in data for field in required_fields):
                 return jsonify({'error': 'Missing required fields'}), 400
@@ -730,7 +731,8 @@ def tickets():
                 visibility=data.get('visibility', 'all_members'),
                 created_by=current_user_id,
                 status='open',
-                created_at=datetime.now(IST)
+                created_at=datetime.now(IST),
+                auto_generated_key=f"TICKET-{datetime.now(IST).strftime('%Y%m%d')}-{current_user_id}"
             )
             
             db.session.add(ticket)
@@ -738,14 +740,20 @@ def tickets():
             db.session.refresh(ticket)
 
             socketio.emit('new_ticket', {
-                'ticket_id': ticket.id,
-                'category': ticket.category,
-                'priority': ticket.priority
-            })
+            'ticket_id': ticket.id,
+            'subject': ticket.subject,
+            'category': ticket.category,
+            'priority': ticket.priority,
+            'user_id': ticket.user_id,
+            'created_at': ticket.created_at.isoformat(),
+            'status': ticket.status,
+            'auto_generated_key': ticket.auto_generated_key
+        }, namespace='/admin') 
 
             return jsonify({
                 'message': 'Ticket created successfully',
-                'ticket_id': ticket.id
+                'ticket_id': ticket.id,
+                'auto_generated_key': ticket.auto_generated_key
             }), 201
         except Exception as e:
             db.session.rollback()
@@ -781,7 +789,8 @@ def tickets():
             'created_at': t.created_at.isoformat() if t.created_at else None,
             'closure_reason': t.closure_reason,
             'reassigned_to': t.reassigned_to,
-            'last_message_at': t.last_message_at.isoformat() if t.last_message_at else None
+            'last_message_at': t.last_message_at.isoformat() if t.last_message_at else None,
+            'auto_generated_key': t.auto_generated_key
         } for t in tickets]), 200
     except Exception as e:
         logger.error(f"Error fetching tickets: {str(e)}")
@@ -942,9 +951,7 @@ def reject_ticket(ticket_id):
         logger.error(f"Error reassigning ticket: {str(e)}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
-@app.route('/api/tickets/<ticket_id>/reassign', methods=['PUT'])
-@jwt_required()
-def reassign_ticket(ticket_id):
+
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
@@ -968,7 +975,7 @@ def reassign_ticket(ticket_id):
         previous_assignee = ticket.assigned_to
         ticket.assigned_to = reassign_to
         ticket.reassigned_to = reassign_to
-        ticket.status = 'assigned'
+        ticket.status = 'reassigned'
         ticket.last_message_at = datetime.now(IST)
         
         system_message = ChatMessage(
@@ -1151,6 +1158,72 @@ def reassign_ticket(ticket_id):
         logger.error(f"Error closing ticket: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+    
+
+@app.route('/api/tickets/<ticket_id>/reassign', methods=['PUT'])
+@jwt_required()
+def reassign_ticket(ticket_id):
+    try:
+        current_user_id = get_jwt_identity()
+        user = User.query.get(current_user_id)
+        
+        if not user or user.role not in ['admin', 'member']:
+            return jsonify({'error': 'Unauthorized'}), 403
+
+        ticket = Ticket.query.get_or_404(ticket_id)
+        if ticket.status not in ['open', 'assigned', 'reassigned']:
+            return jsonify({'error': 'Cannot reassign closed or rejected ticket'}), 400
+
+        data = request.get_json()
+        reassign_to = data.get('reassign_to')
+        if not reassign_to:
+            return jsonify({'error': 'Reassignment member ID is required'}), 400
+
+        reassign_user = User.query.get(reassign_to)
+        if not reassign_user or reassign_user.role != 'member':
+            return jsonify({'error': 'Invalid reassignment member'}), 400
+
+        previous_assignee = ticket.assigned_to
+        ticket.assigned_to = reassign_to
+        ticket.reassigned_to = reassign_to
+        ticket.status = 'reassigned'
+        ticket.last_message_at = datetime.now(IST)
+        
+        system_message = ChatMessage(
+            ticket_id=ticket_id,
+            sender_id=None,
+            message=f"Ticket reassigned from {previous_assignee} to {reassign_user.first_name} {reassign_user.last_name}",
+            timestamp=datetime.now(IST),
+            is_system=True
+        )
+        db.session.add(system_message)
+        db.session.commit()
+
+        # Emit to all interested parties
+        socketio.emit('ticket_reassigned', {
+            'ticket_id': ticket_id,
+            'previous_assignee': previous_assignee,
+            'assigned_to': reassign_to,
+            'status': 'reassigned',
+            'reassigned_by': current_user_id,
+            'member_name': f"{reassign_user.first_name} {reassign_user.last_name}"
+        }, room=ticket_id)
+
+        # Specific notification to new assignee
+        socketio.emit('reassignment_notification', {
+            'ticket_id': ticket_id,
+            'message': f'You have been assigned to ticket #{ticket_id}',
+            'category': ticket.category,
+            'priority': ticket.priority,
+            'status': 'reassigned'
+        }, room=str(reassign_to))
+
+        return jsonify({'message': 'Ticket reassigned successfully'}), 200
+    except Exception as e:
+        logger.error(f"Error reassigning ticket: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
 @app.route('/api/tickets/<ticket_id>/close', methods=['PUT'])
 @jwt_required()
 def close_ticket(ticket_id):
