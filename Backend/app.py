@@ -664,8 +664,10 @@ def get_users_bulk():
 
         data = request.get_json()
         user_ids = data.get('user_ids', [])
-        if not user_ids:
-            return jsonify({'error': 'No user IDs provided'}), 400
+        if not isinstance(user_ids, list) or not all(isinstance(uid, int) for uid in user_ids):
+            return jsonify({'error': 'user_ids must be a non-empty list of integers'}), 400
+
+
 
         users = User.query.filter(User.id.in_(user_ids)).all()
         return jsonify({
@@ -826,6 +828,43 @@ def get_ticket(ticket_id):
     except Exception as e:
         logger.error(f"Error fetching ticket: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/tickets/<int:ticket_id>/reassign', methods=['PUT'])
+@jwt_required()
+def reassign_ticket(ticket_id):
+    try:
+        current_user_id = get_jwt_identity()
+
+        data = request.get_json()
+        reassign_to = data.get('reassign_to')
+        reason = data.get('reason')
+
+        # Check ticket exists
+        ticket = Ticket.query.get_or_404(ticket_id)
+
+        # Optional: Check if current user is admin or has permission
+        user = User.query.get(current_user_id)
+        if user.role not in ['admin', 'support_lead']:  # Adjust as needed
+            return jsonify({"error": "Unauthorized"}), 403
+
+        # Check if the user to reassign to exists
+        new_assignee = User.query.get(reassign_to)
+        if not new_assignee:
+            return jsonify({"error": "User to reassign not found"}), 404
+
+        # Update the ticket fields
+        ticket.assigned_to = reassign_to
+        ticket.status = 'reassigned'
+        ticket.reassign_reason = reason  # Make sure this column exists in DB
+        ticket.updated_by = current_user_id  # Optional audit trail
+        db.session.commit()
+
+        return jsonify({"message": "Ticket reassigned successfully"}), 200
+
+    except Exception as e:
+        print(f"Error in reassigning ticket: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/tickets/<ticket_id>/accept', methods=['POST'])
 @jwt_required()
@@ -1160,9 +1199,7 @@ def reject_ticket(ticket_id):
 
     
 
-@app.route('/api/tickets/<ticket_id>/reassign', methods=['PUT'])
-@jwt_required()
-def reassign_ticket(ticket_id):
+
     try:
         current_user_id = get_jwt_identity()
         user = User.query.get(current_user_id)
@@ -1223,6 +1260,7 @@ def reassign_ticket(ticket_id):
         logger.error(f"Error reassigning ticket: {str(e)}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+    
     
 @app.route('/api/tickets/<ticket_id>/close', methods=['PUT'])
 @jwt_required()

@@ -173,7 +173,6 @@
 import { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-// Simple Event Emitter for broadcasting socket events to components
 class EventEmitter {
   constructor() {
     this.listeners = new Map();
@@ -215,9 +214,10 @@ const socketEmitter = new EventEmitter();
 
 let socket = null;
 let connectionPromise = null;
-let isConnecting = false; // Prevent multiple simultaneous connection attempts
+let isConnecting = false;
+let hasLoggedSocket = false;
 
-// Enhanced token validation with detailed error codes
+// Token validation
 export const validateToken = async (token) => {
   try {
     const response = await fetch('http://localhost:5000/api/auth/validate', {
@@ -243,30 +243,53 @@ export const validateToken = async (token) => {
   }
 };
 
+const setupSocketListeners = () => {
+  if (socket._listenersInitialized) return;
+  socket._listenersInitialized = true;
+
+  const events = [
+    'new_ticket',
+    'ticket_reassigned',
+    'ticket_status_update',
+    'reassignment_notification',
+    'ticket_accepted',
+    'ticket_rejected',
+    'ticket_closed',
+    'ticket_reopened',
+    'chat_inactive',
+  ];
+
+  events.forEach(event => {
+    socket.on(event, (data) => {
+      console.log(`Emitting ${event} event`, data ?? '');
+      socketEmitter.emit(event, data);
+    });
+  });
+};
+
 const initSocket = async () => {
   if (socket && socket.connected) {
-    console.log('Socket already connected:', socket.id);
+    if (!hasLoggedSocket) {
+      console.log('Returning existing socket:', socket.id);
+      hasLoggedSocket = true;
+    }
     return socket;
   }
 
   if (isConnecting) {
-    console.log('Socket connection already in progress, awaiting result');
     return connectionPromise;
   }
 
   isConnecting = true;
-  console.log('Initiating socket connection at:', new Date().toISOString());
-
   const token = localStorage.getItem('token');
   if (!token) {
-    console.warn('No token found for socket connection');
+    console.warn('No token for socket connection');
     isConnecting = false;
     return null;
   }
 
   const validationResult = await validateToken(token);
   if (!validationResult.valid) {
-    console.warn('Invalid token, removing from localStorage');
     localStorage.removeItem('token');
     isConnecting = false;
     return null;
@@ -275,59 +298,9 @@ const initSocket = async () => {
   socket = io('http://localhost:5000', {
     query: { token },
     transports: ['websocket', 'polling'],
-    reconnection: false, // We'll handle reconnection manually
-    reconnectionAttempts: 5,
-    reconnectionDelay: 2000,
+    reconnection: false,
     timeout: 10000,
   });
-
-  // Set up global socket event listeners once
-  const setupSocketListeners = () => {
-    socket.on('new_ticket', (data) => {
-      console.log('Emitting new_ticket event:', data);
-      socketEmitter.emit('new_ticket', data);
-    });
-
-    socket.on('ticket_reassigned', (data) => {
-      console.log('Emitting ticket_reassigned event:', data);
-      socketEmitter.emit('ticket_reassigned', data);
-    });
-
-    socket.on('ticket_status_update', () => {
-      console.log('Emitting ticket_status_update event');
-      socketEmitter.emit('ticket_status_update');
-    });
-
-    socket.on('reassignment_notification', (data) => {
-      console.log('Emitting reassignment_notification event:', data);
-      socketEmitter.emit('reassignment_notification', data);
-    });
-
-    socket.on('ticket_accepted', (data) => {
-      console.log('Emitting ticket_accepted event:', data);
-      socketEmitter.emit('ticket_accepted', data);
-    });
-
-    socket.on('ticket_rejected', (data) => {
-      console.log('Emitting ticket_rejected event:', data);
-      socketEmitter.emit('ticket_rejected', data);
-    });
-
-    socket.on('ticket_closed', (data) => {
-      console.log('Emitting ticket_closed event:', data);
-      socketEmitter.emit('ticket_closed', data);
-    });
-
-    socket.on('ticket_reopened', () => {
-      console.log('Emitting ticket_reopened event');
-      socketEmitter.emit('ticket_reopened');
-    });
-
-    socket.on('chat_inactive', (data) => {
-      console.log('Emitting chat_inactive event:', data);
-      socketEmitter.emit('chat_inactive', data);
-    });
-  };
 
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
@@ -341,9 +314,9 @@ const initSocket = async () => {
     }, 15000);
 
     socket.on('connect', () => {
-      console.log('Socket connected at:', new Date().toISOString(), 'Socket ID:', socket.id);
       clearTimeout(timeoutId);
-      setupSocketListeners(); // Set up listeners only after connection
+      setupSocketListeners();
+      console.log('Socket connected:', socket.id);
       isConnecting = false;
       resolve(socket);
     });
@@ -371,23 +344,22 @@ const initSocket = async () => {
 
 export const getSocket = async () => {
   if (socket && socket.connected) {
-    console.log('Returning existing socket:', socket.id);
+    if (!hasLoggedSocket) {
+      console.log('Returning existing socket:', socket.id);
+      hasLoggedSocket = true;
+    }
     return socket;
   }
 
   if (connectionPromise) {
     try {
-      console.log('Awaiting existing connection promise');
       return await connectionPromise;
     } catch (err) {
-      console.error('Previous connection attempt failed:', err.message);
       connectionPromise = null;
     }
   }
 
-  console.log('Initiating new socket connection');
   connectionPromise = initSocket().finally(() => {
-    console.log('Connection promise resolved');
     connectionPromise = null;
   });
 
@@ -402,31 +374,30 @@ export const getSocket = async () => {
 export const disconnectSocket = () => {
   if (socket) {
     try {
-      const socketId = socket.id; // Store ID before disconnecting
+      const socketId = socket.id;
       socket.disconnect();
-      console.log('Socket disconnected manually at:', new Date().toISOString(), 'Socket ID:', socketId || 'N/A');
+      console.log('Socket manually disconnected:', socketId);
     } catch (err) {
       console.error('Error disconnecting socket:', err.message);
     } finally {
       socket = null;
+      hasLoggedSocket = false;
     }
-  } else {
-    console.log('No socket to disconnect');
   }
 };
 
-// Expose the event emitter for components to subscribe to socket events
 export const socketEvents = {
   on: (event, callback) => socketEmitter.on(event, callback),
   off: (event, callback) => socketEmitter.off(event, callback),
 };
 
-// Hook to manage socket connection state
 export const useSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let cleanup = () => {};
+
     const initializeSocket = async () => {
       try {
         const socketInstance = await getSocket();
@@ -450,7 +421,6 @@ export const useSocket = () => {
         socketInstance.on('error', onError);
         socketInstance.on('connect_error', onConnectError);
 
-        // Subscribe to socket events via the emitter
         const handleSocketError = (err) => setError(err || 'Socket error');
         const handleSocketDisconnect = (reason) => {
           setIsConnected(false);
@@ -460,7 +430,7 @@ export const useSocket = () => {
         socketEmitter.on('socket_error', handleSocketError);
         socketEmitter.on('socket_disconnect', handleSocketDisconnect);
 
-        return () => {
+        cleanup = () => {
           socketInstance.off('connect', onConnect);
           socketInstance.off('disconnect', onDisconnect);
           socketInstance.off('error', onError);
@@ -470,11 +440,12 @@ export const useSocket = () => {
         };
       } catch (err) {
         setError(err.message);
-        console.error('useSocket initialization error:', err.message);
+        console.error('useSocket error:', err.message);
       }
     };
 
     initializeSocket();
+    return () => cleanup();
   }, []);
 
   return { isConnected, error };
