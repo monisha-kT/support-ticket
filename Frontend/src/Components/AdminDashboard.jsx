@@ -174,7 +174,11 @@
 //       });
 //       socket.on('ticket_reassigned', ({ ticket_id, assigned_to, status }) => {
 //         setTickets((prev) =>
-//           prev.map((ticket) =>
+//           prev.map((ticket
+// 
+// 
+// 
+// ) =>
 //             ticket.id === ticket_id
 //               ? {
 //                   ...ticket,
@@ -1552,34 +1556,33 @@ function AdminDashboard() {
           );
         });
       });
-      socket.on('ticket_reassigned', ({ ticket_id, assigned_to, status }) => {
-        setTickets((prev) => {
-          const ticketExists = prev.some((ticket) => ticket.id === ticket_id);
-          if (!ticketExists) return prev;
-          return prev.map((ticket) =>
-            ticket.id === ticket_id
-              ? {
-                  ...ticket,
-                  assigned_to,
-                  status: status || 'reassigned',
-                  memberName: members.find(m => m.id === assigned_to)
-                    ? `${members.find(m => m.id === assigned_to).first_name} ${members.find(m => m.id === assigned_to).last_name}`
-                    : 'Unassigned'
-                }
-              : ticket
-          );
-        });
-        if (selectedTicket?.id === ticket_id) {
-          setSelectedTicket(prev => ({
-            ...prev,
-            status: status || 'reassigned',
-            assigned_to,
-            memberName: members.find(m => m.id === assigned_to)
-              ? `${members.find(m => m.id === assigned_to).first_name} ${members.find(m => m.id === assigned_to).last_name}`
-              : 'Unassigned'
-          }));
-        }
-      });
+    socket.on('ticket_reassigned', ({ ticket_id, assigned_to }) => {
+  setTickets(prev =>
+    prev.map(ticket =>
+      ticket.id === ticket_id ? { 
+        ...ticket, 
+        status: assigned_to === user.id ? 'assigned' : 'reassigned',
+        assigned_to: assigned_to 
+      } : ticket
+    )
+  );
+//   fetchTickets();
+// });
+  if (selectedTicket?.id === ticket_id) {
+    setSelectedTicket(prev => ({ 
+      ...prev, 
+      status: assigned_to === user.id ? 'assigned' : 'reassigned',
+      assigned_to: assigned_to 
+    }));
+  }
+  if (user.id === assigned_to) {
+    setNotifications(prev => [
+      ...prev,
+      { type: 'info', message: `Ticket #${ticket_id} has been reassigned to you.` },
+    ]);
+  }
+  fetchTickets();
+});
       socket.on('ticket_inactive', ({ ticket_id, status, reason }) => {
         setTickets((prev) => {
           const ticketExists = prev.some((ticket) => ticket.id === ticket_id);
@@ -1696,76 +1699,94 @@ function AdminDashboard() {
   };
 
   const handleReassignTicket = async () => {
-    try {
-      setReassigning(true);
-      setError(null);
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/tickets/${reassignTicketId}/reassign`, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          reassign_to: parseInt(reassignTo),
-          reason: 'Reassigned by admin'
-        }),
-      });
+  try {
+    setReassigning(true);
+    setError(null);
+    const token = localStorage.getItem('token');
+    const res = await fetch(`http://localhost:5000/api/tickets/${reassignTicketId}/reassign`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        reassign_to: parseInt(reassignTo),
+        reason: 'Reassigned by admin'
+      }),
+    });
 
-      if (!res.ok) throw new Error(await res.text());
-
-      const newMember = members.find(m => m.id === parseInt(reassignTo));
-      setTickets(prevTickets =>
-        prevTickets.map(ticket =>
-          ticket.id === reassignTicketId
-            ? {
-                ...ticket,
-                status: 'reassigned',
-                assigned_to: parseInt(reassignTo),
-                memberName: newMember
-                  ? `${newMember.first_name} ${newMember.last_name}`
-                  : 'Unassigned'
-              }
-            : ticket
-        )
-      );
-      setFilteredTickets(prevTickets =>
-        prevTickets.map(ticket =>
-          ticket.id === reassignTicketId
-            ? {
-                ...ticket,
-                status: 'reassigned',
-                assigned_to: parseInt(reassignTo),
-                memberName: newMember
-                  ? `${newMember.first_name} ${newMember.last_name}`
-                  : 'Unassigned'
-              }
-            : ticket
-        )
-      );
-
-      if (selectedTicket?.id === reassignTicketId) {
-        setSelectedTicket(prev => ({
-          ...prev,
-          status: 'reassigned',
-          assigned_to: parseInt(reassignTo),
-          memberName: newMember
-            ? `${newMember.first_name} ${newMember.last_name}`
-            : 'Unassigned'
-        }));
-      }
-
-      setReassignDialogOpen(false);
-      setReassignTo('');
-      setReassignTicketId(null);
-    } catch (err) {
-      setError(err.message);
-      debouncedFetchTickets(); // Refresh tickets on error
-    } finally {
-      setReassigning(false);
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to reassign ticket');
     }
-  };
 
+    const responseData = await res.json();
+    const { ticket, member } = responseData;
+
+    // Update tickets state
+    setTickets(prevTickets =>
+      prevTickets.map(t =>
+        t.id === ticket.id
+          ? {
+              ...t,
+              status: ticket.status,
+              assigned_to: ticket.assigned_to,
+              reassigned_to: ticket.reassigned_to,
+              memberName: `${member.first_name} ${member.last_name}`,
+              updated_at: ticket.updated_at
+            }
+          : t
+      )
+    );
+
+    // Update filtered tickets
+    setFilteredTickets(prevTickets =>
+      prevTickets.map(t =>
+        t.id === ticket.id
+          ? {
+              ...t,
+              status: ticket.status,
+              assigned_to: ticket.assigned_to,
+              reassigned_to: ticket.reassigned_to,
+              memberName: `${member.first_name} ${member.last_name}`,
+              updated_at: ticket.updated_at
+            }
+          : t
+      )
+    );
+
+    // Update selected ticket if it's the one being reassigned
+    if (selectedTicket?.id === ticket.id) {
+      setSelectedTicket(prev => ({
+        ...prev,
+        status: ticket.status,
+        assigned_to: ticket.assigned_to,
+        reassigned_to: ticket.reassigned_to,
+        memberName: `${member.first_name} ${member.last_name}`,
+        updated_at: ticket.updated_at
+      }));
+    }
+
+    setReassignDialogOpen(false);
+    setReassignTo('');
+    setReassignTicketId(null);
+
+    // Show success notification
+    setNotifications(prev => [
+      ...prev,
+      { type: 'success', message: `Ticket #${ticket.id} reassigned successfully` }
+    ]);
+
+  } catch (err) {
+    setError(err.message);
+    setNotifications(prev => [
+      ...prev,
+      { type: 'error', message: `Failed to reassign ticket: ${err.message}` }
+    ]);
+  } finally {
+    setReassigning(false);
+  }
+};
   const handleReopenTicket = async () => {
     try {
       setReopening(true);
@@ -1994,7 +2015,7 @@ function AdminDashboard() {
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((ticket) => (
                         <TableRow key={ticket.id} hover>
-                          <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>{ticket.id}</TableCell>
+                          <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>{ticket.auto_generated_key}</TableCell>
                           <TableCell sx={{ font: 'Open Sans', fontSize: '16px' }}>{ticket.subject}</TableCell>
                           <TableCell sx={{
                             whiteSpace: 'nowrap',
@@ -2189,8 +2210,8 @@ function AdminDashboard() {
                     Ticket #{selectedTicket.id} - {selectedTicket.subject}
                   </Typography>
                   <Button
-                    variant="contained"
-                    color="error"
+                    
+                    color="white"
                     size="small"
                     onClick={() => setSelectedTicket(null)}
                     sx={{ font: 'Open Sans' }}

@@ -1,0 +1,1629 @@
+2025-06-05 17:20:30,804 - engineio.server - INFO - Server initialized for eventlet.
+2025-06-05 17:20:31,040 - werkzeug - INFO -  * Restarting with stat
+2025-06-05 17:20:33,697 - engineio.server - INFO - Server initialized for eventlet.
+2025-06-05 17:20:34,027 - werkzeug - WARNING -  * Debugger is active!
+2025-06-05 17:20:34,053 - werkzeug - INFO -  * Debugger PIN: 119-271-445
+2025-06-05 17:22:10,832 - __main__ - INFO - User created successfully: priyadharsan2020csbs@gmail.com
+2025-06-05 17:23:20,212 - __main__ - ERROR - Error fetching tickets: (psycopg2.errors.UndefinedColumn) column tickets.closed_at does not exist
+LINE 1: ...auto_generated_key AS tickets_auto_generated_key, tickets.cl...
+                                                             ^
+
+[SQL: SELECT tickets.id AS tickets_id, tickets.user_id AS tickets_user_id, tickets.category AS tickets_category, tickets.priority AS tickets_priority, tickets.description AS tickets_description, tickets.predefined_question AS tickets_predefined_question, tickets.visibility AS tickets_visibility, tickets.created_by AS tickets_created_by, tickets.status AS tickets_status, tickets.assigned_to AS tickets_assigned_to, tickets.created_at AS tickets_created_at, tickets.closure_reason AS tickets_closure_reason, tickets.reassign_reason AS tickets_reassign_reason, tickets.reassigned_to AS tickets_reassigned_to, tickets.last_message_at AS tickets_last_message_at, tickets.subject AS tickets_subject, tickets.auto_generated_key AS tickets_auto_generated_key, tickets.closed_at AS tickets_closed_at 
+FROM tickets 
+WHERE tickets.user_id = %(user_id_1)s]
+[parameters: {'user_id_1': '10'}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-06-05 17:23:20,504 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet OPEN data {'sid': 'a5nHFFAZ1RbNkxDsAAAA', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:23:20,504 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received request to upgrade to websocket
+2025-06-05 17:23:20,505 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Upgrade to websocket successful
+2025-06-05 17:23:20,507 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet MESSAGE data 0
+2025-06-05 17:23:20,509 - __main__ - INFO - User 10 connected with sid gxZsOPrk4BCQLPuoAAAB
+2025-06-05 17:23:20,509 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"10"}]
+2025-06-05 17:23:20,510 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet MESSAGE data 0{"sid":"gxZsOPrk4BCQLPuoAAAB"}
+2025-06-05 17:23:30,512 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:23:30,517 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:23:40,521 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:23:40,563 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:23:50,579 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:23:50,583 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:24:00,598 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:24:00,599 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:24:10,601 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:24:10,603 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:24:20,608 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:24:20,609 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:24:30,616 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:24:30,621 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:24:40,631 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:24:40,633 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:24:50,640 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:24:50,642 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:25:00,655 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:25:00,658 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:25:10,671 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:25:10,673 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:25:20,686 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:25:20,688 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:25:30,693 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:25:30,695 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:25:40,703 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:25:40,705 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:25:50,722 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:25:50,723 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:26:00,736 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:26:00,737 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:26:10,749 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:26:10,751 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:26:20,766 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:26:20,768 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:26:30,783 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:26:30,787 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:26:40,797 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:26:40,798 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:26:42,953 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet OPEN data {'sid': 'XXdi0F6wXscf-ZZEAAAC', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:26:42,955 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received request to upgrade to websocket
+2025-06-05 17:26:42,956 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Upgrade to websocket successful
+2025-06-05 17:26:43,002 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet MESSAGE data 0
+2025-06-05 17:26:43,016 - __main__ - INFO - User 10 connected with sid LeVQD20YWNFyjFS0AAAD
+2025-06-05 17:26:43,016 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"10"}]
+2025-06-05 17:26:43,019 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet MESSAGE data 0{"sid":"LeVQD20YWNFyjFS0AAAD"}
+2025-06-05 17:26:50,802 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:26:50,805 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:26:53,008 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:26:53,020 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:27:00,808 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:27:00,810 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:27:03,026 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:27:03,028 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:27:10,820 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:27:10,822 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:27:13,032 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:27:13,034 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:27:20,831 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:27:20,833 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:27:23,047 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:27:23,049 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:27:30,835 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:27:30,837 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:27:33,065 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:27:33,079 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:27:37,904 - __main__ - INFO - Ticket creation email sent to priyadharsan2020csbs@gmail.com for ticket 20250605-gen-001
+2025-06-05 17:27:37,908 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet MESSAGE data 2["ticket_created",{"ticket_id":15,"user_id":10,"subject":"fetching user details","category":"General","priority":"Low","description":"i a sndyrfgufhv "}]
+2025-06-05 17:27:40,850 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:27:40,852 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:27:43,168 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:27:43,172 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:27:50,146 - __main__ - INFO - Ticket creation email sent to priyadharsan2020csbs@gmail.com for ticket 20250605-gen-002
+2025-06-05 17:27:50,151 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet MESSAGE data 2["ticket_created",{"ticket_id":16,"user_id":10,"subject":"fetching user details","category":"General","priority":"Low","description":"i a sndyrfgufhv "}]
+2025-06-05 17:27:50,862 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:27:50,867 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:27:53,177 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:27:53,180 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:27:56,055 - __main__ - INFO - Ticket creation email sent to priyadharsan2020csbs@gmail.com for ticket 20250605-gen-003
+2025-06-05 17:27:56,059 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet MESSAGE data 2["ticket_created",{"ticket_id":17,"user_id":10,"subject":"fetching user details","category":"General","priority":"Low","description":"i a sndyrfgufhv "}]
+2025-06-05 17:28:00,878 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:28:00,882 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:28:03,196 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:28:03,198 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:28:10,884 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:28:10,887 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:28:13,207 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:28:13,208 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:28:20,897 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:28:20,902 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:28:23,222 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:28:23,224 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:28:30,910 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:28:30,911 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:28:33,229 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:28:33,231 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:28:40,924 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:28:40,926 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:28:43,243 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:28:43,245 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:28:50,932 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:28:50,938 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:28:53,250 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:28:53,254 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:29:00,954 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:29:00,960 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:29:03,266 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:29:03,270 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:29:10,970 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:29:10,972 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:29:13,280 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:29:13,283 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:29:20,987 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:29:20,989 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:29:23,292 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:29:23,294 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:29:30,992 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:29:30,994 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:29:33,304 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:29:33,307 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:29:41,006 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:29:41,014 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:29:43,314 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:29:43,315 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:29:51,024 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:29:51,026 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:29:53,319 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:29:53,320 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:30:01,028 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:30:01,029 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:30:03,326 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:30:03,335 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:30:11,033 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:30:11,038 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:30:13,347 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:30:13,349 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:30:21,047 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:30:21,050 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:30:23,352 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:30:23,353 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:30:31,066 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:30:31,067 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:30:33,362 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:30:33,364 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:30:41,070 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:30:41,072 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:30:43,371 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:30:43,373 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:30:51,074 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:30:51,086 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:30:53,386 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:30:53,391 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:31:01,099 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:31:01,101 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:31:03,407 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:31:03,409 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:31:11,109 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:31:11,111 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:31:13,416 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:31:13,418 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:31:21,116 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:31:21,123 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:31:23,432 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:31:23,433 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:31:31,374 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:31:31,379 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:31:33,439 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:31:33,445 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:31:41,393 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:31:41,395 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:31:43,451 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:31:43,453 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:31:51,410 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:31:51,416 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:31:53,457 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:31:53,460 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:32:01,418 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:32:01,420 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:32:03,463 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:32:03,468 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:32:11,424 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:32:11,426 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:32:13,470 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:32:13,473 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:32:21,428 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:32:21,433 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:32:23,487 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:32:23,488 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:32:31,434 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:32:31,436 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:32:33,493 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:32:33,495 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:32:41,449 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:32:41,451 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:32:43,510 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:32:43,512 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:32:51,464 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:32:51,469 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:32:53,521 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:32:53,523 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:33:01,475 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:33:01,549 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:33:03,528 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:33:03,530 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:33:11,556 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:33:11,559 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:33:13,534 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:33:13,536 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:33:21,563 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:33:21,565 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:33:23,542 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:33:23,544 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:33:31,575 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:33:31,577 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:33:33,553 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:33:33,554 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:33:41,579 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:33:41,582 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:33:43,566 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:33:43,568 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:33:51,592 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:33:51,594 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:33:53,576 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:33:53,581 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:34:01,598 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:34:01,601 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:34:03,597 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:34:03,599 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:34:11,614 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:34:11,615 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:34:13,613 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:34:13,615 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:34:21,618 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:34:21,620 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:34:23,625 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:34:23,627 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:34:31,621 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:34:31,623 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:34:33,635 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:34:33,637 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:34:41,627 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:34:41,629 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:34:43,642 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:34:43,653 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:34:51,642 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:34:51,645 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:34:53,667 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:34:53,669 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:35:01,654 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:35:01,655 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:35:03,669 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:35:03,676 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:35:11,657 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:35:11,659 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:35:13,743 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:35:13,774 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:35:21,673 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:35:21,675 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:35:23,792 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:35:23,795 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:35:31,682 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:35:31,687 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:35:33,804 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:35:33,806 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:35:41,702 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:35:41,707 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:35:43,807 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:35:43,808 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:35:51,720 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:35:51,723 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:35:53,821 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:35:53,823 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:36:01,733 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:36:01,735 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:36:03,838 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:36:03,839 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:36:11,749 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:36:11,750 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:36:13,855 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:36:13,856 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:36:21,757 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:36:21,762 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:36:23,865 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:36:23,867 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:36:31,777 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:36:31,779 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:36:33,871 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:36:33,873 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:36:41,787 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:36:41,790 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:36:43,878 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:36:43,880 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:36:45,232 - __main__ - INFO - Ticket creation email sent to priyadharsan2020csbs@gmail.com for ticket 20250605-bil-003
+2025-06-05 17:36:45,283 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet MESSAGE data 2["ticket_created",{"ticket_id":18,"user_id":10,"subject":"dfddf","category":"Billing","priority":"Medium","description":"dfdfdfdfd"}]
+2025-06-05 17:36:51,804 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:36:51,808 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:36:53,886 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:36:53,889 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:37:01,815 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:37:01,822 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:37:03,899 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:37:03,901 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:37:07,694 - __main__ - INFO - Ticket creation email sent to priyadharsan2020csbs@gmail.com for ticket 20250605-bil-004
+2025-06-05 17:37:07,708 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet MESSAGE data 2["ticket_created",{"ticket_id":19,"user_id":10,"subject":"dfddf","category":"Billing","priority":"Medium","description":"dfdfdfdfd"}]
+2025-06-05 17:37:11,831 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:37:11,834 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:37:13,911 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:37:13,912 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:37:21,843 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:37:21,845 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:37:23,924 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:37:23,927 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:37:31,848 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:37:31,852 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:37:33,944 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:37:33,946 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:37:41,865 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:37:41,867 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:37:43,959 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:37:43,960 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:37:51,875 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:37:51,877 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:37:53,965 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:37:53,967 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:38:01,879 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:38:01,881 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:38:03,970 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:38:03,973 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:38:11,895 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:38:11,897 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:38:13,987 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:38:13,988 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:38:21,907 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:38:21,910 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:38:23,994 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:38:23,997 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:38:31,925 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:38:31,928 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:38:34,038 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:38:34,046 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:38:41,941 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:38:41,946 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:38:44,057 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:38:44,058 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:38:51,956 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:38:51,957 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:38:54,062 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:38:54,065 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:39:01,968 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:39:01,970 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:39:04,067 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:39:04,069 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:39:11,982 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:39:11,986 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:39:14,076 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:39:14,087 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:39:21,998 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:39:22,001 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:39:24,094 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:39:24,096 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:39:32,013 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:39:32,016 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:39:34,103 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:39:34,104 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:39:42,020 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:39:42,024 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:39:44,109 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:39:44,110 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:39:52,041 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:39:52,043 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:39:54,122 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:39:54,127 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:40:02,046 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:40:02,048 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:40:04,133 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:40:04,134 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:40:12,055 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:40:12,057 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:40:14,144 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:40:14,147 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:40:22,071 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:40:22,077 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:40:24,160 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:40:24,162 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:40:32,087 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:40:32,093 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:40:34,167 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:40:34,169 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:40:42,100 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:40:42,102 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:40:44,177 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:40:44,179 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:40:52,115 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:40:52,116 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:40:54,192 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:40:54,194 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:41:02,118 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:41:02,119 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:41:04,207 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:41:04,208 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:41:12,130 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:41:12,132 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:41:14,220 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:41:14,222 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:41:22,144 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:41:22,147 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:41:24,235 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:41:24,236 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:41:32,152 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:41:32,154 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:41:34,240 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:41:34,242 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:41:42,170 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:41:42,172 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:41:44,243 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:41:44,244 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:41:52,187 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:41:52,188 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:41:54,253 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:41:54,255 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:42:02,198 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:42:02,199 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:42:04,259 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:42:04,261 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:42:12,199 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:42:12,201 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:42:14,265 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:42:14,267 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:42:22,216 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:42:22,218 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:42:24,269 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:42:24,271 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:42:32,222 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:42:32,233 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:42:34,280 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:42:34,283 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:42:42,238 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:42:42,239 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:42:44,286 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:42:44,288 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:42:52,251 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:42:52,253 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:42:54,300 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:42:54,303 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:43:02,262 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:43:02,264 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:43:04,306 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:43:04,308 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:43:12,279 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:43:12,287 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:43:14,319 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:43:14,321 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:43:22,289 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:43:22,291 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:43:24,323 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:43:24,324 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:43:32,303 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:43:32,305 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:43:34,332 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:43:34,334 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:43:42,305 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:43:42,308 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:43:44,337 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:43:44,340 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:43:52,314 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:43:52,316 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:43:54,343 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:43:54,344 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:44:00,586 - engineio.server - INFO - TLVgW1EsI_S3teG0AAAE: Sending packet OPEN data {'sid': 'TLVgW1EsI_S3teG0AAAE', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:44:00,587 - engineio.server - INFO - TLVgW1EsI_S3teG0AAAE: Received request to upgrade to websocket
+2025-06-05 17:44:00,588 - engineio.server - INFO - TLVgW1EsI_S3teG0AAAE: Upgrade to websocket successful
+2025-06-05 17:44:00,593 - engineio.server - INFO - TLVgW1EsI_S3teG0AAAE: Received packet MESSAGE data 0
+2025-06-05 17:44:00,595 - __main__ - INFO - User 2 connected with sid A4rzHRQKVHLShYu2AAAF
+2025-06-05 17:44:00,595 - engineio.server - INFO - TLVgW1EsI_S3teG0AAAE: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:44:00,596 - engineio.server - INFO - TLVgW1EsI_S3teG0AAAE: Sending packet MESSAGE data 0{"sid":"A4rzHRQKVHLShYu2AAAF"}
+2025-06-05 17:44:00,765 - engineio.server - INFO - TLVgW1EsI_S3teG0AAAE: Received packet MESSAGE data 1
+2025-06-05 17:44:00,766 - __main__ - INFO - Client A4rzHRQKVHLShYu2AAAF disconnected: User 2
+2025-06-05 17:44:01,258 - engineio.server - INFO - sdV33GKwKXB9e4kLAAAG: Sending packet OPEN data {'sid': 'sdV33GKwKXB9e4kLAAAG', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:44:01,258 - engineio.server - INFO - sdV33GKwKXB9e4kLAAAG: Received request to upgrade to websocket
+2025-06-05 17:44:01,259 - engineio.server - INFO - sdV33GKwKXB9e4kLAAAG: Upgrade to websocket successful
+2025-06-05 17:44:01,263 - engineio.server - INFO - sdV33GKwKXB9e4kLAAAG: Received packet MESSAGE data 0
+2025-06-05 17:44:01,264 - __main__ - INFO - User 2 connected with sid uIlE1TnrujaqGZ5XAAAH
+2025-06-05 17:44:01,264 - engineio.server - INFO - sdV33GKwKXB9e4kLAAAG: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:44:01,265 - engineio.server - INFO - sdV33GKwKXB9e4kLAAAG: Sending packet MESSAGE data 0{"sid":"uIlE1TnrujaqGZ5XAAAH"}
+2025-06-05 17:44:02,322 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:44:02,323 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:44:03,130 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet MESSAGE data 2["ticket_accepted",{"ticket_id":"19","member_id":"2"}]
+2025-06-05 17:44:03,130 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet MESSAGE data 2["ticket_accepted",{"ticket_id":"19","member_id":"2"}]
+2025-06-05 17:44:04,349 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:44:04,351 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:44:06,669 - engineio.server - INFO - sdV33GKwKXB9e4kLAAAG: Received packet MESSAGE data 1
+2025-06-05 17:44:06,670 - __main__ - INFO - Client uIlE1TnrujaqGZ5XAAAH disconnected: User 2
+2025-06-05 17:44:07,000 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet OPEN data {'sid': 'P8JI-Bsqlh8tin-oAAAI', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:44:07,001 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received request to upgrade to websocket
+2025-06-05 17:44:07,001 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Upgrade to websocket successful
+2025-06-05 17:44:07,056 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet MESSAGE data 0
+2025-06-05 17:44:07,058 - __main__ - INFO - User 2 connected with sid 4jTJjkGL81cJ11KJAAAJ
+2025-06-05 17:44:07,058 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:44:07,058 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 0{"sid":"4jTJjkGL81cJ11KJAAAJ"}
+2025-06-05 17:44:07,293 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet MESSAGE data 2["join",{"ticket_id":19}]
+2025-06-05 17:44:07,294 - __main__ - INFO - User 2 joined room 19
+2025-06-05 17:44:07,294 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["joined",{"room":"19"}]
+2025-06-05 17:44:11,567 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet MESSAGE data 2["message",{"ticket_id":19,"sender_id":2,"sender_name":"arjun kumar","message":"hi sir","timestamp":"2025-06-05T12:14:11.567Z"}]
+2025-06-05 17:44:11,585 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message",{"id":123,"sender_id":2,"message":"hi sir","timestamp":"2025-06-05T17:44:11.571705"}]
+2025-06-05 17:44:11,586 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message_sent",{"success":true,"message":"hi sir","timestamp":"2025-06-05T17:44:11.571705"}]
+2025-06-05 17:44:12,336 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:44:12,338 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:44:14,362 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:44:14,364 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:44:15,246 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet MESSAGE data 2["message",{"ticket_id":19,"sender_id":2,"sender_name":"arjun kumar","message":"how are you","timestamp":"2025-06-05T12:14:15.245Z"}]
+2025-06-05 17:44:15,254 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message",{"id":124,"sender_id":2,"message":"how are you","timestamp":"2025-06-05T17:44:15.249272"}]
+2025-06-05 17:44:15,255 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message_sent",{"success":true,"message":"how are you","timestamp":"2025-06-05T17:44:15.249272"}]
+2025-06-05 17:44:17,007 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:44:17,009 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:44:22,346 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:44:22,348 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:44:24,371 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:44:24,374 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:44:26,971 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet MESSAGE data 2["message",{"ticket_id":19,"sender_id":2,"sender_name":"arjun kumar","message":"is the ticket completed","timestamp":"2025-06-05T12:14:26.970Z"}]
+2025-06-05 17:44:26,985 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message",{"id":125,"sender_id":2,"message":"is the ticket completed","timestamp":"2025-06-05T17:44:26.974690"}]
+2025-06-05 17:44:26,985 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message_sent",{"success":true,"message":"is the ticket completed","timestamp":"2025-06-05T17:44:26.974690"}]
+2025-06-05 17:44:27,022 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:44:27,049 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:44:32,354 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:44:32,356 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:44:34,381 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Sending packet PING data None
+2025-06-05 17:44:34,383 - engineio.server - INFO - XXdi0F6wXscf-ZZEAAAC: Received packet PONG data 
+2025-06-05 17:44:35,288 - __main__ - INFO - Client LeVQD20YWNFyjFS0AAAD disconnected: User 10
+2025-06-05 17:44:37,060 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:44:37,061 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:44:38,022 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet OPEN data {'sid': '2NiLy9PSZ249FgUWAAAK', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:44:38,023 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received request to upgrade to websocket
+2025-06-05 17:44:38,024 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Upgrade to websocket successful
+2025-06-05 17:44:38,028 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet MESSAGE data 0
+2025-06-05 17:44:38,029 - __main__ - INFO - User 10 connected with sid rlkio9TnsxZRsdbEAAAL
+2025-06-05 17:44:38,029 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"10"}]
+2025-06-05 17:44:38,030 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 0{"sid":"rlkio9TnsxZRsdbEAAAL"}
+2025-06-05 17:44:40,527 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet MESSAGE data 2["join",{"ticket_id":19}]
+2025-06-05 17:44:40,528 - __main__ - INFO - User 10 joined room 19
+2025-06-05 17:44:40,528 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["joined",{"room":"19"}]
+2025-06-05 17:44:40,528 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["joined",{"room":"19"}]
+2025-06-05 17:44:40,644 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet MESSAGE data 2["join",{"ticket_id":19}]
+2025-06-05 17:44:40,645 - __main__ - INFO - User 10 joined room 19
+2025-06-05 17:44:40,645 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["joined",{"room":"19"}]
+2025-06-05 17:44:40,646 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["joined",{"room":"19"}]
+2025-06-05 17:44:42,366 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:44:42,369 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:44:46,534 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet MESSAGE data 2["message",{"ticket_id":19,"sender_id":10,"sender_name":"priyadharsan kumar","message":"yes completed","timestamp":"2025-06-05T12:14:46.534Z"}]
+2025-06-05 17:44:46,543 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message",{"id":126,"sender_id":10,"message":"yes completed","timestamp":"2025-06-05T17:44:46.537230"}]
+2025-06-05 17:44:46,544 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message",{"id":126,"sender_id":10,"message":"yes completed","timestamp":"2025-06-05T17:44:46.537230"}]
+2025-06-05 17:44:46,545 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message_sent",{"success":true,"message":"yes completed","timestamp":"2025-06-05T17:44:46.537230"}]
+2025-06-05 17:44:47,077 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:44:47,080 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:44:48,032 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:44:48,033 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:44:52,376 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:44:52,378 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:44:57,096 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:44:57,102 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:44:58,049 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:44:58,051 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:45:02,385 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:45:02,387 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:45:04,065 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet MESSAGE data 2["message",{"ticket_id":19,"sender_id":10,"sender_name":"priyadharsan kumar","message":"what to do next","timestamp":"2025-06-05T12:15:04.065Z"}]
+2025-06-05 17:45:04,079 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message",{"id":127,"sender_id":10,"message":"what to do next","timestamp":"2025-06-05T17:45:04.068085"}]
+2025-06-05 17:45:04,080 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message",{"id":127,"sender_id":10,"message":"what to do next","timestamp":"2025-06-05T17:45:04.068085"}]
+2025-06-05 17:45:04,081 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message_sent",{"success":true,"message":"what to do next","timestamp":"2025-06-05T17:45:04.068085"}]
+2025-06-05 17:45:07,117 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:45:07,118 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:45:08,066 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:45:08,099 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:45:12,390 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:45:12,392 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:45:17,132 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:45:17,133 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:45:17,598 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet MESSAGE data 2["message",{"ticket_id":19,"sender_id":10,"sender_name":"priyadharsan kumar","message":"nothing\\\\","timestamp":"2025-06-05T12:15:17.598Z"}]
+2025-06-05 17:45:17,608 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message",{"id":128,"sender_id":10,"message":"nothing\\\\","timestamp":"2025-06-05T17:45:17.601338"}]
+2025-06-05 17:45:17,608 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message",{"id":128,"sender_id":10,"message":"nothing\\\\","timestamp":"2025-06-05T17:45:17.601338"}]
+2025-06-05 17:45:17,608 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message_sent",{"success":true,"message":"nothing\\\\","timestamp":"2025-06-05T17:45:17.601338"}]
+2025-06-05 17:45:18,101 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:45:18,103 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:45:22,404 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:45:22,405 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:45:23,120 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet MESSAGE data 2["message",{"ticket_id":19,"sender_id":10,"sender_name":"priyadharsan kumar","message":"everything done","timestamp":"2025-06-05T12:15:23.119Z"}]
+2025-06-05 17:45:23,129 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message",{"id":129,"sender_id":10,"message":"everything done","timestamp":"2025-06-05T17:45:23.122727"}]
+2025-06-05 17:45:23,129 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message",{"id":129,"sender_id":10,"message":"everything done","timestamp":"2025-06-05T17:45:23.122727"}]
+2025-06-05 17:45:23,129 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message_sent",{"success":true,"message":"everything done","timestamp":"2025-06-05T17:45:23.122727"}]
+2025-06-05 17:45:27,144 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:45:27,146 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:45:28,109 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:45:28,111 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:45:28,843 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet MESSAGE data 2["message",{"ticket_id":19,"sender_id":10,"sender_name":"priyadharsan kumar","message":"completed !!!!","timestamp":"2025-06-05T12:15:28.842Z"}]
+2025-06-05 17:45:28,866 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet MESSAGE data 2["message",{"id":130,"sender_id":10,"message":"completed !!!!","timestamp":"2025-06-05T17:45:28.849921"}]
+2025-06-05 17:45:28,867 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message",{"id":130,"sender_id":10,"message":"completed !!!!","timestamp":"2025-06-05T17:45:28.849921"}]
+2025-06-05 17:45:28,868 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["message_sent",{"success":true,"message":"completed !!!!","timestamp":"2025-06-05T17:45:28.849921"}]
+2025-06-05 17:45:32,409 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:45:32,411 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:45:37,158 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:45:37,159 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:45:38,123 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:45:38,124 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:45:40,022 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet MESSAGE data 2["leave",{"ticket_id":19}]
+2025-06-05 17:45:40,022 - __main__ - INFO - User 10 left room 19
+2025-06-05 17:45:42,427 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:45:42,437 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:45:47,167 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:45:47,181 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:45:48,140 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:45:48,142 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:45:52,453 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:45:52,458 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:45:57,184 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Sending packet PING data None
+2025-06-05 17:45:57,186 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet PONG data 
+2025-06-05 17:45:58,154 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:45:58,157 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:45:58,404 - engineio.server - INFO - P8JI-Bsqlh8tin-oAAAI: Received packet MESSAGE data 1
+2025-06-05 17:45:58,405 - __main__ - INFO - Client 4jTJjkGL81cJ11KJAAAJ disconnected: User 2
+2025-06-05 17:45:58,752 - engineio.server - INFO - oDyUo2_BdNIcdxg6AAAM: Sending packet OPEN data {'sid': 'oDyUo2_BdNIcdxg6AAAM', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:45:58,753 - engineio.server - INFO - oDyUo2_BdNIcdxg6AAAM: Received request to upgrade to websocket
+2025-06-05 17:45:58,754 - engineio.server - INFO - oDyUo2_BdNIcdxg6AAAM: Upgrade to websocket successful
+2025-06-05 17:45:58,756 - engineio.server - INFO - oDyUo2_BdNIcdxg6AAAM: Received packet MESSAGE data 0
+2025-06-05 17:45:58,758 - __main__ - INFO - User 2 connected with sid hHsIjsM5vu3OvIsgAAAN
+2025-06-05 17:45:58,758 - engineio.server - INFO - oDyUo2_BdNIcdxg6AAAM: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:45:58,759 - engineio.server - INFO - oDyUo2_BdNIcdxg6AAAM: Sending packet MESSAGE data 0{"sid":"hHsIjsM5vu3OvIsgAAAN"}
+2025-06-05 17:45:58,869 - engineio.server - INFO - oDyUo2_BdNIcdxg6AAAM: Received packet MESSAGE data 1
+2025-06-05 17:45:58,870 - __main__ - INFO - Client hHsIjsM5vu3OvIsgAAAN disconnected: User 2
+2025-06-05 17:45:59,336 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet OPEN data {'sid': 'SMvWaXS09p-O4NfCAAAO', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:45:59,337 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received request to upgrade to websocket
+2025-06-05 17:45:59,337 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Upgrade to websocket successful
+2025-06-05 17:45:59,340 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet MESSAGE data 0
+2025-06-05 17:45:59,341 - __main__ - INFO - User 2 connected with sid Xp5jLT-oCMNd1LKmAAAP
+2025-06-05 17:45:59,341 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:45:59,342 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet MESSAGE data 0{"sid":"Xp5jLT-oCMNd1LKmAAAP"}
+2025-06-05 17:46:02,460 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:46:02,462 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:46:08,159 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:46:08,161 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:46:09,347 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:46:09,349 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:46:12,468 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:46:12,469 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:46:18,162 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:46:18,167 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:46:19,350 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:46:19,352 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:46:22,484 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:46:22,487 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:46:28,168 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:46:28,170 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:46:29,355 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:46:29,358 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:46:32,502 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:46:32,504 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:46:38,175 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:46:38,177 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:46:39,366 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:46:39,368 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:46:42,507 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:46:42,509 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:46:46,469 - __main__ - INFO - Ticket closure email sent to priyadharsan2020csbs@gmail.com for ticket 20250605-bil-004
+2025-06-05 17:46:48,188 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:46:48,189 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:46:49,370 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:46:49,373 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:46:52,514 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:46:52,516 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:46:58,194 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:46:58,195 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:46:59,388 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:46:59,488 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:47:00,190 - __main__ - INFO - Ticket closure email sent to priyadharsan2020csbs@gmail.com for ticket 20250605-bil-004
+2025-06-05 17:47:02,521 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:47:02,523 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:47:08,204 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:47:08,210 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:47:09,502 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:47:09,504 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:47:12,536 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:47:12,538 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:47:18,223 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:47:18,226 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:47:19,519 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:47:19,521 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:47:22,548 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:47:22,550 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:47:28,237 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:47:28,239 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:47:29,529 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:47:29,603 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:47:32,563 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:47:32,565 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:47:38,242 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:47:38,243 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:47:39,614 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:47:39,616 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:47:42,577 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:47:42,579 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:47:48,259 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:47:48,261 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:47:49,630 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:47:49,631 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:47:52,583 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:47:52,584 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:47:58,266 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:47:58,267 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:47:59,641 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:47:59,684 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:48:02,586 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:48:02,587 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:48:08,279 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:48:08,281 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:48:09,694 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:48:09,696 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:48:12,597 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:48:12,599 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:48:18,296 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:48:18,298 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:48:19,708 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:48:19,710 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:48:22,607 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:48:22,608 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:48:28,312 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:48:28,314 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:48:29,726 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet PING data None
+2025-06-05 17:48:29,727 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet PONG data 
+2025-06-05 17:48:31,706 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet MESSAGE data 2["leave",{"room":"members"}]
+2025-06-05 17:48:31,707 - __main__ - ERROR - Error in leave: 'ticket_id'
+2025-06-05 17:48:31,708 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Sending packet MESSAGE data 2["error",{"message":"Failed to leave room"}]
+2025-06-05 17:48:31,720 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet MESSAGE data 2["leave",{"room":2}]
+2025-06-05 17:48:31,721 - engineio.server - INFO - SMvWaXS09p-O4NfCAAAO: Received packet MESSAGE data 1
+2025-06-05 17:48:31,729 - __main__ - INFO - Client Xp5jLT-oCMNd1LKmAAAP disconnected: User 2
+2025-06-05 17:48:32,041 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Sending packet OPEN data {'sid': 't9fBIUjAUsnWLFI9AAAQ', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:48:32,041 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Received request to upgrade to websocket
+2025-06-05 17:48:32,041 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Upgrade to websocket successful
+2025-06-05 17:48:32,043 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Received packet MESSAGE data 0
+2025-06-05 17:48:32,044 - __main__ - INFO - User 2 connected with sid 1a3VhuCgVkVsui7rAAAR
+2025-06-05 17:48:32,044 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:48:32,044 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Sending packet MESSAGE data 0{"sid":"1a3VhuCgVkVsui7rAAAR"}
+2025-06-05 17:48:32,622 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:48:32,624 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:48:38,316 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:48:38,317 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:48:42,054 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Sending packet PING data None
+2025-06-05 17:48:42,059 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Received packet PONG data 
+2025-06-05 17:48:42,633 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:48:42,635 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:48:48,319 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:48:48,321 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:48:52,061 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Sending packet PING data None
+2025-06-05 17:48:52,062 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Received packet PONG data 
+2025-06-05 17:48:52,635 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:48:52,637 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:48:54,708 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Received packet MESSAGE data 2["leave",{"ticket_id":"members"}]
+2025-06-05 17:48:54,718 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Received packet MESSAGE data 2["leave",{"ticket_id":2}]
+2025-06-05 17:48:54,718 - engineio.server - INFO - t9fBIUjAUsnWLFI9AAAQ: Received packet MESSAGE data 1
+2025-06-05 17:48:54,719 - __main__ - INFO - Client 1a3VhuCgVkVsui7rAAAR disconnected: User 2
+2025-06-05 17:48:55,071 - engineio.server - INFO - FqGxeNk1b8ps6TRYAAAS: Sending packet OPEN data {'sid': 'FqGxeNk1b8ps6TRYAAAS', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:48:55,072 - engineio.server - INFO - FqGxeNk1b8ps6TRYAAAS: Received request to upgrade to websocket
+2025-06-05 17:48:55,072 - engineio.server - INFO - FqGxeNk1b8ps6TRYAAAS: Upgrade to websocket successful
+2025-06-05 17:48:55,074 - engineio.server - INFO - FqGxeNk1b8ps6TRYAAAS: Received packet MESSAGE data 0
+2025-06-05 17:48:55,075 - __main__ - INFO - User 2 connected with sid rRPIcp7QaMPAE6wpAAAT
+2025-06-05 17:48:55,075 - engineio.server - INFO - FqGxeNk1b8ps6TRYAAAS: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:48:55,075 - engineio.server - INFO - FqGxeNk1b8ps6TRYAAAS: Sending packet MESSAGE data 0{"sid":"rRPIcp7QaMPAE6wpAAAT"}
+2025-06-05 17:48:55,308 - engineio.server - INFO - FqGxeNk1b8ps6TRYAAAS: Received packet MESSAGE data 1
+2025-06-05 17:48:55,309 - __main__ - INFO - Client rRPIcp7QaMPAE6wpAAAT disconnected: User 2
+2025-06-05 17:48:55,650 - engineio.server - INFO - J4fLvs1grlSCnNf3AAAU: Sending packet OPEN data {'sid': 'J4fLvs1grlSCnNf3AAAU', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:48:55,650 - engineio.server - INFO - J4fLvs1grlSCnNf3AAAU: Received request to upgrade to websocket
+2025-06-05 17:48:55,651 - engineio.server - INFO - J4fLvs1grlSCnNf3AAAU: Upgrade to websocket successful
+2025-06-05 17:48:55,678 - engineio.server - INFO - J4fLvs1grlSCnNf3AAAU: Received packet MESSAGE data 0
+2025-06-05 17:48:55,680 - __main__ - INFO - User 2 connected with sid 2LcwLDKSBsl5yL-PAAAV
+2025-06-05 17:48:55,680 - engineio.server - INFO - J4fLvs1grlSCnNf3AAAU: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:48:55,680 - engineio.server - INFO - J4fLvs1grlSCnNf3AAAU: Sending packet MESSAGE data 0{"sid":"2LcwLDKSBsl5yL-PAAAV"}
+2025-06-05 17:48:58,328 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:48:58,330 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:49:02,650 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:49:02,653 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:49:04,659 - __main__ - INFO - Client 2LcwLDKSBsl5yL-PAAAV disconnected: User 2
+2025-06-05 17:49:07,554 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Sending packet OPEN data {'sid': 'AU6b70g7IF5C6gsBAAAW', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:49:07,555 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Received request to upgrade to websocket
+2025-06-05 17:49:07,555 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Upgrade to websocket successful
+2025-06-05 17:49:07,558 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Received packet MESSAGE data 0
+2025-06-05 17:49:07,559 - __main__ - INFO - User 2 connected with sid j9bHdomrUR6SQBI5AAAX
+2025-06-05 17:49:07,560 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:49:07,560 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Sending packet MESSAGE data 0{"sid":"j9bHdomrUR6SQBI5AAAX"}
+2025-06-05 17:49:08,343 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:49:08,345 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:49:12,665 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:49:12,667 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:49:17,570 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Sending packet PING data None
+2025-06-05 17:49:17,571 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Received packet PONG data 
+2025-06-05 17:49:18,350 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:49:18,351 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:49:22,671 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:49:22,673 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:49:27,572 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Sending packet PING data None
+2025-06-05 17:49:27,574 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Received packet PONG data 
+2025-06-05 17:49:28,367 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:49:28,368 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:49:32,688 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:49:32,690 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:49:37,338 - engineio.server - INFO - AU6b70g7IF5C6gsBAAAW: Received packet MESSAGE data 1
+2025-06-05 17:49:37,339 - __main__ - INFO - Client j9bHdomrUR6SQBI5AAAX disconnected: User 2
+2025-06-05 17:49:37,680 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Sending packet OPEN data {'sid': 'RydojX8O6QKqTy4HAAAY', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:49:37,680 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Received request to upgrade to websocket
+2025-06-05 17:49:37,681 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Upgrade to websocket successful
+2025-06-05 17:49:37,682 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Received packet MESSAGE data 0
+2025-06-05 17:49:37,683 - __main__ - INFO - User 2 connected with sid ONtCKVqNcUFvIvQNAAAZ
+2025-06-05 17:49:37,683 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:49:37,684 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Sending packet MESSAGE data 0{"sid":"ONtCKVqNcUFvIvQNAAAZ"}
+2025-06-05 17:49:38,378 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:49:38,380 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:49:42,704 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:49:42,707 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:49:47,688 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Sending packet PING data None
+2025-06-05 17:49:47,691 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Received packet PONG data 
+2025-06-05 17:49:48,392 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:49:48,394 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:49:52,721 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:49:52,722 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:49:57,697 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Sending packet PING data None
+2025-06-05 17:49:57,699 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Received packet PONG data 
+2025-06-05 17:49:58,405 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:49:58,407 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:50:02,735 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:50:02,737 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:50:07,703 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Sending packet PING data None
+2025-06-05 17:50:07,934 - engineio.server - INFO - RydojX8O6QKqTy4HAAAY: Received packet MESSAGE data 1
+2025-06-05 17:50:07,935 - __main__ - INFO - Client ONtCKVqNcUFvIvQNAAAZ disconnected: User 2
+2025-06-05 17:50:08,262 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Sending packet OPEN data {'sid': 'q0H6KtPIbehQWknBAAAa', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:50:08,262 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Received request to upgrade to websocket
+2025-06-05 17:50:08,263 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Upgrade to websocket successful
+2025-06-05 17:50:08,271 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Received packet MESSAGE data 0
+2025-06-05 17:50:08,273 - __main__ - INFO - User 2 connected with sid hm8q48QrY9Pme8lUAAAb
+2025-06-05 17:50:08,273 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:50:08,273 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Sending packet MESSAGE data 0{"sid":"hm8q48QrY9Pme8lUAAAb"}
+2025-06-05 17:50:08,421 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:50:08,423 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:50:12,747 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:50:12,762 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:50:18,265 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Sending packet PING data None
+2025-06-05 17:50:18,270 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Received packet PONG data 
+2025-06-05 17:50:18,435 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:50:18,437 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:50:22,764 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:50:22,766 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:50:28,273 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Sending packet PING data None
+2025-06-05 17:50:28,279 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Received packet PONG data 
+2025-06-05 17:50:28,446 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:50:28,458 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:50:32,775 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:50:32,777 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:50:37,845 - engineio.server - INFO - q0H6KtPIbehQWknBAAAa: Received packet MESSAGE data 1
+2025-06-05 17:50:37,846 - __main__ - INFO - Client hm8q48QrY9Pme8lUAAAb disconnected: User 2
+2025-06-05 17:50:38,183 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Sending packet OPEN data {'sid': 'UT4uldW5xDL1x1bXAAAc', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:50:38,184 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Received request to upgrade to websocket
+2025-06-05 17:50:38,184 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Upgrade to websocket successful
+2025-06-05 17:50:38,186 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Received packet MESSAGE data 0
+2025-06-05 17:50:38,188 - __main__ - INFO - User 2 connected with sid Gkw_jiszeZ6NRELuAAAd
+2025-06-05 17:50:38,188 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:50:38,188 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Sending packet MESSAGE data 0{"sid":"Gkw_jiszeZ6NRELuAAAd"}
+2025-06-05 17:50:38,464 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:50:38,466 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:50:42,783 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:50:42,784 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:50:48,197 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Sending packet PING data None
+2025-06-05 17:50:48,199 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Received packet PONG data 
+2025-06-05 17:50:48,478 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:50:48,480 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:50:52,800 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:50:52,802 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:50:58,203 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Sending packet PING data None
+2025-06-05 17:50:58,205 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Received packet PONG data 
+2025-06-05 17:50:58,483 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:50:58,485 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:51:02,807 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:51:02,808 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:51:07,970 - engineio.server - INFO - UT4uldW5xDL1x1bXAAAc: Received packet MESSAGE data 1
+2025-06-05 17:51:07,972 - __main__ - INFO - Client Gkw_jiszeZ6NRELuAAAd disconnected: User 2
+2025-06-05 17:51:08,322 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Sending packet OPEN data {'sid': 'BoFyui8mM1WHprWSAAAe', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:51:08,323 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Received request to upgrade to websocket
+2025-06-05 17:51:08,324 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Upgrade to websocket successful
+2025-06-05 17:51:08,326 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Received packet MESSAGE data 0
+2025-06-05 17:51:08,327 - __main__ - INFO - User 2 connected with sid _FHo_PgzuZjYm8a6AAAf
+2025-06-05 17:51:08,327 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:51:08,328 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Sending packet MESSAGE data 0{"sid":"_FHo_PgzuZjYm8a6AAAf"}
+2025-06-05 17:51:08,494 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:51:08,496 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:51:12,823 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:51:12,825 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:51:18,332 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Sending packet PING data None
+2025-06-05 17:51:18,334 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Received packet PONG data 
+2025-06-05 17:51:18,502 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:51:18,505 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:51:22,829 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:51:22,831 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:51:28,337 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Sending packet PING data None
+2025-06-05 17:51:28,339 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Received packet PONG data 
+2025-06-05 17:51:28,510 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:51:28,512 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:51:32,834 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:51:32,836 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:51:37,954 - engineio.server - INFO - BoFyui8mM1WHprWSAAAe: Received packet MESSAGE data 1
+2025-06-05 17:51:37,955 - __main__ - INFO - Client _FHo_PgzuZjYm8a6AAAf disconnected: User 2
+2025-06-05 17:51:38,307 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Sending packet OPEN data {'sid': 'ft0njdzbcC6KLEJgAAAg', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:51:38,308 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Received request to upgrade to websocket
+2025-06-05 17:51:38,309 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Upgrade to websocket successful
+2025-06-05 17:51:38,312 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Received packet MESSAGE data 0
+2025-06-05 17:51:38,313 - __main__ - INFO - User 2 connected with sid FKjoA8oe_sqgF3c2AAAh
+2025-06-05 17:51:38,313 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:51:38,314 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Sending packet MESSAGE data 0{"sid":"FKjoA8oe_sqgF3c2AAAh"}
+2025-06-05 17:51:38,523 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:51:38,525 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:51:42,850 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:51:42,852 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:51:48,318 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Sending packet PING data None
+2025-06-05 17:51:48,322 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Received packet PONG data 
+2025-06-05 17:51:48,537 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:51:48,539 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:51:52,865 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:51:52,870 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:51:58,330 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Sending packet PING data None
+2025-06-05 17:51:58,332 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Received packet PONG data 
+2025-06-05 17:51:58,549 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:51:58,551 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:52:02,884 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:52:02,885 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:52:07,938 - engineio.server - INFO - ft0njdzbcC6KLEJgAAAg: Received packet MESSAGE data 1
+2025-06-05 17:52:07,939 - __main__ - INFO - Client FKjoA8oe_sqgF3c2AAAh disconnected: User 2
+2025-06-05 17:52:08,288 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet OPEN data {'sid': '1ROz9VZnaqeY7wrvAAAi', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:52:08,289 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received request to upgrade to websocket
+2025-06-05 17:52:08,290 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Upgrade to websocket successful
+2025-06-05 17:52:08,292 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet MESSAGE data 0
+2025-06-05 17:52:08,294 - __main__ - INFO - User 2 connected with sid D42LwF2p0_t9OUSyAAAj
+2025-06-05 17:52:08,295 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:52:08,295 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet MESSAGE data 0{"sid":"D42LwF2p0_t9OUSyAAAj"}
+2025-06-05 17:52:08,555 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:52:08,557 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:52:12,891 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:52:12,893 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:52:18,296 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet PING data None
+2025-06-05 17:52:18,299 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet PONG data 
+2025-06-05 17:52:18,564 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:52:18,575 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:52:22,903 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:52:22,905 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:52:28,306 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet PING data None
+2025-06-05 17:52:28,309 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet PONG data 
+2025-06-05 17:52:28,577 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:52:28,595 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:52:32,908 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:52:32,910 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:52:38,312 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet PING data None
+2025-06-05 17:52:38,317 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet PONG data 
+2025-06-05 17:52:38,608 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:52:38,611 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:52:42,917 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:52:42,919 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:52:48,321 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet PING data None
+2025-06-05 17:52:48,323 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet PONG data 
+2025-06-05 17:52:48,614 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:52:48,615 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:52:52,934 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:52:52,937 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:52:58,330 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet PING data None
+2025-06-05 17:52:58,332 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet PONG data 
+2025-06-05 17:52:58,626 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:52:58,628 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:53:02,942 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:53:02,946 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:53:08,334 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet PING data None
+2025-06-05 17:53:08,336 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet PONG data 
+2025-06-05 17:53:08,631 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:53:08,633 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:53:12,956 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:53:12,958 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:53:18,346 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet PING data None
+2025-06-05 17:53:18,348 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet PONG data 
+2025-06-05 17:53:18,640 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:53:18,642 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:53:22,961 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:53:22,967 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:53:28,360 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Sending packet PING data None
+2025-06-05 17:53:28,363 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet PONG data 
+2025-06-05 17:53:28,657 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:53:28,658 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:53:32,980 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:53:32,982 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:53:34,978 - engineio.server - INFO - 1ROz9VZnaqeY7wrvAAAi: Received packet MESSAGE data 1
+2025-06-05 17:53:34,979 - __main__ - INFO - Client D42LwF2p0_t9OUSyAAAj disconnected: User 2
+2025-06-05 17:53:35,324 - engineio.server - INFO - DSac-O706batxmVlAAAk: Sending packet OPEN data {'sid': 'DSac-O706batxmVlAAAk', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:53:35,325 - engineio.server - INFO - DSac-O706batxmVlAAAk: Received request to upgrade to websocket
+2025-06-05 17:53:35,326 - engineio.server - INFO - DSac-O706batxmVlAAAk: Upgrade to websocket successful
+2025-06-05 17:53:35,329 - engineio.server - INFO - DSac-O706batxmVlAAAk: Received packet MESSAGE data 0
+2025-06-05 17:53:35,331 - __main__ - INFO - User 2 connected with sid KDv8CufkqQYOPMzpAAAl
+2025-06-05 17:53:35,331 - engineio.server - INFO - DSac-O706batxmVlAAAk: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:53:35,332 - engineio.server - INFO - DSac-O706batxmVlAAAk: Sending packet MESSAGE data 0{"sid":"KDv8CufkqQYOPMzpAAAl"}
+2025-06-05 17:53:38,661 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:53:38,662 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:53:42,995 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:53:42,997 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:53:45,329 - engineio.server - INFO - DSac-O706batxmVlAAAk: Sending packet PING data None
+2025-06-05 17:53:45,331 - engineio.server - INFO - DSac-O706batxmVlAAAk: Received packet PONG data 
+2025-06-05 17:53:48,674 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:53:48,676 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:53:53,004 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:53:53,006 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:53:55,333 - engineio.server - INFO - DSac-O706batxmVlAAAk: Sending packet PING data None
+2025-06-05 17:53:55,335 - engineio.server - INFO - DSac-O706batxmVlAAAk: Received packet PONG data 
+2025-06-05 17:53:58,679 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:53:58,681 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:54:03,009 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:54:03,012 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:54:05,346 - engineio.server - INFO - DSac-O706batxmVlAAAk: Sending packet PING data None
+2025-06-05 17:54:05,348 - engineio.server - INFO - DSac-O706batxmVlAAAk: Received packet PONG data 
+2025-06-05 17:54:08,693 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:54:08,695 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:54:10,206 - engineio.server - INFO - DSac-O706batxmVlAAAk: Received packet MESSAGE data 1
+2025-06-05 17:54:10,207 - __main__ - INFO - Client KDv8CufkqQYOPMzpAAAl disconnected: User 2
+2025-06-05 17:54:10,547 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Sending packet OPEN data {'sid': 'YiIa3kKcdwdNOpSRAAAm', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:54:10,548 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Received request to upgrade to websocket
+2025-06-05 17:54:10,548 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Upgrade to websocket successful
+2025-06-05 17:54:10,551 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Received packet MESSAGE data 0
+2025-06-05 17:54:10,552 - __main__ - INFO - User 2 connected with sid p8OW9e66J3WqPm1KAAAn
+2025-06-05 17:54:10,553 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:54:10,553 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Sending packet MESSAGE data 0{"sid":"p8OW9e66J3WqPm1KAAAn"}
+2025-06-05 17:54:13,021 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:54:13,022 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:54:18,711 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:54:18,712 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:54:20,559 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Sending packet PING data None
+2025-06-05 17:54:20,560 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Received packet PONG data 
+2025-06-05 17:54:23,034 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:54:23,035 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:54:28,724 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:54:28,726 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:54:30,561 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Sending packet PING data None
+2025-06-05 17:54:30,563 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Received packet PONG data 
+2025-06-05 17:54:33,049 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:54:33,050 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:54:37,932 - engineio.server - INFO - YiIa3kKcdwdNOpSRAAAm: Received packet MESSAGE data 1
+2025-06-05 17:54:37,933 - __main__ - INFO - Client p8OW9e66J3WqPm1KAAAn disconnected: User 2
+2025-06-05 17:54:38,265 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Sending packet OPEN data {'sid': 'KvXvJ6eJtjQEEZcYAAAo', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:54:38,265 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Received request to upgrade to websocket
+2025-06-05 17:54:38,266 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Upgrade to websocket successful
+2025-06-05 17:54:38,268 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Received packet MESSAGE data 0
+2025-06-05 17:54:38,269 - __main__ - INFO - User 2 connected with sid TVPwQu_SmVGNsdWmAAAp
+2025-06-05 17:54:38,269 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:54:38,269 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Sending packet MESSAGE data 0{"sid":"TVPwQu_SmVGNsdWmAAAp"}
+2025-06-05 17:54:38,731 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:54:38,733 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:54:43,057 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:54:43,059 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:54:48,271 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Sending packet PING data None
+2025-06-05 17:54:48,272 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Received packet PONG data 
+2025-06-05 17:54:48,742 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:54:48,743 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:54:53,070 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:54:53,072 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:54:58,275 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Sending packet PING data None
+2025-06-05 17:54:58,292 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Received packet PONG data 
+2025-06-05 17:54:58,757 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:54:58,763 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:55:03,077 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:55:03,079 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:55:07,865 - engineio.server - INFO - KvXvJ6eJtjQEEZcYAAAo: Received packet MESSAGE data 1
+2025-06-05 17:55:07,866 - __main__ - INFO - Client TVPwQu_SmVGNsdWmAAAp disconnected: User 2
+2025-06-05 17:55:08,198 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Sending packet OPEN data {'sid': '25o9l5dmrmyAs8RWAAAq', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:55:08,198 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Received request to upgrade to websocket
+2025-06-05 17:55:08,199 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Upgrade to websocket successful
+2025-06-05 17:55:08,200 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Received packet MESSAGE data 0
+2025-06-05 17:55:08,201 - __main__ - INFO - User 2 connected with sid Ut8NboDpR6N73q8ZAAAr
+2025-06-05 17:55:08,202 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:55:08,202 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Sending packet MESSAGE data 0{"sid":"Ut8NboDpR6N73q8ZAAAr"}
+2025-06-05 17:55:08,777 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:55:08,781 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:55:13,095 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:55:13,096 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:55:18,202 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Sending packet PING data None
+2025-06-05 17:55:18,203 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Received packet PONG data 
+2025-06-05 17:55:18,797 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:55:18,798 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:55:23,099 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:55:23,101 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:55:28,218 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Sending packet PING data None
+2025-06-05 17:55:28,220 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Received packet PONG data 
+2025-06-05 17:55:28,809 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:55:28,812 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:55:33,105 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:55:33,107 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:55:38,224 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Sending packet PING data None
+2025-06-05 17:55:38,226 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Received packet PONG data 
+2025-06-05 17:55:38,817 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:55:38,819 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:55:43,111 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:55:43,112 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:55:48,242 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Sending packet PING data None
+2025-06-05 17:55:48,244 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Received packet PONG data 
+2025-06-05 17:55:48,822 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:55:48,827 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:55:53,122 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:55:53,124 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:55:58,256 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Sending packet PING data None
+2025-06-05 17:55:58,258 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Received packet PONG data 
+2025-06-05 17:55:58,834 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:55:58,837 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:56:03,135 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:56:03,137 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:56:08,264 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Sending packet PING data None
+2025-06-05 17:56:08,267 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Received packet PONG data 
+2025-06-05 17:56:08,845 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:56:08,846 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:56:08,961 - engineio.server - INFO - 25o9l5dmrmyAs8RWAAAq: Received packet MESSAGE data 1
+2025-06-05 17:56:08,962 - __main__ - INFO - Client Ut8NboDpR6N73q8ZAAAr disconnected: User 2
+2025-06-05 17:56:09,317 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Sending packet OPEN data {'sid': 'n_bwA64IHON6FaogAAAs', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:56:09,318 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Received request to upgrade to websocket
+2025-06-05 17:56:09,319 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Upgrade to websocket successful
+2025-06-05 17:56:09,321 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Received packet MESSAGE data 0
+2025-06-05 17:56:09,322 - __main__ - INFO - User 2 connected with sid -lRqDkx5b1V1qFF4AAAt
+2025-06-05 17:56:09,323 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:56:09,323 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Sending packet MESSAGE data 0{"sid":"-lRqDkx5b1V1qFF4AAAt"}
+2025-06-05 17:56:13,144 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:56:13,146 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:56:18,857 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:56:18,874 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:56:19,326 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Sending packet PING data None
+2025-06-05 17:56:19,328 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Received packet PONG data 
+2025-06-05 17:56:23,151 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:56:23,153 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:56:28,886 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:56:28,888 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:56:29,341 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Sending packet PING data None
+2025-06-05 17:56:29,343 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Received packet PONG data 
+2025-06-05 17:56:33,162 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:56:33,166 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:56:38,892 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:56:38,894 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:56:39,345 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Sending packet PING data None
+2025-06-05 17:56:39,347 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Received packet PONG data 
+2025-06-05 17:56:43,175 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:56:43,177 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:56:48,895 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:56:48,896 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:56:49,361 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Sending packet PING data None
+2025-06-05 17:56:49,363 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Received packet PONG data 
+2025-06-05 17:56:50,676 - engineio.server - INFO - n_bwA64IHON6FaogAAAs: Received packet MESSAGE data 1
+2025-06-05 17:56:50,676 - __main__ - INFO - Client -lRqDkx5b1V1qFF4AAAt disconnected: User 2
+2025-06-05 17:56:53,178 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:56:53,179 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:56:54,040 - engineio.server - INFO - X6l4blBwg-2mwpGEAAAu: Sending packet OPEN data {'sid': 'X6l4blBwg-2mwpGEAAAu', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:56:54,041 - engineio.server - INFO - X6l4blBwg-2mwpGEAAAu: Received request to upgrade to websocket
+2025-06-05 17:56:54,041 - engineio.server - INFO - X6l4blBwg-2mwpGEAAAu: Upgrade to websocket successful
+2025-06-05 17:56:54,043 - engineio.server - INFO - X6l4blBwg-2mwpGEAAAu: Received packet MESSAGE data 0
+2025-06-05 17:56:54,044 - __main__ - INFO - User 2 connected with sid NrBh9xni170vHBJVAAAv
+2025-06-05 17:56:54,044 - engineio.server - INFO - X6l4blBwg-2mwpGEAAAu: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:56:54,044 - engineio.server - INFO - X6l4blBwg-2mwpGEAAAu: Sending packet MESSAGE data 0{"sid":"NrBh9xni170vHBJVAAAv"}
+2025-06-05 17:56:54,400 - engineio.server - INFO - X6l4blBwg-2mwpGEAAAu: Received packet MESSAGE data 1
+2025-06-05 17:56:54,401 - __main__ - INFO - Client NrBh9xni170vHBJVAAAv disconnected: User 2
+2025-06-05 17:56:55,166 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet OPEN data {'sid': '2ztr7fBUvjsxdTAkAAAw', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:56:55,167 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received request to upgrade to websocket
+2025-06-05 17:56:55,167 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Upgrade to websocket successful
+2025-06-05 17:56:55,169 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet MESSAGE data 0
+2025-06-05 17:56:55,170 - __main__ - INFO - User 2 connected with sid FuMxTzFpCGtEd-MyAAAx
+2025-06-05 17:56:55,170 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:56:55,171 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet MESSAGE data 0{"sid":"FuMxTzFpCGtEd-MyAAAx"}
+2025-06-05 17:56:58,912 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:56:58,914 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:57:03,182 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:57:03,184 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:57:05,171 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:57:05,173 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:57:08,917 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:57:08,918 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:57:13,192 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:57:13,193 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:57:15,178 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:57:15,180 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:57:18,924 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:57:18,926 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:57:23,197 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:57:23,199 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:57:25,197 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:57:25,199 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:57:28,936 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:57:28,937 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:57:33,203 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:57:33,205 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:57:35,214 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:57:35,216 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:57:38,947 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:57:38,949 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:57:43,214 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:57:43,216 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:57:45,229 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:57:45,231 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:57:48,955 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:57:48,965 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:57:53,225 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:57:53,227 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:57:55,235 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:57:55,236 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:57:58,968 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:57:58,970 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:58:03,241 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:58:03,249 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:58:05,242 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:58:05,243 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:58:08,985 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:58:08,994 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:58:13,261 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:58:13,262 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:58:15,255 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:58:15,257 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:58:19,002 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:58:19,004 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:58:23,277 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:58:23,278 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:58:25,267 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:58:25,269 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:58:29,011 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:58:29,013 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:58:33,288 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:58:33,292 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:58:35,273 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:58:35,275 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:58:39,016 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:58:39,023 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:58:43,305 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:58:43,307 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:58:45,276 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:58:45,278 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:58:49,026 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:58:49,029 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:58:53,315 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:58:53,317 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:58:55,293 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Sending packet PING data None
+2025-06-05 17:58:55,295 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet PONG data 
+2025-06-05 17:58:59,039 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:58:59,043 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:58:59,058 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet MESSAGE data 2["ticket_accepted",{"ticket_id":"18","member_id":"2"}]
+2025-06-05 17:58:59,059 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["ticket_accepted",{"ticket_id":"18","member_id":"2"}]
+2025-06-05 17:58:59,067 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet MESSAGE data 2["ticket_accepted",{"ticket_id":18,"member_id":2}]
+2025-06-05 17:59:02,970 - engineio.server - INFO - 2ztr7fBUvjsxdTAkAAAw: Received packet MESSAGE data 1
+2025-06-05 17:59:02,971 - __main__ - INFO - Client FuMxTzFpCGtEd-MyAAAx disconnected: User 2
+2025-06-05 17:59:03,329 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:59:03,330 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:59:09,047 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:59:09,049 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:59:13,333 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:59:13,335 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:59:18,636 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Sending packet OPEN data {'sid': 'XHi6jUv8R1DIoDnOAAAy', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:59:18,637 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Received request to upgrade to websocket
+2025-06-05 17:59:18,638 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Upgrade to websocket successful
+2025-06-05 17:59:18,665 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Received packet MESSAGE data 0
+2025-06-05 17:59:18,666 - __main__ - INFO - User 2 connected with sid TbXzlsaJnCN2NfCOAAAz
+2025-06-05 17:59:18,666 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:59:18,667 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Sending packet MESSAGE data 0{"sid":"TbXzlsaJnCN2NfCOAAAz"}
+2025-06-05 17:59:18,775 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Received packet MESSAGE data 2["join",{"ticket_id":18}]
+2025-06-05 17:59:18,776 - __main__ - INFO - User 2 joined room 18
+2025-06-05 17:59:18,776 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Sending packet MESSAGE data 2["joined",{"room":"18"}]
+2025-06-05 17:59:19,055 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:59:19,057 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:59:23,346 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:59:23,348 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:59:24,044 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Received packet MESSAGE data 2["leave",{"ticket_id":18}]
+2025-06-05 17:59:24,045 - __main__ - INFO - User 2 left room 18
+2025-06-05 17:59:24,047 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Received packet MESSAGE data 2["join",{"ticket_id":19}]
+2025-06-05 17:59:24,048 - __main__ - INFO - User 2 joined room 19
+2025-06-05 17:59:24,048 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Sending packet MESSAGE data 2["joined",{"room":"19"}]
+2025-06-05 17:59:24,110 - engineio.server - INFO - XHi6jUv8R1DIoDnOAAAy: Received packet MESSAGE data 1
+2025-06-05 17:59:24,111 - __main__ - INFO - Client TbXzlsaJnCN2NfCOAAAz disconnected: User 2
+2025-06-05 17:59:24,459 - engineio.server - INFO - rRm0WB0teNyKfMS5AAA0: Sending packet OPEN data {'sid': 'rRm0WB0teNyKfMS5AAA0', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:59:24,460 - engineio.server - INFO - rRm0WB0teNyKfMS5AAA0: Received request to upgrade to websocket
+2025-06-05 17:59:24,461 - engineio.server - INFO - rRm0WB0teNyKfMS5AAA0: Upgrade to websocket successful
+2025-06-05 17:59:24,463 - engineio.server - INFO - rRm0WB0teNyKfMS5AAA0: Received packet MESSAGE data 0
+2025-06-05 17:59:24,465 - __main__ - INFO - User 2 connected with sid GuNTpmRCEhK95WDpAAA1
+2025-06-05 17:59:24,465 - engineio.server - INFO - rRm0WB0teNyKfMS5AAA0: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:59:24,466 - engineio.server - INFO - rRm0WB0teNyKfMS5AAA0: Sending packet MESSAGE data 0{"sid":"GuNTpmRCEhK95WDpAAA1"}
+2025-06-05 17:59:25,625 - engineio.server - INFO - rRm0WB0teNyKfMS5AAA0: Received packet MESSAGE data 2["join",{"ticket_id":18}]
+2025-06-05 17:59:25,626 - __main__ - INFO - User 2 joined room 18
+2025-06-05 17:59:25,626 - engineio.server - INFO - rRm0WB0teNyKfMS5AAA0: Sending packet MESSAGE data 2["joined",{"room":"18"}]
+2025-06-05 17:59:25,704 - engineio.server - INFO - rRm0WB0teNyKfMS5AAA0: Received packet MESSAGE data 1
+2025-06-05 17:59:25,705 - __main__ - INFO - Client GuNTpmRCEhK95WDpAAA1 disconnected: User 2
+2025-06-05 17:59:26,033 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Sending packet OPEN data {'sid': 'SLbEs9T-NYJM5WSAAAA2', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:59:26,033 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Received request to upgrade to websocket
+2025-06-05 17:59:26,034 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Upgrade to websocket successful
+2025-06-05 17:59:26,036 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Received packet MESSAGE data 0
+2025-06-05 17:59:26,038 - __main__ - INFO - User 2 connected with sid KmKfkaCZU27IP4MLAAA3
+2025-06-05 17:59:26,038 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:59:26,038 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Sending packet MESSAGE data 0{"sid":"KmKfkaCZU27IP4MLAAA3"}
+2025-06-05 17:59:26,041 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Received packet MESSAGE data 2["join",{"ticket_id":18}]
+2025-06-05 17:59:26,041 - __main__ - INFO - User 2 joined room 18
+2025-06-05 17:59:26,042 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Sending packet MESSAGE data 2["joined",{"room":"18"}]
+2025-06-05 17:59:29,067 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:59:29,068 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:59:33,356 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:59:33,357 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:59:36,042 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Sending packet PING data None
+2025-06-05 17:59:36,043 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Received packet PONG data 
+2025-06-05 17:59:39,074 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:59:39,076 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:59:39,220 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Sending packet MESSAGE data 2["ticket_closed",{"ticket_id":"18","reason":"not completed\n","reassigned_to":6,"status":"reassigned"}]
+2025-06-05 17:59:39,307 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Received packet MESSAGE data 2["leave",{"ticket_id":18}]
+2025-06-05 17:59:39,308 - __main__ - INFO - User 2 left room 18
+2025-06-05 17:59:39,319 - engineio.server - INFO - SLbEs9T-NYJM5WSAAAA2: Received packet MESSAGE data 1
+2025-06-05 17:59:39,320 - __main__ - INFO - Client KmKfkaCZU27IP4MLAAA3 disconnected: User 2
+2025-06-05 17:59:43,370 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:59:43,373 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:59:47,380 - engineio.server - INFO - F_3l3XtawbtlrHzVAAA4: Sending packet OPEN data {'sid': 'F_3l3XtawbtlrHzVAAA4', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:59:47,380 - engineio.server - INFO - F_3l3XtawbtlrHzVAAA4: Received request to upgrade to websocket
+2025-06-05 17:59:47,380 - engineio.server - INFO - F_3l3XtawbtlrHzVAAA4: Upgrade to websocket successful
+2025-06-05 17:59:47,382 - engineio.server - INFO - F_3l3XtawbtlrHzVAAA4: Received packet MESSAGE data 0
+2025-06-05 17:59:47,382 - __main__ - INFO - User 2 connected with sid OuEp_fcdxmOkIX7eAAA5
+2025-06-05 17:59:47,383 - engineio.server - INFO - F_3l3XtawbtlrHzVAAA4: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:59:47,383 - engineio.server - INFO - F_3l3XtawbtlrHzVAAA4: Sending packet MESSAGE data 0{"sid":"OuEp_fcdxmOkIX7eAAA5"}
+2025-06-05 17:59:47,467 - engineio.server - INFO - F_3l3XtawbtlrHzVAAA4: Received packet MESSAGE data 1
+2025-06-05 17:59:47,468 - __main__ - INFO - Client OuEp_fcdxmOkIX7eAAA5 disconnected: User 2
+2025-06-05 17:59:47,841 - engineio.server - INFO - csLvwzzIBDTJnSycAAA6: Sending packet OPEN data {'sid': 'csLvwzzIBDTJnSycAAA6', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 17:59:47,842 - engineio.server - INFO - csLvwzzIBDTJnSycAAA6: Received request to upgrade to websocket
+2025-06-05 17:59:47,842 - engineio.server - INFO - csLvwzzIBDTJnSycAAA6: Upgrade to websocket successful
+2025-06-05 17:59:47,844 - engineio.server - INFO - csLvwzzIBDTJnSycAAA6: Received packet MESSAGE data 0
+2025-06-05 17:59:47,845 - __main__ - INFO - User 2 connected with sid I4FlNwqYTJ23_nyXAAA7
+2025-06-05 17:59:47,845 - engineio.server - INFO - csLvwzzIBDTJnSycAAA6: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"2"}]
+2025-06-05 17:59:47,846 - engineio.server - INFO - csLvwzzIBDTJnSycAAA6: Sending packet MESSAGE data 0{"sid":"I4FlNwqYTJ23_nyXAAA7"}
+2025-06-05 17:59:49,085 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:59:49,088 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 17:59:53,379 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 17:59:53,381 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 17:59:57,846 - engineio.server - INFO - csLvwzzIBDTJnSycAAA6: Sending packet PING data None
+2025-06-05 17:59:57,848 - engineio.server - INFO - csLvwzzIBDTJnSycAAA6: Received packet PONG data 
+2025-06-05 17:59:58,229 - engineio.server - INFO - csLvwzzIBDTJnSycAAA6: Received packet MESSAGE data 1
+2025-06-05 17:59:58,230 - __main__ - INFO - Client I4FlNwqYTJ23_nyXAAA7 disconnected: User 2
+2025-06-05 17:59:59,098 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 17:59:59,100 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:00:03,385 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:00:03,387 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:00:09,115 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:00:09,117 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:00:11,044 - engineio.server - INFO - 720GqWqF6CP72hBlAAA8: Sending packet OPEN data {'sid': '720GqWqF6CP72hBlAAA8', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 18:00:11,045 - engineio.server - INFO - 720GqWqF6CP72hBlAAA8: Received request to upgrade to websocket
+2025-06-05 18:00:11,045 - engineio.server - INFO - 720GqWqF6CP72hBlAAA8: Upgrade to websocket successful
+2025-06-05 18:00:11,049 - engineio.server - INFO - 720GqWqF6CP72hBlAAA8: Received packet MESSAGE data 0
+2025-06-05 18:00:11,051 - __main__ - INFO - User 6 connected with sid aJ7o3cq4g_LLEOunAAA9
+2025-06-05 18:00:11,052 - engineio.server - INFO - 720GqWqF6CP72hBlAAA8: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"6"}]
+2025-06-05 18:00:11,052 - engineio.server - INFO - 720GqWqF6CP72hBlAAA8: Sending packet MESSAGE data 0{"sid":"aJ7o3cq4g_LLEOunAAA9"}
+2025-06-05 18:00:11,204 - engineio.server - INFO - 720GqWqF6CP72hBlAAA8: Received packet MESSAGE data 1
+2025-06-05 18:00:11,205 - __main__ - INFO - Client aJ7o3cq4g_LLEOunAAA9 disconnected: User 6
+2025-06-05 18:00:11,577 - engineio.server - INFO - utRPWu91U3NpW4sEAAA-: Sending packet OPEN data {'sid': 'utRPWu91U3NpW4sEAAA-', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 18:00:11,578 - engineio.server - INFO - utRPWu91U3NpW4sEAAA-: Received request to upgrade to websocket
+2025-06-05 18:00:11,579 - engineio.server - INFO - utRPWu91U3NpW4sEAAA-: Upgrade to websocket successful
+2025-06-05 18:00:11,581 - engineio.server - INFO - utRPWu91U3NpW4sEAAA-: Received packet MESSAGE data 0
+2025-06-05 18:00:11,583 - __main__ - INFO - User 6 connected with sid MQ7_m0z2rgqn5bGWAAA_
+2025-06-05 18:00:11,584 - engineio.server - INFO - utRPWu91U3NpW4sEAAA-: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"6"}]
+2025-06-05 18:00:11,584 - engineio.server - INFO - utRPWu91U3NpW4sEAAA-: Sending packet MESSAGE data 0{"sid":"MQ7_m0z2rgqn5bGWAAA_"}
+2025-06-05 18:00:13,391 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:00:13,393 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:00:16,578 - engineio.server - INFO - utRPWu91U3NpW4sEAAA-: Received packet MESSAGE data 1
+2025-06-05 18:00:16,579 - __main__ - INFO - Client MQ7_m0z2rgqn5bGWAAA_ disconnected: User 6
+2025-06-05 18:00:16,902 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Sending packet OPEN data {'sid': 'ltB9zUNnp4zBsTwmAABA', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 18:00:16,903 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Received request to upgrade to websocket
+2025-06-05 18:00:16,903 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Upgrade to websocket successful
+2025-06-05 18:00:16,918 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Received packet MESSAGE data 0
+2025-06-05 18:00:16,919 - __main__ - INFO - User 6 connected with sid qY3tnmFuoLbysrmdAABB
+2025-06-05 18:00:16,919 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"6"}]
+2025-06-05 18:00:16,919 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Sending packet MESSAGE data 0{"sid":"qY3tnmFuoLbysrmdAABB"}
+2025-06-05 18:00:17,010 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Received packet MESSAGE data 2["join",{"ticket_id":18}]
+2025-06-05 18:00:17,011 - __main__ - INFO - User 6 joined room 18
+2025-06-05 18:00:17,011 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Sending packet MESSAGE data 2["joined",{"room":"18"}]
+2025-06-05 18:00:19,118 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:00:19,120 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:00:23,408 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:00:23,411 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:00:26,915 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Sending packet PING data None
+2025-06-05 18:00:26,916 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Received packet PONG data 
+2025-06-05 18:00:29,120 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:00:29,122 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:00:33,420 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:00:33,423 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:00:36,927 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Sending packet PING data None
+2025-06-05 18:00:36,928 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Received packet PONG data 
+2025-06-05 18:00:39,132 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:00:39,135 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:00:41,963 - engineio.server - INFO - ltB9zUNnp4zBsTwmAABA: Received packet MESSAGE data 1
+2025-06-05 18:00:41,965 - __main__ - INFO - Client qY3tnmFuoLbysrmdAABB disconnected: User 6
+2025-06-05 18:00:42,307 - engineio.server - INFO - JjKog1_oGUt9btm5AABC: Sending packet OPEN data {'sid': 'JjKog1_oGUt9btm5AABC', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 18:00:42,308 - engineio.server - INFO - JjKog1_oGUt9btm5AABC: Received request to upgrade to websocket
+2025-06-05 18:00:42,308 - engineio.server - INFO - JjKog1_oGUt9btm5AABC: Upgrade to websocket successful
+2025-06-05 18:00:42,310 - engineio.server - INFO - JjKog1_oGUt9btm5AABC: Received packet MESSAGE data 0
+2025-06-05 18:00:42,311 - __main__ - INFO - User 6 connected with sid u4QcPzOeh3RD0WeZAABD
+2025-06-05 18:00:42,312 - engineio.server - INFO - JjKog1_oGUt9btm5AABC: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"6"}]
+2025-06-05 18:00:42,312 - engineio.server - INFO - JjKog1_oGUt9btm5AABC: Sending packet MESSAGE data 0{"sid":"u4QcPzOeh3RD0WeZAABD"}
+2025-06-05 18:00:42,408 - engineio.server - INFO - JjKog1_oGUt9btm5AABC: Received packet MESSAGE data 1
+2025-06-05 18:00:42,409 - __main__ - INFO - Client u4QcPzOeh3RD0WeZAABD disconnected: User 6
+2025-06-05 18:00:42,772 - engineio.server - INFO - A9q5YsJJDkdsDc-BAABE: Sending packet OPEN data {'sid': 'A9q5YsJJDkdsDc-BAABE', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 18:00:42,772 - engineio.server - INFO - A9q5YsJJDkdsDc-BAABE: Received request to upgrade to websocket
+2025-06-05 18:00:42,773 - engineio.server - INFO - A9q5YsJJDkdsDc-BAABE: Upgrade to websocket successful
+2025-06-05 18:00:42,774 - engineio.server - INFO - A9q5YsJJDkdsDc-BAABE: Received packet MESSAGE data 0
+2025-06-05 18:00:42,775 - __main__ - INFO - User 6 connected with sid SfvThAnye7ohsXHTAABF
+2025-06-05 18:00:42,776 - engineio.server - INFO - A9q5YsJJDkdsDc-BAABE: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"6"}]
+2025-06-05 18:00:42,776 - engineio.server - INFO - A9q5YsJJDkdsDc-BAABE: Sending packet MESSAGE data 0{"sid":"SfvThAnye7ohsXHTAABF"}
+2025-06-05 18:00:43,428 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:00:43,429 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:00:49,144 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:00:49,149 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:00:52,777 - engineio.server - INFO - A9q5YsJJDkdsDc-BAABE: Sending packet PING data None
+2025-06-05 18:00:52,778 - engineio.server - INFO - A9q5YsJJDkdsDc-BAABE: Received packet PONG data 
+2025-06-05 18:00:53,433 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:00:53,436 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:00:56,469 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet MESSAGE data 2["ticket_accepted",{"ticket_id":"16","member_id":"6"}]
+2025-06-05 18:00:56,469 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet MESSAGE data 2["ticket_accepted",{"ticket_id":"16","member_id":"6"}]
+2025-06-05 18:00:58,495 - engineio.server - INFO - A9q5YsJJDkdsDc-BAABE: Received packet MESSAGE data 1
+2025-06-05 18:00:58,496 - __main__ - INFO - Client SfvThAnye7ohsXHTAABF disconnected: User 6
+2025-06-05 18:00:59,163 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:00:59,165 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:01:01,350 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Sending packet OPEN data {'sid': 'UC1Fg1gnDUzf8j-XAABG', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 18:01:01,351 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Received request to upgrade to websocket
+2025-06-05 18:01:01,351 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Upgrade to websocket successful
+2025-06-05 18:01:01,360 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Received packet MESSAGE data 0
+2025-06-05 18:01:01,361 - __main__ - INFO - User 6 connected with sid -U3yyVzsq5uPwnDdAABH
+2025-06-05 18:01:01,361 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"6"}]
+2025-06-05 18:01:01,361 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Sending packet MESSAGE data 0{"sid":"-U3yyVzsq5uPwnDdAABH"}
+2025-06-05 18:01:01,445 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Received packet MESSAGE data 2["join",{"ticket_id":16}]
+2025-06-05 18:01:01,446 - __main__ - INFO - User 6 joined room 16
+2025-06-05 18:01:01,446 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Sending packet MESSAGE data 2["joined",{"room":"16"}]
+2025-06-05 18:01:03,443 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:01:03,445 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:01:09,168 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:01:09,170 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:01:10,079 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Received packet MESSAGE data 2["message",{"ticket_id":16,"sender_id":6,"sender_name":"pallavan kumar","message":"hi mannnn","timestamp":"2025-06-05T12:31:10.079Z"}]
+2025-06-05 18:01:10,086 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Sending packet MESSAGE data 2["message",{"id":136,"sender_id":6,"message":"hi mannnn","timestamp":"2025-06-05T18:01:10.082159"}]
+2025-06-05 18:01:10,087 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Sending packet MESSAGE data 2["message_sent",{"success":true,"message":"hi mannnn","timestamp":"2025-06-05T18:01:10.082159"}]
+2025-06-05 18:01:11,355 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Sending packet PING data None
+2025-06-05 18:01:11,357 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Received packet PONG data 
+2025-06-05 18:01:13,457 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:01:13,459 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:01:14,130 - engineio.server - INFO - UC1Fg1gnDUzf8j-XAABG: Received packet MESSAGE data 1
+2025-06-05 18:01:14,133 - __main__ - INFO - Client -U3yyVzsq5uPwnDdAABH disconnected: User 6
+2025-06-05 18:01:14,492 - engineio.server - INFO - y7dKvZeyEAvCkxMyAABI: Sending packet OPEN data {'sid': 'y7dKvZeyEAvCkxMyAABI', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 18:01:14,492 - engineio.server - INFO - y7dKvZeyEAvCkxMyAABI: Received request to upgrade to websocket
+2025-06-05 18:01:14,493 - engineio.server - INFO - y7dKvZeyEAvCkxMyAABI: Upgrade to websocket successful
+2025-06-05 18:01:14,495 - engineio.server - INFO - y7dKvZeyEAvCkxMyAABI: Received packet MESSAGE data 0
+2025-06-05 18:01:14,496 - __main__ - INFO - User 6 connected with sid Kwo7O2zGHr8d3PqkAABJ
+2025-06-05 18:01:14,496 - engineio.server - INFO - y7dKvZeyEAvCkxMyAABI: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"6"}]
+2025-06-05 18:01:14,497 - engineio.server - INFO - y7dKvZeyEAvCkxMyAABI: Sending packet MESSAGE data 0{"sid":"Kwo7O2zGHr8d3PqkAABJ"}
+2025-06-05 18:01:14,587 - engineio.server - INFO - y7dKvZeyEAvCkxMyAABI: Received packet MESSAGE data 1
+2025-06-05 18:01:14,588 - __main__ - INFO - Client Kwo7O2zGHr8d3PqkAABJ disconnected: User 6
+2025-06-05 18:01:14,956 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Sending packet OPEN data {'sid': 'GZd0tpKGWls7-DMuAABK', 'upgrades': [], 'pingTimeout': 30000, 'pingInterval': 10000, 'maxPayload': 10000.0}
+2025-06-05 18:01:14,957 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Received request to upgrade to websocket
+2025-06-05 18:01:14,957 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Upgrade to websocket successful
+2025-06-05 18:01:14,959 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Received packet MESSAGE data 0
+2025-06-05 18:01:14,961 - __main__ - INFO - User 6 connected with sid rt1n8qymwKDuwgtFAABL
+2025-06-05 18:01:14,961 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Sending packet MESSAGE data 2["connect_success",{"message":"Connected successfully","user_id":"6"}]
+2025-06-05 18:01:14,962 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Sending packet MESSAGE data 0{"sid":"rt1n8qymwKDuwgtFAABL"}
+2025-06-05 18:01:19,182 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:01:19,184 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:01:23,472 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:01:23,473 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:01:24,970 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Sending packet PING data None
+2025-06-05 18:01:24,972 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Received packet PONG data 
+2025-06-05 18:01:29,193 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:01:29,194 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:01:33,477 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:01:33,479 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:01:34,975 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Sending packet PING data None
+2025-06-05 18:01:34,977 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Received packet PONG data 
+2025-06-05 18:01:39,196 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:01:39,198 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:01:43,492 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:01:43,494 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:01:44,992 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Sending packet PING data None
+2025-06-05 18:01:44,994 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Received packet PONG data 
+2025-06-05 18:01:49,199 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:01:49,202 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:01:53,498 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:01:53,500 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:01:53,815 - __main__ - INFO - Ticket closure email sent to priyadharsan2020csbs@gmail.com for ticket 20250605-gen-002
+2025-06-05 18:01:53,949 - engineio.server - INFO - GZd0tpKGWls7-DMuAABK: Received packet MESSAGE data 1
+2025-06-05 18:01:53,950 - __main__ - INFO - Client rt1n8qymwKDuwgtFAABL disconnected: User 6
+2025-06-05 18:01:59,216 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:01:59,218 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:02:03,507 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:02:03,509 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:02:05,982 - __main__ - INFO - Ticket closure email sent to priyadharsan2020csbs@gmail.com for ticket 20250605-gen-002
+2025-06-05 18:02:09,220 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:02:09,222 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:02:13,510 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:02:13,512 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:02:19,233 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:02:19,235 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:02:23,514 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:02:23,515 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:02:29,241 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:02:29,244 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:02:33,531 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:02:33,534 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:02:39,261 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:02:39,262 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:02:43,535 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:02:43,536 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:02:49,274 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:02:49,279 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:02:53,548 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:02:53,550 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:02:59,286 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:02:59,288 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:03:03,566 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:03:03,567 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:03:09,293 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:03:09,295 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:03:13,575 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:03:13,577 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:03:19,307 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:03:19,312 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:03:23,585 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:03:23,587 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:03:29,325 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:03:29,328 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:03:33,598 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:03:33,600 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:03:39,339 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:03:39,341 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:03:43,603 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:03:43,606 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:03:49,355 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:03:49,358 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:03:53,618 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:03:53,619 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:03:59,365 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:03:59,366 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:04:03,621 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:04:03,622 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:04:09,381 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:04:09,382 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:04:13,629 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:04:13,630 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:04:19,383 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:04:19,385 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:04:23,639 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:04:23,640 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:04:29,400 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:04:29,401 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:04:33,649 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:04:33,650 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:04:39,413 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:04:39,415 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:04:43,660 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:04:43,661 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:04:49,423 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:04:49,424 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:04:53,664 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:04:53,666 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:04:59,433 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:04:59,434 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:05:03,681 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:05:03,682 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:05:09,436 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:05:09,437 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:05:13,691 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:05:13,693 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:05:19,444 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:05:19,445 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:05:23,706 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:05:23,707 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:05:29,451 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:05:29,453 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:05:33,722 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:05:33,724 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:05:39,465 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:05:39,467 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:05:43,732 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:05:43,733 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:05:49,482 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:05:49,484 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:05:53,738 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:05:53,741 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:05:59,485 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:05:59,487 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:06:03,753 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:06:03,755 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:06:09,497 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:06:09,498 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:06:13,764 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:06:13,766 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:06:19,507 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:06:19,508 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:06:23,770 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:06:23,772 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:06:29,510 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:06:29,512 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:06:33,787 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:06:33,788 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:06:39,515 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:06:39,516 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:06:43,804 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:06:43,805 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:06:49,529 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:06:49,531 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:06:53,807 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:06:53,808 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:06:59,533 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:06:59,535 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:07:03,819 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:07:03,821 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
+2025-06-05 18:07:09,547 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Sending packet PING data None
+2025-06-05 18:07:09,549 - engineio.server - INFO - 2NiLy9PSZ249FgUWAAAK: Received packet PONG data 
+2025-06-05 18:07:13,825 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Sending packet PING data None
+2025-06-05 18:07:13,827 - engineio.server - INFO - a5nHFFAZ1RbNkxDsAAAA: Received packet PONG data 
