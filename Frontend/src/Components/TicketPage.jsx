@@ -460,7 +460,7 @@ function TicketPage() {
 
       if (!res.ok) {
         const errorData = await res.json();
-        if (res.status === 401) navigate('/auth');
+        if (res.status === 401) navigate('/dashboard');
         throw new Error(errorData.error || 'Failed to close ticket');
       }
 
@@ -469,7 +469,7 @@ function TicketPage() {
       setReassignTo('');
       setSelectedTicket(null);
       setActiveSection('tickets');
-      navigate('/member/tickets');
+      navigate('/dashboard');
     } catch (err) {
       console.error('Error closing ticket:', err);
       setError('Failed to close ticket');
@@ -710,7 +710,10 @@ function TicketPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
-            height: 'calc(100vh - 64px - 16px)'
+           
+            width: isMobile ? '100' : '400px',
+            minWidth: isMobile ? '100%' : '400px',
+            maxWidth: isMobile ? '100%' : '400px',
           }}
         >
           {selectedTicket ? (
@@ -782,7 +785,7 @@ function TicketPage() {
                   </Box>
                   <Divider sx={{ my: 2 }} />
                   <Typography variant="body2" gutterBottom>
-                    <strong>Ticket ID:</strong> #{selectedTicket.id}
+                    <strong>Ticket ID:</strong> #{selectedTicket.auto_generated_key}
                   </Typography>
                   <Typography variant="body2">
                     <strong>Created:</strong>{' '}
@@ -815,8 +818,8 @@ function TicketPage() {
 
             minWidth: 0,
 
-             minWidth: isMobile ? '100%' : '600px',
-            maxWidth: isMobile ? '100%' : '680px',
+             minWidth: isMobile ? '100%' : '500px',
+            maxWidth: isMobile ? '100%' : '580px',
 
           }}
         >
@@ -841,7 +844,7 @@ function TicketPage() {
                     </IconButton>
                   )}
                   <Typography variant="h6" fontWeight="bold">
-                    Chat - Ticket #{selectedTicket.id}
+                    Chat - Ticket #{selectedTicket.auto_generated_key}
                   </Typography>
                 </Box>
                 <Box

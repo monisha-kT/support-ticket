@@ -40,7 +40,7 @@ function RedirectHandler() {
 }
 
 import Min from "./Components/Min";
-import UserTicketsPage from "./Components/UserTicketsPage";
+
 import UserChatPage from "./Components/UserChatPage";
 
 function App() {

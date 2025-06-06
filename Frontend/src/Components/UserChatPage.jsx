@@ -438,16 +438,8 @@ function UserChatPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
-
             height: 'calc(100vh - 64px - 16px)',
-            overflow: 'hidden',
-
-            height: 'calc(100vh - 49px - 18px)',
-            overflow: 'auto',
-            width: isMobile ? '100%' : '300px',
-            minWidth: isMobile ? '100%' : '300px',
-            maxWidth: isMobile ? '100%' : '300px',
-
+            overflow: 'hidden'
           }}
         >
           <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}`, }}>
@@ -606,7 +598,7 @@ function UserChatPage() {
                       {selectedTicket.userName}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Ticket #{selectedTicket.id}
+                      Ticket #{selectedTicket.auto_generated_key}
                     </Typography>
                   </Box>
                 </Box>
@@ -672,14 +664,9 @@ function UserChatPage() {
             flexDirection: 'column',
             bgcolor: 'white',
             boxShadow: theme.shadows[2],
-            height: 'calc(100vh - 50px - 16px)',
+            height: 'calc(100vh - 64px - 16px)',
             flexGrow: 1,
-
-            minWidth: 0,
-
-             minWidth: isMobile ? '100%' : '600px',
-            maxWidth: isMobile ? '100%' : '670px',
-
+            minWidth: 0
           }}
         >
           {selectedTicket ? (
@@ -703,7 +690,7 @@ function UserChatPage() {
                     </IconButton>
                   )}
                   <Typography variant="h6" fontWeight="bold">
-                    Chat - Ticket #{selectedTicket.id}
+                    Chat - Ticket #{selectedTicket.auto_generated_key}
                   </Typography>
                 </Box>
                 <Box
